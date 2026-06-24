@@ -1,0 +1,6 @@
+{
+  "name": "معرض اليرموك للسيراميك",
+  "description": "نظام إدارة مبيعات وفواتير معرض اليرموك للسيراميك مع إدخال صوتي للمنتجات",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

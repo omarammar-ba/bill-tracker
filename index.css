@@ -1,0 +1,94 @@
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Tajawal", ui-sans-serif, system-ui, sans-serif;
+  --color-primary-50: #EEF2FF;
+  --color-primary-100: #C5D0FA;
+  --color-primary-500: #3B5BDB;
+  --color-primary-600: #364FC7;
+  --color-primary-700: #2B348F;
+}
+
+/* Hide arrows/spinners in number inputs globally */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+body {
+  font-family: 'Tajawal', sans-serif;
+  background-color: #F4F6FA;
+  color: #1C1C2E;
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+@media print {
+  @page {
+    margin: 1.2cm !important;
+    size: A4 portrait !important;
+  }
+  body, html {
+    background-color: white !important;
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+  /* Hide layout sidebar, header, navigation, and everything else */
+  .print\:hidden, [class*="print:hidden"], button, aside, .no-print {
+    display: none !important;
+  }
+  /* Force container expansion and block-level flow */
+  #root, main, .flex, .grid, main > div, .max-w-7xl, .max-w-3xl, .max-w-xl {
+    display: block !important;
+    overflow: visible !important;
+    max-width: none !important;
+    width: 100% !important;
+    height: auto !important;
+    position: static !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+  /* Style the print container to sit perfectly on page */
+  .print-container {
+    background-color: white !important;
+    color: black !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border: none !important;
+    box-shadow: none !important;
+    height: auto !important;
+    overflow: visible !important;
+    display: block !important;
+    position: static !important;
+  }
+  /* Perfect crisp table layout for physical print physical paper */
+  table {
+    width: 100% !important;
+    table-layout: fixed !important;
+    border-collapse: collapse !important;
+    page-break-inside: auto !important;
+  }
+  tr {
+    page-break-inside: avoid !important;
+    page-break-after: auto !important;
+  }
+  /* High contrast black borders for printing clearly without grey washed colors */
+  th, td {
+    word-break: break-word !important;
+    border: 1px solid #1C1C2E !important;
+    color: black !important;
+  }
+}
