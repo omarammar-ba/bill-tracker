@@ -28,3 +28,11 @@ firebase-applet-config.json
 # إخفاء ملف البيئة المحلي الذي يحتوي على المفاتيح السرية
 .env
 .env.local
+# Firebase Configuration & Environment secrets
+firebase-applet-config.json
+firestore.rules
+firebase.json
+.firebaserc
+.firebase/
+.env
+.env.*
