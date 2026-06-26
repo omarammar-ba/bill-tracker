@@ -69,11 +69,30 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, changeView }) =>
   return (
     <div className="min-h-screen bg-[#F4F6FA] flex flex-col md:flex-row font-['Tajawal'] print:bg-white print:block" dir="rtl">
       {/* Mobile Header */}
-      <div className="md:hidden bg-white border-b p-4 flex justify-center items-center z-20 relative print:hidden h-[64px]">
-        <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="p-2 text-gray-600 bg-gray-50 rounded-xl border border-gray-100 absolute right-4">
-          {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
-        <h1 onClick={handlePanicClick} className="text-xl font-black text-[#1C1C2E] select-none cursor-pointer">اليرموك 🏛️</h1>
+      <div className="md:hidden relative z-20 print:hidden mb-2">
+        {/* Main curved header background */}
+        <div className="absolute inset-x-0 top-0 h-[85px] bg-gradient-to-b from-[#0F2A1E] to-[#05140E] rounded-b-[36px] shadow-[0_8px_20px_rgba(0,0,0,0.08)] overflow-hidden border-b border-white/5">
+          {/* Subtle noise overlay for premium feel */}
+          <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay" style={{backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.85%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E")'}}></div>
+          
+          {/* Bottom center golden glow */}
+          <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[80%] h-16 bg-gradient-to-t from-amber-500/20 to-transparent blur-[20px] rounded-full pointer-events-none"></div>
+          
+          {/* Bottom edge shiny line */}
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[60%] h-[1px] bg-gradient-to-r from-transparent via-amber-400/40 to-transparent opacity-80 pointer-events-none"></div>
+        </div>
+
+        {/* Header Content */}
+        <div className="relative h-[85px] px-6 flex justify-center items-center">
+          <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="p-2.5 text-amber-50/90 bg-white/5 rounded-2xl border border-white/10 absolute right-6 hover:bg-white/10 hover:text-white transition-all backdrop-blur-xl active:scale-95 shadow-[0_4px_12px_rgba(0,0,0,0.2)]">
+            {isSidebarOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+          
+          <h1 onClick={handlePanicClick} className="text-2xl font-black select-none cursor-pointer flex items-center gap-3 tracking-wider">
+            <span className="bg-clip-text text-transparent bg-gradient-to-l from-white via-white to-white/80 drop-shadow-sm">اليرموك</span>
+            <span className="drop-shadow-[0_0_15px_rgba(251,191,36,0.6)] text-2xl filter contrast-125">🏛️</span> 
+          </h1>
+        </div>
       </div>
 
       {/* Sidebar Overlay */}
@@ -169,7 +188,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, changeView }) =>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto h-[calc(100vh-64px)] md:h-screen p-4 md:p-8 print:p-0 print:overflow-visible print:h-auto print:block">
+      <main className="flex-1 overflow-y-auto h-[calc(100vh-85px)] md:h-screen px-4 pt-1 pb-4 md:p-8 print:p-0 print:overflow-visible print:h-auto print:block">
         <div className="max-w-7xl mx-auto print:max-w-none print:w-full print:block">
              {children}
         </div>
