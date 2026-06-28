@@ -282,10 +282,17 @@ const Ledger: React.FC<Props> = ({
                 <x:WorksheetOptions>
                   <x:DisplayRightToLeft />
                   <x:FitToPage/>
+                  <x:PageSetup>
+                    <x:Layout x:CenterHorizontal="1" x:CenterVertical="1" x:Orientation="Portrait" />
+                    <x:Header x:Margin="0.2" />
+                    <x:Footer x:Margin="0.2" />
+                    <x:PageMargins x:Bottom="0.3" x:Left="0.3" x:Right="0.3" x:Top="0.3" />
+                  </x:PageSetup>
                   <x:Print>
                     <x:FitWidth>1</x:FitWidth>
                     <x:FitHeight>1</x:FitHeight>
-                    <x:PaperSizeIndex>9</x:PaperSizeIndex> <!-- A4 paper -->
+                    <x:ValidPrinterInfo/>
+                    <x:PaperSizeIndex>9</x:PaperSizeIndex>
                     <x:HorizontalResolution>600</x:HorizontalResolution>
                     <x:VerticalResolution>600</x:VerticalResolution>
                   </x:Print>
@@ -296,78 +303,76 @@ const Ledger: React.FC<Props> = ({
         </xml>
         <![endif]-->
         <style>
-          table { border-collapse: collapse; direction: rtl; font-family: 'Arial', sans-serif; font-size: 11pt; width: 100%; }
+          @page { margin: 0.3in; mso-header-margin: 0.2in; mso-footer-margin: 0.2in; mso-page-orientation: portrait; }
+          table { border-collapse: collapse; direction: rtl; font-family: 'Arial', sans-serif; font-size: 13pt; width: 760px; table-layout: fixed; margin: 0 auto; }
           .money { mso-number-format:"\\#,##0"; }
           th, td { border: 1px solid #111111; }
         </style>
       </head>
       <body dir="rtl">
-        <table border="1" cellspacing="0" cellpadding="6" style="border-collapse: collapse; border: 1px solid #111111; direction: rtl; font-family: 'Arial', sans-serif; font-size: 11pt; width: 100%;">
+        <table border="1" cellspacing="0" cellpadding="6" style="border-collapse: collapse; border: 1px solid #111111; direction: rtl; font-family: 'Arial', sans-serif; font-size: 13pt; width: 760px; table-layout: fixed; margin: 0 auto;">
           <colgroup>
-            <col width="40" />  <!-- Col 1: التسلسل -->
-            <col width="220" /> <!-- Col 2: البيان -->
-            <col width="55" />  <!-- Col 3: الوحدة -->
-            <col width="55" />  <!-- Col 4: الكمية -->
-            <col width="65" />  <!-- Col 5: دينار سعر الوحدة -->
-            <col width="45" />  <!-- Col 6: فلس سعر الوحدة -->
-            <col width="70" />  <!-- Col 7: دينار القيمة الاجمالية -->
-            <col width="45" />  <!-- Col 8: فلس القيمة الاجمالية -->
+            <col width="50" />  <!-- Col 1: التسلسل -->
+            <col width="300" /> <!-- Col 2: البيان -->
+            <col width="65" />  <!-- Col 3: الوحدة -->
+            <col width="70" />  <!-- Col 4: الكمية -->
+            <col width="80" />  <!-- Col 5: دينار سعر الوحدة -->
+            <col width="50" />  <!-- Col 6: فلس سعر الوحدة -->
+            <col width="90" />  <!-- Col 7: دينار القيمة الاجمالية -->
+            <col width="55" />  <!-- Col 8: فلس القيمة الاجمالية -->
           </colgroup>
 
-          <!-- Row 1: Logo and Title -->
-          <tr>
-            <td colspan="3" style="border: none !important; font-size: 14pt; font-weight: bold; text-align: right; background-color: #ffffff; padding: 4px;">معرض اليرموك</td>
-            <td colspan="2" style="border: none !important; font-size: 16pt; font-weight: bold; text-align: center; background-color: #ffffff; padding: 0;">فاتورة</td>
-            <td colspan="3" style="border: none !important; background-color: #ffffff;"></td>
+          <!-- Title and Shop Name -->
+          <tr style="height: 50px;">
+            <td colspan="8" style="border: none !important; font-size: 26pt; font-weight: bold; text-align: center; background-color: #ffffff; padding: 4px; color: #000; height: 50px; vertical-align: middle;">معرض اليرموك</td>
           </tr>
-          <!-- Row 2: Sub-logo and Subtitle -->
-          <tr>
-            <td colspan="3" style="border: none !important; font-size: 10pt; font-weight: normal; text-align: right; color: #333333; background-color: #ffffff; padding: 2px;">اليرموك للسيراميك والأدوات الصحية</td>
-            <td colspan="2" style="border: none !important; font-size: 14pt; font-weight: bold; text-align: center; background-color: #ffffff; padding: 0;">بالحساب</td>
-            <td colspan="3" style="border: none !important; background-color: #ffffff;"></td>
+          <!-- Subtitle -->
+          <tr style="height: 35px;">
+            <td colspan="8" style="border: none !important; font-size: 18pt; font-weight: bold; text-align: center; background-color: #ffffff; padding: 2px; color: #333; height: 35px; vertical-align: middle;">للسيراميك والأدوات الصحية</td>
           </tr>
-          <!-- Row 3: Logo Address & Blank Center -->
-          <tr>
-            <td colspan="3" style="border: none !important; font-size: 10pt; font-weight: normal; text-align: right; color: #333333; background-color: #ffffff; padding: 2px;">اربد - الاردن</td>
-            <td colspan="5" style="border: none !important; background-color: #ffffff;"></td>
+          <!-- Address & Type -->
+          <tr style="height: 35px;">
+            <td colspan="4" style="border: none !important; font-size: 18pt; font-weight: bold; text-align: right; background-color: #ffffff; padding: 4px; height: 35px; vertical-align: middle;">فاتورة مبيعات (بالحساب)</td>
+            <td colspan="4" style="border: none !important; font-size: 14pt; font-weight: normal; text-align: left; color: #333333; background-color: #ffffff; padding: 4px; height: 35px; vertical-align: middle;">إربد - الأردن</td>
           </tr>
-          <!-- Row 4: Blank spacer -->
-          <tr style="height: 15px;">
-            <td colspan="8" style="border: none !important; height: 15px; background-color: #ffffff;"></td>
+          
+          <!-- Blank spacer -->
+          <tr style="height: 20px;">
+            <td colspan="8" style="border: none !important; height: 20px; background-color: #ffffff;"></td>
           </tr>
 
           <!-- Metadata Rows (5, 6, 7) matching layout perfectly with consistent borders -->
-          <tr style="height: 25px;">
-            <td colspan="5" style="border-top: 1px solid #111111; border-right: 1px solid #111111; border-left: 1px solid #111111; border-bottom: none; font-size: 11pt; font-weight: bold; text-align: right; background-color: #ffffff; padding: 6px; direction: rtl;">رقم الفاتورة : ${invoice.id.substring(0, 8).toUpperCase()}</td>
-            <td colspan="3" style="border-top: 1px solid #111111; border-left: 1px solid #111111; border-right: 1px solid #111111; border-bottom: none; font-size: 11pt; text-align: right; background-color: #ffffff; padding: 6px; direction: rtl; color: #333333;">التاريخ : ${new Date(invoice.date).toLocaleDateString('en-GB')}</td>
+          <tr style="height: 40px;">
+            <td colspan="5" style="border-top: 1px solid #111111; border-right: 1px solid #111111; border-left: 1px solid #111111; border-bottom: none; font-size: 12pt; font-weight: bold; text-align: right; background-color: #ffffff; padding: 6px; direction: rtl; height: 40px; vertical-align: middle;">رقم الفاتورة : ${invoice.id.substring(0, 8).toUpperCase()}</td>
+            <td colspan="3" style="border-top: 1px solid #111111; border-left: 1px solid #111111; border-right: 1px solid #111111; border-bottom: none; font-size: 12pt; text-align: right; background-color: #ffffff; padding: 6px; direction: rtl; color: #333333; height: 40px; vertical-align: middle;">التاريخ : ${new Date(invoice.date).toLocaleDateString('en-GB')}</td>
           </tr>
-          <tr style="height: 25px;">
-            <td colspan="5" style="border-top: none; border-right: 1px solid #111111; border-left: 1px solid #111111; border-bottom: none; font-size: 11pt; font-weight: bold; text-align: right; background-color: #ffffff; padding: 6px; direction: rtl;">مطلوب من السادة : ${customer?.name || ""} المحترمين</td>
-            <td colspan="3" style="border-top: none; border-left: 1px solid #111111; border-right: 1px solid #111111; border-bottom: none; font-size: 11pt; text-align: right; background-color: #ffffff; padding: 6px; direction: rtl; color: #333333;">الاخراج :</td>
+          <tr style="height: 40px;">
+            <td colspan="5" style="border-top: none; border-right: 1px solid #111111; border-left: 1px solid #111111; border-bottom: none; font-size: 12pt; font-weight: bold; text-align: right; background-color: #ffffff; padding: 6px; direction: rtl; height: 40px; vertical-align: middle;">مطلوب من السادة : ${customer?.name || ""} المحترمين</td>
+            <td colspan="3" style="border-top: none; border-left: 1px solid #111111; border-right: 1px solid #111111; border-bottom: none; font-size: 12pt; text-align: right; background-color: #ffffff; padding: 6px; direction: rtl; color: #333333; height: 40px; vertical-align: middle;">الاخراج :</td>
           </tr>
-          <tr style="height: 25px;">
-            <td colspan="5" style="border-top: none; border-right: 1px solid #111111; border-left: 1px solid #111111; border-bottom: 1px solid #111111; background-color: #ffffff; padding: 6px;"></td>
-            <td colspan="3" style="border-top: none; border-left: 1px solid #111111; border-right: 1px solid #111111; border-bottom: 1px solid #111111; font-size: 11pt; text-align: right; background-color: #ffffff; padding: 6px; direction: rtl; color: #333333;">طلب الشراء :</td>
+          <tr style="height: 40px;">
+            <td colspan="5" style="border-top: none; border-right: 1px solid #111111; border-left: 1px solid #111111; border-bottom: 1px solid #111111; background-color: #ffffff; padding: 6px; height: 40px;"></td>
+            <td colspan="3" style="border-top: none; border-left: 1px solid #111111; border-right: 1px solid #111111; border-bottom: 1px solid #111111; font-size: 12pt; text-align: right; background-color: #ffffff; padding: 6px; direction: rtl; color: #333333; height: 40px; vertical-align: middle;">طلب الشراء :</td>
           </tr>
           
-          <tr style="height: 10px;">
-            <td colspan="8" style="border: none !important; height: 10px; background-color: #ffffff;"></td>
+          <tr style="height: 20px;">
+            <td colspan="8" style="border: none !important; height: 20px; background-color: #ffffff;"></td>
           </tr>
 
           <!-- Table Headers style -->
-          <tr>
-            <td rowspan="2" style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle;">التسلسل</td>
-            <td rowspan="2" style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; width: 220px;">البيان</td>
-            <td rowspan="2" style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle;">الوحدة</td>
-            <td rowspan="2" style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle;">الكمية</td>
-            <td colspan="2" style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle;">سعر الوحدة</td>
-            <td colspan="2" style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle;">القيمة الاجمالية</td>
+          <tr style="height: 40px;">
+            <td rowspan="2" style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 40px;">التسلسل</td>
+            <td rowspan="2" style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; width: 300px; height: 40px;">البيان</td>
+            <td rowspan="2" style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 40px;">الوحدة</td>
+            <td rowspan="2" style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 40px;">الكمية</td>
+            <td colspan="2" style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 40px;">سعر الوحدة</td>
+            <td colspan="2" style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 40px;">القيمة الاجمالية</td>
           </tr>
-          <tr>
-            <td style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle;">فلس</td>
-            <td style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle;">دينار</td>
-            <td style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle;">فلس</td>
-            <td style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle;">دينار</td>
+          <tr style="height: 30px;">
+            <td style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 30px;">فلس</td>
+            <td style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 30px;">دينار</td>
+            <td style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 30px;">فلس</td>
+            <td style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 30px;">دينار</td>
           </tr>`;
 
     invoice.items?.forEach((item, idx) => {
@@ -377,15 +382,15 @@ const Ledger: React.FC<Props> = ({
       const totalParts = splitAmount(total);
 
       html += `
-        <tr>
-          <td style="border: 1px solid #111111; padding: 4px; text-align: center; vertical-align: middle; background-color: #ffffff;">${idx + 1}</td>
-          <td style="border: 1px solid #111111; padding: 4px; text-align: right; font-weight: bold; padding-right: 15px; background-color: #ffffff; word-break: break-all; white-space: normal; max-width: 300px;">${item.name}</td>
-          <td style="border: 1px solid #111111; padding: 4px; text-align: center; vertical-align: middle; background-color: #ffffff;">${item.unit || 'متر'}</td>
-          <td style="border: 1px solid #111111; padding: 4px; text-align: center; vertical-align: middle; font-weight: bold; background-color: #ffffff;">${item.quantity}</td>
-          <td style="border: 1px solid #111111; padding: 4px; text-align: center; vertical-align: middle; background-color: #ffffff;" class="money">${priceParts.dinar}</td>
-          <td style="border: 1px solid #111111; padding: 4px; text-align: center; vertical-align: middle; background-color: #ffffff;" class="money">${priceParts.fils}</td>
-          <td style="border: 1px solid #111111; padding: 4px; text-align: center; vertical-align: middle; background-color: #ffffff;" class="money">${totalParts.dinar}</td>
-          <td style="border: 1px solid #111111; padding: 4px; text-align: center; vertical-align: middle; background-color: #ffffff;" class="money">${totalParts.fils}</td>
+        <tr style="height: 45px;">
+          <td style="border: 1px solid #111111; padding: 4px; text-align: center; vertical-align: middle; background-color: #ffffff; height: 45px;">${idx + 1}</td>
+          <td style="border: 1px solid #111111; padding: 4px; text-align: right; font-weight: bold; padding-right: 15px; background-color: #ffffff; word-break: break-all; white-space: normal; max-width: 300px; height: 45px;">${item.name}</td>
+          <td style="border: 1px solid #111111; padding: 4px; text-align: center; vertical-align: middle; background-color: #ffffff; height: 45px;">${item.unit || 'متر'}</td>
+          <td style="border: 1px solid #111111; padding: 4px; text-align: center; vertical-align: middle; font-weight: bold; background-color: #ffffff; height: 45px;">${item.quantity}</td>
+          <td style="border: 1px solid #111111; padding: 4px; text-align: center; vertical-align: middle; background-color: #ffffff; height: 45px;" class="money">${priceParts.dinar}</td>
+          <td style="border: 1px solid #111111; padding: 4px; text-align: center; vertical-align: middle; background-color: #ffffff; height: 45px;" class="money">${priceParts.fils}</td>
+          <td style="border: 1px solid #111111; padding: 4px; text-align: center; vertical-align: middle; background-color: #ffffff; height: 45px;" class="money">${totalParts.dinar}</td>
+          <td style="border: 1px solid #111111; padding: 4px; text-align: center; vertical-align: middle; background-color: #ffffff; height: 45px;" class="money">${totalParts.fils}</td>
         </tr>`;
     });
 
@@ -393,45 +398,39 @@ const Ledger: React.FC<Props> = ({
     const fillerRowsCount = Math.max(0, 15 - (invoice.items?.length || 0));
     for (let i = 0; i < fillerRowsCount; i++) {
       html += `
-        <tr>
-          <td style="border: 1px solid #111111; height: 25px; padding: 4px; text-align: center; vertical-align: middle; background-color: #ffffff;">${(invoice.items?.length || 0) + i + 1}</td>
-          <td style="border: 1px solid #111111; height: 25px; background-color: #ffffff;"></td>
-          <td style="border: 1px solid #111111; height: 25px; background-color: #ffffff;"></td>
-          <td style="border: 1px solid #111111; height: 25px; background-color: #ffffff;"></td>
-          <td style="border: 1px solid #111111; height: 25px; background-color: #ffffff;"></td>
-          <td style="border: 1px solid #111111; height: 25px; background-color: #ffffff;"></td>
-          <td style="border: 1px solid #111111; height: 25px; background-color: #ffffff;"></td>
-          <td style="border: 1px solid #111111; height: 25px; background-color: #ffffff;"></td>
+        <tr style="height: 45px;">
+          <td style="border: 1px solid #111111; height: 45px; padding: 4px; text-align: center; vertical-align: middle; background-color: #ffffff;">${(invoice.items?.length || 0) + i + 1}</td>
+          <td style="border: 1px solid #111111; height: 45px; background-color: #ffffff;"></td>
+          <td style="border: 1px solid #111111; height: 45px; background-color: #ffffff;"></td>
+          <td style="border: 1px solid #111111; height: 45px; background-color: #ffffff;"></td>
+          <td style="border: 1px solid #111111; height: 45px; background-color: #ffffff;"></td>
+          <td style="border: 1px solid #111111; height: 45px; background-color: #ffffff;"></td>
+          <td style="border: 1px solid #111111; height: 45px; background-color: #ffffff;"></td>
+          <td style="border: 1px solid #111111; height: 45px; background-color: #ffffff;"></td>
         </tr>`;
     }
 
     html += `
           <!-- Totals block matching image exactly -->
-          <tr>
-            <td colspan="5" style="border-top: none; border-bottom: none; border-left: none; border-right: 1px solid #111111; background-color: #ffffff;"></td>
-            <td style="border: 1px solid #111111; font-weight: bold; text-align: center; background-color: #ffffff; padding: 6px;">المجموع</td>
-            <td colspan="2" style="border: 1px solid #111111; font-weight: bold; text-align: left; font-size: 12pt; padding-left: 10px; background-color: #ffffff;">${invoice.totalAmount.toFixed(3)}</td>
+          <tr style="height: 40px;">
+            <td colspan="5" style="border-top: none; border-bottom: none; border-left: none; border-right: 1px solid #111111; background-color: #ffffff; height: 40px;"></td>
+            <td style="border: 1px solid #111111; font-weight: bold; text-align: center; background-color: #ffffff; padding: 6px; height: 40px;">المجموع</td>
+            <td colspan="2" style="border: 1px solid #111111; font-weight: bold; text-align: left; font-size: 13pt; padding-left: 10px; background-color: #ffffff; height: 40px;">${invoice.totalAmount.toFixed(3)}</td>
           </tr>
-          <tr>
-            <td colspan="5" style="border-top: none; border-bottom: none; border-left: none; border-right: 1px solid #111111; text-align: center; font-weight: bold; font-size: 11pt; background-color: #ffffff; padding: 6px;">Page : 1 / 1</td>
-            <td style="border: 1px solid #111111; font-weight: bold; text-align: center; background-color: #ffffff; padding: 6px;">الاجمالي</td>
-            <td colspan="2" style="border: 1px solid #111111; font-weight: bold; text-align: left; font-size: 12pt; padding-left: 10px; background-color: #ffffff;">${invoice.totalAmount.toFixed(3)}</td>
+          <tr style="height: 40px;">
+            <td colspan="5" style="border-top: none; border-bottom: none; border-left: none; border-right: 1px solid #111111; text-align: center; font-weight: bold; font-size: 12pt; background-color: #ffffff; padding: 6px; height: 40px;">Page : 1 / 1</td>
+            <td style="border: 1px solid #111111; font-weight: bold; text-align: center; background-color: #ffffff; padding: 6px; height: 40px;">الاجمالي</td>
+            <td colspan="2" style="border: 1px solid #111111; font-weight: bold; text-align: left; font-size: 13pt; padding-left: 10px; background-color: #ffffff; height: 40px;">${invoice.totalAmount.toFixed(3)}</td>
           </tr>
-          <tr>
-            <td colspan="5" style="border-top: none; border-bottom: 1px solid #111111; border-left: none; border-right: 1px solid #111111; text-align: right; font-weight: bold; padding-right: 10px; background-color: #ffffff; padding: 6px; direction: rtl;">${tafqeet(invoice.totalAmount)}</td>
-            <td style="border: 1px solid #111111; font-weight: bold; text-align: center; background-color: #ffffff; padding: 6px;">الصافي</td>
-            <td colspan="2" style="border: 1px solid #111111; font-weight: bold; text-align: left; font-size: 12pt; padding-left: 10px; background-color: #ffffff;">${invoice.totalAmount.toFixed(3)}</td>
+          <tr style="height: 40px;">
+            <td colspan="5" style="border-top: none; border-bottom: 1px solid #111111; border-left: none; border-right: 1px solid #111111; text-align: right; font-weight: bold; padding-right: 10px; background-color: #ffffff; padding: 6px; direction: rtl; height: 40px;">${tafqeet(invoice.totalAmount)}</td>
+            <td style="border: 1px solid #111111; font-weight: bold; text-align: center; background-color: #ffffff; padding: 6px; height: 40px;">الصافي</td>
+            <td colspan="2" style="border: 1px solid #111111; font-weight: bold; text-align: left; font-size: 13pt; padding-left: 10px; background-color: #ffffff; height: 40px;">${invoice.totalAmount.toFixed(3)}</td>
           </tr>
           
           <!-- Spacing -->
-          <tr>
-            <td colspan="8" style="border: none !important; height: 35px; background-color: #ffffff;"></td>
-          </tr>
-          
-          <!-- Signatures -->
-          <tr>
-            <td colspan="4" style="font-weight: bold; font-size: 11pt; color: #333333; border: none !important; background-color: #ffffff; text-align: right;">اسم وتوقيع المستلم : ................................................</td>
-            <td colspan="4" style="font-weight: bold; font-size: 11pt; color: #333333; border: none !important; background-color: #ffffff; text-align: left;">اسم وتوقيع البائع : ................................................</td>
+          <tr style="height: 25px;">
+            <td colspan="8" style="border: none !important; height: 25px; background-color: #ffffff;"></td>
           </tr>
       </table>
       </body>
