@@ -32,6 +32,7 @@ import * as XLSX from "xlsx";
 import { useAuth } from "./AuthContext";
 import { ConfirmModal } from "./ConfirmModal";
 import * as htmlToImage from 'html-to-image';
+import jsPDF from 'jspdf';
 
 function tafqeet(amount: number): string {
   if (isNaN(amount) || amount === 0) return "فقط صفر دينار لا غير";
@@ -283,14 +284,13 @@ const Ledger: React.FC<Props> = ({
                   <x:DisplayRightToLeft />
                   <x:FitToPage/>
                   <x:PageSetup>
-                    <x:Layout x:CenterHorizontal="1" x:CenterVertical="1" x:Orientation="Portrait" />
-                    <x:Header x:Margin="0.2" />
-                    <x:Footer x:Margin="0.2" />
-                    <x:PageMargins x:Bottom="0.3" x:Left="0.3" x:Right="0.3" x:Top="0.3" />
+                    <x:Layout x:CenterHorizontal="1" x:Orientation="Portrait" />
+                    <x:Header x:Margin="0" />
+                    <x:Footer x:Margin="0" />
+                    <x:PageMargins x:Top="0.20" x:Bottom="0.25" x:Left="0.15" x:Right="0.15" />
                   </x:PageSetup>
                   <x:Print>
                     <x:FitWidth>1</x:FitWidth>
-                    <x:FitHeight>1</x:FitHeight>
                     <x:ValidPrinterInfo/>
                     <x:PaperSizeIndex>9</x:PaperSizeIndex>
                     <x:HorizontalResolution>600</x:HorizontalResolution>
@@ -303,76 +303,76 @@ const Ledger: React.FC<Props> = ({
         </xml>
         <![endif]-->
         <style>
-          @page { margin: 0.3in; mso-header-margin: 0.2in; mso-footer-margin: 0.2in; mso-page-orientation: portrait; }
-          table { border-collapse: collapse; direction: rtl; font-family: 'Arial', sans-serif; font-size: 13pt; width: 760px; table-layout: fixed; margin: 0 auto; }
+          @page { margin: 0.20in 0.15in 0.25in 0.15in; mso-header-margin: 0in; mso-footer-margin: 0in; mso-page-orientation: portrait; }
+          table { border-collapse: collapse; direction: rtl; font-family: Arial, sans-serif; font-size: 11pt; width: 560pt; table-layout: fixed; margin: 0 auto; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
           .money { mso-number-format:"\\#,##0"; }
           th, td { border: 1px solid #111111; }
         </style>
       </head>
       <body dir="rtl">
-        <table border="1" cellspacing="0" cellpadding="6" style="border-collapse: collapse; border: 1px solid #111111; direction: rtl; font-family: 'Arial', sans-serif; font-size: 13pt; width: 760px; table-layout: fixed; margin: 0 auto;">
+        <table border="1" cellspacing="0" cellpadding="2" style="border-collapse: collapse; border: 1px solid #111111; direction: rtl; font-family: Arial, sans-serif; font-size: 11pt; width: 560pt; table-layout: fixed; margin: 0 auto; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
           <colgroup>
-            <col width="50" />  <!-- Col 1: التسلسل -->
-            <col width="300" /> <!-- Col 2: البيان -->
-            <col width="65" />  <!-- Col 3: الوحدة -->
-            <col width="70" />  <!-- Col 4: الكمية -->
-            <col width="80" />  <!-- Col 5: دينار سعر الوحدة -->
-            <col width="50" />  <!-- Col 6: فلس سعر الوحدة -->
-            <col width="90" />  <!-- Col 7: دينار القيمة الاجمالية -->
-            <col width="55" />  <!-- Col 8: فلس القيمة الاجمالية -->
+            <col width="38" />
+            <col width="230" />
+            <col width="45" />
+            <col width="50" />
+            <col width="60" />
+            <col width="40" />
+            <col width="65" />
+            <col width="32" />
           </colgroup>
 
           <!-- Title and Shop Name -->
-          <tr style="height: 50px;">
-            <td colspan="8" style="border: none !important; font-size: 26pt; font-weight: bold; text-align: center; background-color: #ffffff; padding: 4px; color: #000; height: 50px; vertical-align: middle;">معرض اليرموك</td>
+          <tr style="height: 45px;">
+            <td colspan="8" style="border: none !important; font-size: 22pt; font-weight: bold; text-align: center; background-color: #ffffff; padding: 4px; color: #000; height: 45px; vertical-align: middle;">معرض اليرموك</td>
           </tr>
           <!-- Subtitle -->
-          <tr style="height: 35px;">
-            <td colspan="8" style="border: none !important; font-size: 18pt; font-weight: bold; text-align: center; background-color: #ffffff; padding: 2px; color: #333; height: 35px; vertical-align: middle;">للسيراميك والأدوات الصحية</td>
+          <tr style="height: 30px;">
+            <td colspan="8" style="border: none !important; font-size: 16pt; font-weight: bold; text-align: center; background-color: #ffffff; padding: 2px; color: #333; height: 30px; vertical-align: middle;">للسيراميك والأدوات الصحية</td>
           </tr>
           <!-- Address & Type -->
-          <tr style="height: 35px;">
-            <td colspan="4" style="border: none !important; font-size: 18pt; font-weight: bold; text-align: right; background-color: #ffffff; padding: 4px; height: 35px; vertical-align: middle;">فاتورة مبيعات (بالحساب)</td>
-            <td colspan="4" style="border: none !important; font-size: 14pt; font-weight: normal; text-align: left; color: #333333; background-color: #ffffff; padding: 4px; height: 35px; vertical-align: middle;">إربد - الأردن</td>
+          <tr style="height: 30px;">
+            <td colspan="4" style="border: none !important; font-size: 14pt; font-weight: bold; text-align: right; background-color: #ffffff; padding: 4px; height: 30px; vertical-align: middle;">فاتورة مبيعات (بالحساب)</td>
+            <td colspan="4" style="border: none !important; font-size: 12pt; font-weight: normal; text-align: left; color: #333333; background-color: #ffffff; padding: 4px; height: 30px; vertical-align: middle;">إربد - الأردن</td>
           </tr>
           
           <!-- Blank spacer -->
-          <tr style="height: 20px;">
-            <td colspan="8" style="border: none !important; height: 20px; background-color: #ffffff;"></td>
+          <tr style="height: 8px;">
+            <td colspan="8" style="border: none !important; height: 8px; background-color: #ffffff;"></td>
           </tr>
 
           <!-- Metadata Rows (5, 6, 7) matching layout perfectly with consistent borders -->
-          <tr style="height: 40px;">
-            <td colspan="5" style="border-top: 1px solid #111111; border-right: 1px solid #111111; border-left: 1px solid #111111; border-bottom: none; font-size: 12pt; font-weight: bold; text-align: right; background-color: #ffffff; padding: 6px; direction: rtl; height: 40px; vertical-align: middle;">رقم الفاتورة : ${invoice.id.substring(0, 8).toUpperCase()}</td>
-            <td colspan="3" style="border-top: 1px solid #111111; border-left: 1px solid #111111; border-right: 1px solid #111111; border-bottom: none; font-size: 12pt; text-align: right; background-color: #ffffff; padding: 6px; direction: rtl; color: #333333; height: 40px; vertical-align: middle;">التاريخ : ${new Date(invoice.date).toLocaleDateString('en-GB')}</td>
+          <tr style="height: 35px;">
+            <td colspan="5" style="border-top: 1px solid #111111; border-right: 1px solid #111111; border-left: 1px solid #111111; border-bottom: none; font-size: 11pt; font-weight: bold; text-align: right; background-color: #ffffff; padding: 6px; direction: rtl; height: 35px; vertical-align: middle;">رقم الفاتورة : ${invoice.id.substring(0, 8).toUpperCase()}</td>
+            <td colspan="3" style="border-top: 1px solid #111111; border-left: 1px solid #111111; border-right: 1px solid #111111; border-bottom: none; font-size: 11pt; text-align: right; background-color: #ffffff; padding: 6px; direction: rtl; color: #333333; height: 35px; vertical-align: middle;">التاريخ : ${new Date(invoice.date).toLocaleDateString('en-GB')}</td>
           </tr>
-          <tr style="height: 40px;">
-            <td colspan="5" style="border-top: none; border-right: 1px solid #111111; border-left: 1px solid #111111; border-bottom: none; font-size: 12pt; font-weight: bold; text-align: right; background-color: #ffffff; padding: 6px; direction: rtl; height: 40px; vertical-align: middle;">مطلوب من السادة : ${customer?.name || ""} المحترمين</td>
-            <td colspan="3" style="border-top: none; border-left: 1px solid #111111; border-right: 1px solid #111111; border-bottom: none; font-size: 12pt; text-align: right; background-color: #ffffff; padding: 6px; direction: rtl; color: #333333; height: 40px; vertical-align: middle;">الاخراج :</td>
+          <tr style="height: 35px;">
+            <td colspan="5" style="border-top: none; border-right: 1px solid #111111; border-left: 1px solid #111111; border-bottom: none; font-size: 11pt; font-weight: bold; text-align: right; background-color: #ffffff; padding: 6px; direction: rtl; height: 35px; vertical-align: middle;">مطلوب من السادة : ${customer?.name || ""} المحترمين</td>
+            <td colspan="3" style="border-top: none; border-left: 1px solid #111111; border-right: 1px solid #111111; border-bottom: none; font-size: 11pt; text-align: right; background-color: #ffffff; padding: 6px; direction: rtl; color: #333333; height: 35px; vertical-align: middle;">الاخراج :</td>
           </tr>
-          <tr style="height: 40px;">
-            <td colspan="5" style="border-top: none; border-right: 1px solid #111111; border-left: 1px solid #111111; border-bottom: 1px solid #111111; background-color: #ffffff; padding: 6px; height: 40px;"></td>
-            <td colspan="3" style="border-top: none; border-left: 1px solid #111111; border-right: 1px solid #111111; border-bottom: 1px solid #111111; font-size: 12pt; text-align: right; background-color: #ffffff; padding: 6px; direction: rtl; color: #333333; height: 40px; vertical-align: middle;">طلب الشراء :</td>
+          <tr style="height: 35px;">
+            <td colspan="5" style="border-top: none; border-right: 1px solid #111111; border-left: 1px solid #111111; border-bottom: 1px solid #111111; background-color: #ffffff; padding: 6px; height: 35px;"></td>
+            <td colspan="3" style="border-top: none; border-left: 1px solid #111111; border-right: 1px solid #111111; border-bottom: 1px solid #111111; font-size: 11pt; text-align: right; background-color: #ffffff; padding: 6px; direction: rtl; color: #333333; height: 35px; vertical-align: middle;">طلب الشراء :</td>
           </tr>
           
-          <tr style="height: 20px;">
-            <td colspan="8" style="border: none !important; height: 20px; background-color: #ffffff;"></td>
+          <tr style="height: 8px;">
+            <td colspan="8" style="border: none !important; height: 8px; background-color: #ffffff;"></td>
           </tr>
 
           <!-- Table Headers style -->
-          <tr style="height: 40px;">
-            <td rowspan="2" style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 40px;">التسلسل</td>
-            <td rowspan="2" style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; width: 300px; height: 40px;">البيان</td>
-            <td rowspan="2" style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 40px;">الوحدة</td>
-            <td rowspan="2" style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 40px;">الكمية</td>
-            <td colspan="2" style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 40px;">سعر الوحدة</td>
-            <td colspan="2" style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 40px;">القيمة الاجمالية</td>
+          <tr style="height: 35px;">
+            <td rowspan="2" style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 35px;">التسلسل</td>
+            <td rowspan="2" style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 35px;">البيان</td>
+            <td rowspan="2" style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 35px;">الوحدة</td>
+            <td rowspan="2" style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 35px;">الكمية</td>
+            <td colspan="2" style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 35px;">سعر الوحدة</td>
+            <td colspan="2" style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 35px;">القيمة الاجمالية</td>
           </tr>
-          <tr style="height: 30px;">
-            <td style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 30px;">فلس</td>
-            <td style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 30px;">دينار</td>
-            <td style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 30px;">فلس</td>
-            <td style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 30px;">دينار</td>
+          <tr style="height: 25px;">
+            <td style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 25px;">فلس</td>
+            <td style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 25px;">دينار</td>
+            <td style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 25px;">فلس</td>
+            <td style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 25px;">دينار</td>
           </tr>`;
 
     invoice.items?.forEach((item, idx) => {
@@ -382,15 +382,15 @@ const Ledger: React.FC<Props> = ({
       const totalParts = splitAmount(total);
 
       html += `
-        <tr style="height: 45px;">
-          <td style="border: 1px solid #111111; padding: 4px; text-align: center; vertical-align: middle; background-color: #ffffff; height: 45px;">${idx + 1}</td>
-          <td style="border: 1px solid #111111; padding: 4px; text-align: right; font-weight: bold; padding-right: 15px; background-color: #ffffff; word-break: break-all; white-space: normal; max-width: 300px; height: 45px;">${item.name}</td>
-          <td style="border: 1px solid #111111; padding: 4px; text-align: center; vertical-align: middle; background-color: #ffffff; height: 45px;">${item.unit || 'متر'}</td>
-          <td style="border: 1px solid #111111; padding: 4px; text-align: center; vertical-align: middle; font-weight: bold; background-color: #ffffff; height: 45px;">${item.quantity}</td>
-          <td style="border: 1px solid #111111; padding: 4px; text-align: center; vertical-align: middle; background-color: #ffffff; height: 45px;" class="money">${priceParts.dinar}</td>
-          <td style="border: 1px solid #111111; padding: 4px; text-align: center; vertical-align: middle; background-color: #ffffff; height: 45px;" class="money">${priceParts.fils}</td>
-          <td style="border: 1px solid #111111; padding: 4px; text-align: center; vertical-align: middle; background-color: #ffffff; height: 45px;" class="money">${totalParts.dinar}</td>
-          <td style="border: 1px solid #111111; padding: 4px; text-align: center; vertical-align: middle; background-color: #ffffff; height: 45px;" class="money">${totalParts.fils}</td>
+        <tr style="height: 32px;">
+          <td style="border: 1px solid #111111; padding: 4px; text-align: center; vertical-align: middle; background-color: #ffffff; height: 32px;">${idx + 1}</td>
+          <td style="border: 1px solid #111111; padding: 4px; text-align: right; font-weight: bold; padding-right: 15px; background-color: #ffffff; word-break: break-all; white-space: normal; height: 32px;">${item.name}</td>
+          <td style="border: 1px solid #111111; padding: 4px; text-align: center; vertical-align: middle; background-color: #ffffff; height: 32px;">${item.unit || 'متر'}</td>
+          <td style="border: 1px solid #111111; padding: 4px; text-align: center; vertical-align: middle; font-weight: bold; background-color: #ffffff; height: 32px;">${item.quantity}</td>
+          <td style="border: 1px solid #111111; padding: 4px; text-align: center; vertical-align: middle; background-color: #ffffff; height: 32px;" class="money">${priceParts.dinar}</td>
+          <td style="border: 1px solid #111111; padding: 4px; text-align: center; vertical-align: middle; background-color: #ffffff; height: 32px;" class="money">${priceParts.fils}</td>
+          <td style="border: 1px solid #111111; padding: 4px; text-align: center; vertical-align: middle; background-color: #ffffff; height: 32px;" class="money">${totalParts.dinar}</td>
+          <td style="border: 1px solid #111111; padding: 4px; text-align: center; vertical-align: middle; background-color: #ffffff; height: 32px;" class="money">${totalParts.fils}</td>
         </tr>`;
     });
 
@@ -398,39 +398,39 @@ const Ledger: React.FC<Props> = ({
     const fillerRowsCount = Math.max(0, 15 - (invoice.items?.length || 0));
     for (let i = 0; i < fillerRowsCount; i++) {
       html += `
-        <tr style="height: 45px;">
-          <td style="border: 1px solid #111111; height: 45px; padding: 4px; text-align: center; vertical-align: middle; background-color: #ffffff;">${(invoice.items?.length || 0) + i + 1}</td>
-          <td style="border: 1px solid #111111; height: 45px; background-color: #ffffff;"></td>
-          <td style="border: 1px solid #111111; height: 45px; background-color: #ffffff;"></td>
-          <td style="border: 1px solid #111111; height: 45px; background-color: #ffffff;"></td>
-          <td style="border: 1px solid #111111; height: 45px; background-color: #ffffff;"></td>
-          <td style="border: 1px solid #111111; height: 45px; background-color: #ffffff;"></td>
-          <td style="border: 1px solid #111111; height: 45px; background-color: #ffffff;"></td>
-          <td style="border: 1px solid #111111; height: 45px; background-color: #ffffff;"></td>
+        <tr style="height: 32px;">
+          <td style="border: 1px solid #111111; height: 32px; padding: 4px; text-align: center; vertical-align: middle; background-color: #ffffff;">${(invoice.items?.length || 0) + i + 1}</td>
+          <td style="border: 1px solid #111111; height: 32px; background-color: #ffffff;"></td>
+          <td style="border: 1px solid #111111; height: 32px; background-color: #ffffff;"></td>
+          <td style="border: 1px solid #111111; height: 32px; background-color: #ffffff;"></td>
+          <td style="border: 1px solid #111111; height: 32px; background-color: #ffffff;"></td>
+          <td style="border: 1px solid #111111; height: 32px; background-color: #ffffff;"></td>
+          <td style="border: 1px solid #111111; height: 32px; background-color: #ffffff;"></td>
+          <td style="border: 1px solid #111111; height: 32px; background-color: #ffffff;"></td>
         </tr>`;
     }
 
     html += `
           <!-- Totals block matching image exactly -->
-          <tr style="height: 40px;">
-            <td colspan="5" style="border-top: none; border-bottom: none; border-left: none; border-right: 1px solid #111111; background-color: #ffffff; height: 40px;"></td>
-            <td style="border: 1px solid #111111; font-weight: bold; text-align: center; background-color: #ffffff; padding: 6px; height: 40px;">المجموع</td>
-            <td colspan="2" style="border: 1px solid #111111; font-weight: bold; text-align: left; font-size: 13pt; padding-left: 10px; background-color: #ffffff; height: 40px;">${invoice.totalAmount.toFixed(3)}</td>
+          <tr style="height: 35px;">
+            <td colspan="5" style="border-top: none; border-bottom: none; border-left: none; border-right: 1px solid #111111; background-color: #ffffff; height: 35px;"></td>
+            <td style="border: 1px solid #111111; font-weight: bold; text-align: center; background-color: #ffffff; padding: 6px; height: 35px;">المجموع</td>
+            <td colspan="2" style="border: 1px solid #111111; font-weight: bold; text-align: left; font-size: 11pt; padding-left: 10px; background-color: #ffffff; height: 35px;">${invoice.totalAmount.toFixed(3)}</td>
           </tr>
-          <tr style="height: 40px;">
-            <td colspan="5" style="border-top: none; border-bottom: none; border-left: none; border-right: 1px solid #111111; text-align: center; font-weight: bold; font-size: 12pt; background-color: #ffffff; padding: 6px; height: 40px;">Page : 1 / 1</td>
-            <td style="border: 1px solid #111111; font-weight: bold; text-align: center; background-color: #ffffff; padding: 6px; height: 40px;">الاجمالي</td>
-            <td colspan="2" style="border: 1px solid #111111; font-weight: bold; text-align: left; font-size: 13pt; padding-left: 10px; background-color: #ffffff; height: 40px;">${invoice.totalAmount.toFixed(3)}</td>
+          <tr style="height: 35px;">
+            <td colspan="5" style="border-top: none; border-bottom: none; border-left: none; border-right: 1px solid #111111; text-align: center; font-weight: bold; font-size: 11pt; background-color: #ffffff; padding: 6px; height: 35px;">Page : 1 / 1</td>
+            <td style="border: 1px solid #111111; font-weight: bold; text-align: center; background-color: #ffffff; padding: 6px; height: 35px;">الاجمالي</td>
+            <td colspan="2" style="border: 1px solid #111111; font-weight: bold; text-align: left; font-size: 11pt; padding-left: 10px; background-color: #ffffff; height: 35px;">${invoice.totalAmount.toFixed(3)}</td>
           </tr>
-          <tr style="height: 40px;">
-            <td colspan="5" style="border-top: none; border-bottom: 1px solid #111111; border-left: none; border-right: 1px solid #111111; text-align: right; font-weight: bold; padding-right: 10px; background-color: #ffffff; padding: 6px; direction: rtl; height: 40px;">${tafqeet(invoice.totalAmount)}</td>
-            <td style="border: 1px solid #111111; font-weight: bold; text-align: center; background-color: #ffffff; padding: 6px; height: 40px;">الصافي</td>
-            <td colspan="2" style="border: 1px solid #111111; font-weight: bold; text-align: left; font-size: 13pt; padding-left: 10px; background-color: #ffffff; height: 40px;">${invoice.totalAmount.toFixed(3)}</td>
+          <tr style="height: 35px;">
+            <td colspan="5" style="border-top: none; border-bottom: 1px solid #111111; border-left: none; border-right: 1px solid #111111; text-align: right; font-weight: bold; padding-right: 10px; background-color: #ffffff; padding: 6px; direction: rtl; height: 35px;">${tafqeet(invoice.totalAmount)}</td>
+            <td style="border: 1px solid #111111; font-weight: bold; text-align: center; background-color: #ffffff; padding: 6px; height: 35px;">الصافي</td>
+            <td colspan="2" style="border: 1px solid #111111; font-weight: bold; text-align: left; font-size: 11pt; padding-left: 10px; background-color: #ffffff; height: 35px;">${invoice.totalAmount.toFixed(3)}</td>
           </tr>
           
           <!-- Spacing -->
-          <tr style="height: 25px;">
-            <td colspan="8" style="border: none !important; height: 25px; background-color: #ffffff;"></td>
+          <tr style="height: 10px;">
+            <td colspan="8" style="border: none !important; height: 10px; background-color: #ffffff;"></td>
           </tr>
       </table>
       </body>
@@ -672,6 +672,82 @@ const Ledger: React.FC<Props> = ({
     document.body.removeChild(link);
   };
 
+  const downloadPDF = async (type: 'invoice' | 'payment' | 'ledger', id: string = "") => {
+    let elementId = '';
+    if (type === 'invoice') elementId = 'print-invoice-content';
+    else if (type === 'payment') elementId = 'print-payment-content';
+    else elementId = 'print-ledger-content';
+
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    
+    setIsSharingImage(true);
+    
+    try {
+      const elementWidth = 756; // Exactly 200mm in CSS standard pixels
+      
+      // Temporarily enforce exactly 756px layout width to calculate correct height
+      const originalStyleWidth = element.style.width;
+      element.style.width = '756px';
+      const elementHeight = element.scrollHeight || element.offsetHeight || 1040;
+      element.style.width = originalStyleWidth;
+
+      const dataUrl = await htmlToImage.toPng(element, { 
+        quality: 1, 
+        pixelRatio: 2, 
+        backgroundColor: '#ffffff',
+        skipFonts: true,
+        width: elementWidth,
+        height: elementHeight,
+        style: {
+          display: 'block',
+          position: 'relative',
+          width: '756px',
+          height: `${elementHeight}px`,
+          minWidth: '756px',
+          maxWidth: '756px',
+          margin: '0',
+          padding: '0px',
+          transform: 'none'
+        }
+      });
+      
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pageWidth = 210;
+      const pageHeight = 297;
+      const margin = 5;
+      const imgWidth = pageWidth - margin * 2; // Exactly 200mm (fills the printable width perfectly)
+      const imgHeight = (elementHeight * imgWidth) / elementWidth;
+      const printableHeight = pageHeight - margin * 2; // 287mm
+
+      let remainingHeight = imgHeight;
+      let pageIndex = 0;
+
+      while (remainingHeight > 0) {
+        if (pageIndex > 0) {
+          pdf.addPage();
+        }
+        const yPos = margin - (printableHeight * pageIndex);
+        pdf.addImage(dataUrl, "PNG", margin, yPos, imgWidth, imgHeight);
+        remainingHeight -= printableHeight;
+        pageIndex++;
+      }
+      
+      let filename = "";
+      if (type === 'invoice') filename = `فاتورة_${id.substring(0, 4)}.pdf`;
+      else if (type === 'payment') filename = `سند_قبض_${id.substring(0, 4)}.pdf`;
+      else filename = `كشف_حساب_${customer?.name || 'عميل'}.pdf`;
+
+      pdf.save(filename);
+      
+    } catch (e) {
+      console.error(e);
+      alert('حدث خطأ أثناء إنشاء ملف PDF');
+    } finally {
+      setIsSharingImage(false);
+    }
+  };
+
   const shareInvoiceWhatsapp = async (invoice: Invoice & { type: "invoice" }) => {
     // We target our hidden offscreen styled invoice card designed for mobile high-res captures
     const element = document.getElementById("share-invoice-card");
@@ -837,6 +913,7 @@ const Ledger: React.FC<Props> = ({
   return (
     <div className="space-y-8 pb-20 font-['Tajawal']" dir="rtl">
       {/* ------------------- SCREEN VIEW ------------------- */}
+      <div className={(viewingInvoice || viewingPayment) ? "print:hidden" : ""}>
       {!activeCustomerId ? (
         <div className="max-w-4xl mx-auto space-y-12 py-10 print:hidden text-center animate-in fade-in zoom-in duration-500">
           <div className="space-y-4">
@@ -1072,77 +1149,79 @@ const Ledger: React.FC<Props> = ({
             </div>
           </div>
 
-          {/* Removed Print Styles CSS block completely to lighten the code since Excel export is now used */}
-          <div className="hidden">
+          {/* Print Styles CSS block converted to responsive wrapper for direct PDF and printer usage */}
+          <div className="print-wrapper">
+            <div className="invoice-pdf-page" id="print-ledger-content" style={{ padding: '0px', background: '#ffffff' }}>
 
-            {/* Visual Title Header (Specially Styled Arabic Letterhead) */}
-            <div className="flex justify-end items-start mb-6 font-['Tajawal'] text-slate-800">
-              <div className="text-right">
-                <p className="text-xl font-black text-slate-900">اليرموك</p>
-                <p className="text-xs font-bold text-gray-800 mt-1">اربد - الاردن</p>
-              </div>
-            </div>
+            <table className="invoice-pdf-table" style={{ border: 'none', marginBottom: '8px' }}>
+              <tbody>
+                <tr style={{ height: '45px' }}>
+                  <td colSpan={8} style={{ border: 'none', fontSize: '22pt', fontWeight: 'bold', textAlign: 'center', verticalAlign: 'middle' }}>معرض اليرموك</td>
+                </tr>
+                <tr style={{ height: '30px' }}>
+                  <td colSpan={8} style={{ border: 'none', fontSize: '16pt', fontWeight: 'bold', textAlign: 'center', verticalAlign: 'middle', color: '#333' }}>للسيراميك والأدوات الصحية</td>
+                </tr>
+                <tr style={{ height: '30px' }}>
+                  <td colSpan={4} style={{ border: 'none', fontSize: '14pt', fontWeight: 'bold', textAlign: 'right', verticalAlign: 'middle' }}>كشف حساب عميل</td>
+                  <td colSpan={4} style={{ border: 'none', fontSize: '12pt', fontWeight: 'normal', textAlign: 'left', verticalAlign: 'middle', color: '#333' }}>إربد - الأردن</td>
+                </tr>
+              </tbody>
+            </table>
 
-            <div className="text-center w-full mb-6 relative">
-              <span className="text-lg font-black tracking-widest text-[#1C1C2E] block mb-2">كشف حساب</span>
-              <div className="flex justify-between items-end border-b-2 border-[#1C1C2E] pb-2 text-sm font-bold">
-                <div className="w-1/3 text-left">
-                  <span className="font-mono text-left" dir="ltr">1 / 1</span> &nbsp;:&nbsp; <span className="font-black">الصفحة</span>
-                </div>
-                <div className="w-1/3 text-center">
-                  <span className="font-black">الفترة من</span> {fromDate ? new Date(fromDate).toLocaleDateString('en-GB') : '2026/01/01'} <span className="font-black">إلى</span> {toDate ? new Date(toDate).toLocaleDateString('en-GB') : new Date().toLocaleDateString('en-GB')}
-                </div>
-                <div className="w-1/3 text-right">
-                  <span className="font-black">التاريخ : </span> <span className="font-mono" dir="ltr">{new Date().toLocaleDateString('en-GB')}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Account Info Bar */}
-            <div className="mb-4 text-sm font-bold text-gray-800 flex flex-col items-end pr-4">
-              <div className="flex gap-4 items-center">
-                <span className="font-mono font-black">{customer?.id.replace(/-/g, '').substring(0, 14)}</span>
-                <span className="font-black">-</span>
-                <span className="font-black">{customer?.name}</span>
-                <span className="font-black">:</span>
-                <span className="font-black">رقم الحساب</span>
-              </div>
-              <div className="flex gap-4 items-center mt-2">
-                <span className="font-black">{customer?.type === "shop" ? "محل تجاري / معرض" : "زبون فردي / خاص"}</span>
-                <span className="font-black">-</span>
-                <span className="font-black">:</span>
-                <span className="font-black">تصنيف الحساب</span>
-              </div>
-              <div className="flex gap-4 items-center mt-2">
-                <span className="font-black">-</span>
-                <span className="font-black">:</span>
-                <span className="font-black">الهاتف / العنوان</span>
-              </div>
-            </div>
+            <table className="invoice-pdf-table" style={{ marginBottom: '12px' }}>
+              <colgroup><col width="38" /><col width="230" /><col width="45" /><col width="50" /><col width="60" /><col width="40" /><col width="65" /><col width="32" /></colgroup>
+              <tbody>
+                <tr style={{ height: '35px' }}>
+                  <td colSpan={5} style={{ borderTop: '1px solid #111', borderRight: '1px solid #111', borderLeft: '1px solid #111', borderBottom: 'none', fontSize: '11pt', fontWeight: 'bold', textAlign: 'right', padding: '6px', verticalAlign: 'middle' }}>
+                    رقم الحساب : <span style={{ fontFamily: 'monospace' }}>{customer?.id.replace(/-/g, '').substring(0, 14)}</span>
+                  </td>
+                  <td colSpan={3} style={{ borderTop: '1px solid #111', borderLeft: '1px solid #111', borderRight: '1px solid #111', borderBottom: 'none', fontSize: '11pt', textAlign: 'right', padding: '6px', verticalAlign: 'middle', color: '#333' }}>
+                    التاريخ : {new Date().toLocaleDateString('en-GB')}
+                  </td>
+                </tr>
+                <tr style={{ height: '35px' }}>
+                  <td colSpan={5} style={{ borderTop: 'none', borderRight: '1px solid #111', borderLeft: '1px solid #111', borderBottom: 'none', fontSize: '11pt', fontWeight: 'bold', textAlign: 'right', padding: '6px', verticalAlign: 'middle' }}>
+                    مطلوب من السادة : {customer?.name || ""} المحترمين
+                  </td>
+                  <td colSpan={3} style={{ borderTop: 'none', borderLeft: '1px solid #111', borderRight: '1px solid #111', borderBottom: 'none', fontSize: '11pt', textAlign: 'right', padding: '6px', verticalAlign: 'middle', color: '#333' }}>
+                    الفترة : من {fromDate ? new Date(fromDate).toLocaleDateString('en-GB') : '2026/01/01'} إلى {toDate ? new Date(toDate).toLocaleDateString('en-GB') : new Date().toLocaleDateString('en-GB')}
+                  </td>
+                </tr>
+                <tr style={{ height: '35px' }}>
+                  <td colSpan={5} style={{ borderTop: 'none', borderRight: '1px solid #111', borderLeft: '1px solid #111', borderBottom: '1px solid #111', fontSize: '11pt', fontWeight: 'bold', textAlign: 'right', padding: '6px', verticalAlign: 'middle' }}>
+                    تصنيف الحساب : {customer?.type === "shop" ? "محل تجاري / معرض" : "زبون فردي / خاص"}
+                  </td>
+                  <td colSpan={3} style={{ borderTop: 'none', borderLeft: '1px solid #111', borderRight: '1px solid #111', borderBottom: '1px solid #111', fontSize: '11pt', textAlign: 'right', padding: '6px', verticalAlign: 'middle', color: '#333' }}>
+                    الصفحة : 1 / 1 {customer?.phone ? `| هاتف : ${customer.phone}` : ''}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
 
             {/* LEDGER TABLE */}
-            <table className="w-full text-center border-collapse border border-slate-200 text-[11px] font-bold text-gray-800 print-table">
+            <table className="invoice-pdf-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <colgroup><col width="85" /><col width="85" /><col width="65" /><col width="230" /><col width="75" /><col width="75" /><col width="85" /></colgroup>
               <thead>
-                <tr className="bg-slate-50 text-slate-800 border-b border-slate-200 text-xs">
-                  <th className="p-2.5 border-l border-slate-200 w-[12%]">التاريخ</th>
-                  <th className="p-2.5 border-l border-slate-200 w-[11%]">نوع السند</th>
-                  <th className="p-2.5 border-l border-slate-200 w-[8%]">الرقم</th>
-                  <th className="p-2.5 border-l border-slate-200 w-[35%] text-right pr-4">البيان</th>
-                  <th className="p-2.5 border-l border-slate-200 w-[11%]">مدين</th>
-                  <th className="p-2.5 border-l border-slate-200 w-[11%]">دائن</th>
-                  <th className="p-2.5 w-[12%]">الرصيد</th>
+                <tr style={{ backgroundColor: '#f8fafc', fontWeight: 'bold', height: '32px' }}>
+                  <th style={{ textAlign: 'center', border: '1px solid #111', fontSize: '10pt' }}>التاريخ</th>
+                  <th style={{ textAlign: 'center', border: '1px solid #111', fontSize: '10pt' }}>نوع السند</th>
+                  <th style={{ textAlign: 'center', border: '1px solid #111', fontSize: '10pt' }}>الرقم</th>
+                  <th style={{ textAlign: 'right', border: '1px solid #111', fontSize: '10pt', paddingRight: '8px' }}>البيان</th>
+                  <th style={{ textAlign: 'center', border: '1px solid #111', fontSize: '10pt' }}>مدين</th>
+                  <th style={{ textAlign: 'center', border: '1px solid #111', fontSize: '10pt' }}>دائن</th>
+                  <th style={{ textAlign: 'center', border: '1px solid #111', fontSize: '10pt' }}>الرصيد</th>
                 </tr>
               </thead>
               <tbody>
                 {/* Brought Forward Row */}
-                <tr className="border-b border-slate-200 font-extrabold text-slate-900 bg-slate-50/55">
-                  <td className="p-2.5 border-l border-slate-200 text-center">-</td>
-                  <td className="p-2.5 border-l border-slate-200 text-center">-</td>
-                  <td className="p-2.5 border-l border-slate-200 text-center">-</td>
-                  <td className="p-2.5 border-l border-slate-200 text-center font-black">رصيد مدور</td>
-                  <td className="p-2.5 border-l border-slate-200 text-center">-</td>
-                  <td className="p-2.5 border-l border-slate-200 text-center">-</td>
-                  <td className="p-2.5 font-black text-center" dir="ltr">
+                <tr style={{ height: '30px', fontWeight: 'bold', backgroundColor: '#f8fafc' }}>
+                  <td style={{ textAlign: 'center', border: '1px solid #111' }}>-</td>
+                  <td style={{ textAlign: 'center', border: '1px solid #111' }}>-</td>
+                  <td style={{ textAlign: 'center', border: '1px solid #111' }}>-</td>
+                  <td style={{ textAlign: 'right', border: '1px solid #111', paddingRight: '8px', fontWeight: 'bold' }}>رصيد مدور</td>
+                  <td style={{ textAlign: 'center', border: '1px solid #111' }}>-</td>
+                  <td style={{ textAlign: 'center', border: '1px solid #111' }}>-</td>
+                  <td style={{ textAlign: 'center', border: '1px solid #111', fontWeight: 'bold' }} dir="ltr">
                     {startBalance.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })}
                   </td>
                 </tr>
@@ -1161,7 +1240,6 @@ const Ledger: React.FC<Props> = ({
                     const serialNo = row.id.substring(0, 6).toUpperCase();
                     
                     let description = "";
-                    let itemsDetail: React.ReactNode = null;
                     if (row.type === 'payment') {
                       if (row.paymentMethod === 'cheque') {
                         description = `شيك رقم ${row.chequeNumber || ''} / ${row.dueDate ? new Date(row.dueDate).toLocaleDateString('en-GB') : ''}`;
@@ -1179,26 +1257,26 @@ const Ledger: React.FC<Props> = ({
                     const docType = row.type === 'invoice' ? 'بالحساب' : 'سند قبض';
 
                     return (
-                      <tr key={row.id} className={`border-b border-slate-200 text-gray-850 hover:bg-slate-50/30 ${row.deleted ? 'bg-red-50/40 opacity-70' : ''}`}>
-                        <td className="p-2 border-l border-slate-200 text-gray-700 text-xs font-semibold text-center" dir="ltr">
+                      <tr key={row.id} style={{ height: '30px', backgroundColor: row.deleted ? '#fef2f2' : 'transparent', opacity: row.deleted ? 0.75 : 1 }}>
+                        <td style={{ textAlign: 'center', border: '1px solid #111', fontSize: '9pt' }} dir="ltr">
                           {new Date(row.date).toLocaleDateString('en-GB')}
                         </td>
-                        <td className={`p-2 border-l border-slate-200 font-bold text-center ${row.deleted ? 'text-red-600 line-through' : 'text-gray-650'}`}>
+                        <td style={{ textAlign: 'center', border: '1px solid #111', fontSize: '9pt', fontWeight: 'bold', color: row.deleted ? '#dc2626' : '#334155' }}>
                           {docType}
                         </td>
-                        <td className={`p-2 border-l border-slate-200 font-bold font-mono text-center ${row.deleted ? 'text-red-600 line-through' : 'text-gray-600'}`}>
+                        <td style={{ textAlign: 'center', border: '1px solid #111', fontSize: '9pt', fontFamily: 'monospace', fontWeight: 'bold', color: row.deleted ? '#dc2626' : '#475569' }}>
                           {serialNo}
                         </td>
-                        <td className={`p-2.5 border-l border-slate-200 text-right pr-4 text-xs font-semibold ${row.deleted ? 'text-red-600 font-black' : 'text-gray-700'}`}>
+                        <td style={{ textAlign: 'right', border: '1px solid #111', fontSize: '9pt', paddingRight: '8px', color: row.deleted ? '#dc2626' : '#1e293b' }}>
                           {description}
                         </td>
-                        <td className="p-2 border-l border-slate-200 text-gray-800 font-extrabold text-center">
-                          {debit > 0 ? <span dir="ltr" className={row.deleted ? 'line-through text-red-500' : ''}>{debit.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })}</span> : ''}
+                        <td style={{ textAlign: 'center', border: '1px solid #111', fontSize: '9pt', fontWeight: 'bold' }}>
+                          {debit > 0 ? <span dir="ltr" style={{ textDecoration: row.deleted ? 'line-through' : 'none', color: row.deleted ? '#dc2626' : '#000' }}>{debit.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })}</span> : ''}
                         </td>
-                        <td className="p-2 border-l border-slate-200 text-gray-800 font-extrabold text-center">
-                          {credit > 0 ? <span dir="ltr" className={row.deleted ? 'line-through text-red-500' : ''}>{credit.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })}</span> : ''}
+                        <td style={{ textAlign: 'center', border: '1px solid #111', fontSize: '9pt', fontWeight: 'bold' }}>
+                          {credit > 0 ? <span dir="ltr" style={{ textDecoration: row.deleted ? 'line-through' : 'none', color: row.deleted ? '#dc2626' : '#000' }}>{credit.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })}</span> : ''}
                         </td>
-                        <td className="p-2 font-bold text-center">
+                        <td style={{ textAlign: 'center', border: '1px solid #111', fontSize: '9.5pt', fontWeight: 'bold' }}>
                           <span dir="ltr">{runningBalance.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })}</span>
                         </td>
                       </tr>
@@ -1207,26 +1285,26 @@ const Ledger: React.FC<Props> = ({
                 })()}
               </tbody>
               <tfoot>
-                <tr className="border-t-2 border-slate-200 font-black text-xs bg-slate-50 text-slate-800">
-                  <td colSpan={4} className="p-2.5 border-l border-slate-200 text-center font-black text-slate-700">المجموع</td>
-                  <td className="p-2.5 border-l border-slate-200 text-slate-900 font-black text-center">
+                <tr style={{ backgroundColor: '#f8fafc', fontWeight: 'bold', height: '32px' }}>
+                  <td colSpan={4} style={{ textAlign: 'center', border: '1px solid #111', fontWeight: 'bold', fontSize: '10pt' }}>المجموع</td>
+                  <td style={{ textAlign: 'center', border: '1px solid #111', fontSize: '9.5pt', fontWeight: 'bold' }}>
                     {(() => {
                       const totalDebitInTable = statementRows.reduce((acc, row) => acc + (row.deleted ? 0 : (row.type === 'invoice' ? row.totalAmount : 0)), 0);
                       return <span dir="ltr">{totalDebitInTable.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })}</span>;
                     })()}
                   </td>
-                  <td className="p-2.5 border-l border-slate-200 text-slate-900 font-black text-center">
+                  <td style={{ textAlign: 'center', border: '1px solid #111', fontSize: '9.5pt', fontWeight: 'bold' }}>
                     {(() => {
                       const totalCreditInTable = statementRows.reduce((acc, row) => acc + (row.deleted ? 0 : (row.type === 'payment' ? row.amount : 0)), 0);
                       return <span dir="ltr">{totalCreditInTable.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })}</span>;
                     })()}
                   </td>
-                  <td className="p-2.5 text-center"></td>
+                  <td style={{ textAlign: 'center', border: '1px solid #111' }}></td>
                 </tr>
-                <tr className="font-black text-sm bg-slate-50 text-slate-800">
-                  <td colSpan={4} className="p-2 border-l border-slate-200 text-center font-black text-slate-700">الرصيد</td>
-                  <td colSpan={2} className="p-2 border-l border-slate-200"></td>
-                  <td className="p-2 text-center text-lg">
+                <tr style={{ backgroundColor: '#f1f5f9', fontWeight: 'bold', height: '35px' }}>
+                  <td colSpan={4} style={{ textAlign: 'center', border: '1px solid #111', fontWeight: 'bold', fontSize: '10.5pt' }}>الرصيد النهائي المستحق</td>
+                  <td colSpan={2} style={{ border: '1px solid #111' }}></td>
+                  <td style={{ textAlign: 'center', border: '1px solid #111', fontSize: '11.5pt', fontWeight: 'bold', color: '#1e3a8a' }}>
                     <span dir="ltr">{totals.balance.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })}</span>
                   </td>
                 </tr>
@@ -1236,8 +1314,9 @@ const Ledger: React.FC<Props> = ({
             {/* Print Footer signatures with soft elegant slate border lines removed */}
             <div className="mt-16"></div>
 
-            <div className="mt-16 text-center text-gray-400 text-[10px] border-t border-gray-150 pt-4">
+            <div className="mt-16 text-center text-gray-400 border-t border-gray-150 pt-4" style={{ fontSize: '10px' }}>
               تحريراً في نظام معرض اليرموك المحاسبي الإلكتروني الموحد لسيراميك وبورسلان وبناء © {new Date().getFullYear()}
+            </div>
             </div>
           </div>
 
@@ -1257,18 +1336,28 @@ const Ledger: React.FC<Props> = ({
                   سندات قبض)
                 </p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-end">
+                <button
+                  onClick={() => downloadPDF('ledger')}
+                  disabled={isSharingImage}
+                  className="px-4 py-2.5 sm:px-6 sm:py-3 bg-[#3B5BDB]/10 border border-[#3B5BDB]/30 rounded-2xl font-black text-xs sm:text-sm text-[#3B5BDB] hover:bg-[#3B5BDB]/20 hover:border-[#3B5BDB]/40 transition-all flex items-center gap-2 sm:gap-3 shadow-sm hover:shadow-md shrink-0 print:hidden"
+                  title="تحميل كشف الحساب كملف PDF"
+                >
+                  <Printer size={16} className={isSharingImage ? "animate-bounce" : ""} />
+                  {isSharingImage ? "جاري التجهيز..." : "تحميل كشف حساب PDF"}
+                </button>
                 <button
                   onClick={handleExportExcel}
-                  className="px-6 py-3 bg-emerald-50 border border-emerald-200 rounded-2xl font-black text-sm text-emerald-800 hover:bg-emerald-100 hover:border-emerald-300 transition-all flex items-center gap-3 shadow-sm hover:shadow-md shrink-0"
+                  className="px-4 py-2.5 sm:px-6 sm:py-3 bg-emerald-50 border border-emerald-200 rounded-2xl font-black text-xs sm:text-sm text-emerald-800 hover:bg-emerald-100 hover:border-emerald-300 transition-all flex items-center gap-2 sm:gap-3 shadow-sm hover:shadow-md shrink-0"
+                  title="تحميل كملف إكسيل"
                 >
-                  <Download size={18} /> تحميل إكسيل
+                  <Download size={16} /> تحميل إكسيل
                 </button>
               </div>
             </div>
 
             {/* Print Header */}
-            <div className="hidden print:block mb-8 text-center border-b-[4px] border-[#1C1C2E] pb-8 pt-10">
+            <div className="print-only mb-8 text-center border-b-[4px] border-[#1C1C2E] pb-8 pt-10">
               <div className="flex justify-between items-start mb-6">
                 <div className="text-right space-y-2">
                   <h2 className="text-4xl font-black text-[#1C1C2E]">
@@ -1458,7 +1547,7 @@ const Ledger: React.FC<Props> = ({
                         )}
 
                         <div
-                          className={`${expandedInvoiceIds[row.id] ? "block" : "hidden print:block"}`}
+                          className={expandedInvoiceIds[row.id] ? "block" : "print-only"}
                         >
                           <table className="w-full text-center border-collapse bg-white">
                             <thead className="bg-gray-50 text-[#1C1C2E] border-b-[3px] border-[#1C1C2E]">
@@ -1680,12 +1769,13 @@ const Ledger: React.FC<Props> = ({
           </div>
         </div>
       )}
+      </div>
 
       {/* Invoice Detail Modal (PDF Look) */}
       {viewingInvoice && (
         <div className="fixed inset-0 bg-[#050510]/80 print:bg-white backdrop-blur-md z-50 flex items-center justify-center p-1 sm:p-4 md:p-8 print:p-0 animate-in fade-in duration-300 print:relative print:block print:h-auto print:overflow-visible" dir="rtl">
           {isJustSavedInvoice ? (
-            <div className="bg-white w-full max-w-md rounded-3xl overflow-hidden shadow-2xl flex flex-col p-8 text-center relative border border-gray-100 animate-in zoom-in-95 duration-200">
+            <div className="bg-white w-full max-w-md rounded-3xl overflow-hidden shadow-2xl flex flex-col p-8 text-center relative border border-gray-100 animate-in zoom-in-95 duration-200 print:hidden">
               <button
                 onClick={closeViewingInvoice}
                 className="absolute top-4 right-4 p-2 bg-gray-50 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all"
@@ -1750,7 +1840,7 @@ const Ledger: React.FC<Props> = ({
               </div>
             </div>
           ) : (
-            <div className="bg-white w-full max-w-3xl print-container print:max-w-none rounded-none print:rounded-none overflow-hidden shadow-2xl print:shadow-none flex flex-col max-h-[95vh] print:max-h-none print:h-auto print:border-none relative print:block print:overflow-visible">
+            <div className="bg-white w-full max-w-3xl rounded-none overflow-hidden shadow-2xl flex flex-col max-h-[95vh] relative print:hidden">
               <button
                 onClick={closeViewingInvoice}
                 className="absolute top-6 right-6 p-2 bg-gray-100 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all print:hidden z-10"
@@ -1861,8 +1951,8 @@ const Ledger: React.FC<Props> = ({
 
 
 
-               <div className="mt-10 pt-6 border-t border-slate-200 flex justify-end items-center bg-[#F4F6FA] p-6 rounded-none print:hidden">
-                 <div className="flex gap-2">
+               <div className="mt-10 pt-6 border-t border-slate-200 flex flex-wrap gap-2 justify-center sm:justify-end items-center bg-[#F4F6FA] p-4 sm:p-6 rounded-none print:hidden">
+                 <div className="flex flex-wrap gap-1.5 sm:gap-2 justify-center items-center">
                   {(role === "admin" || role === "supervisor" || role === "employee") && (
                     <button
                       onClick={() => {
@@ -1873,41 +1963,171 @@ const Ledger: React.FC<Props> = ({
                           viewingInvoice.id,
                         );
                       }}
-                      className="w-10 h-10 bg-white text-[#3B5BDB] border border-slate-200 rounded-lg flex items-center justify-center font-black hover:bg-[#3B5BDB] hover:text-white transition-all print:hidden shadow-sm"
+                      className="w-8 h-8 sm:w-10 sm:h-10 bg-white text-[#3B5BDB] border border-slate-200 rounded-lg flex items-center justify-center font-black hover:bg-[#3B5BDB] hover:text-white transition-all print:hidden shadow-sm shrink-0"
+                      title="تعديل الفاتورة"
                     >
-                      <Edit size={18} />
+                      <Edit size={16} className="sm:w-[18px] sm:h-[18px]" />
                     </button>
                   )}
 
                   <button
                     onClick={() => shareInvoiceWhatsapp(viewingInvoice as any)}
                     disabled={isSharingImage}
-                    className={`flex items-center gap-2 px-3 h-10 ${isSharingImage ? 'bg-gray-100 text-gray-400 border-gray-200' : 'bg-[#25D366]/10 text-[#075E54] border-[#25D366]/30 hover:bg-[#25D366]/20'} border rounded-lg font-bold text-xs transition-all shadow-sm print:hidden`}
+                    className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 h-8 sm:h-10 ${isSharingImage ? 'bg-gray-100 text-gray-400 border-gray-200' : 'bg-[#25D366]/10 text-[#075E54] border-[#25D366]/30 hover:bg-[#25D366]/20'} border rounded-lg font-bold text-[11px] sm:text-xs transition-all shadow-sm print:hidden shrink-0`}
                     title="مشاركة الفاتورة"
                   >
-                    <Share2 size={18} className={isSharingImage ? "animate-spin" : ""} />
+                    <Share2 size={16} className={`${isSharingImage ? "animate-spin" : ""} sm:w-[18px] sm:h-[18px]`} />
                     <span>{isSharingImage ? "جاري التجهيز..." : "مشاركة"}</span>
                   </button>
 
                   <button
+                    onClick={() => downloadPDF('invoice', viewingInvoice.id)}
+                    disabled={isSharingImage}
+                    className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 h-8 sm:h-10 bg-[#3B5BDB]/10 text-[#3B5BDB] border border-[#3B5BDB]/30 hover:bg-[#3B5BDB]/20 rounded-lg font-bold text-[11px] sm:text-xs transition-all shadow-sm print:hidden shrink-0"
+                    title="تحميل كملف PDF"
+                  >
+                    <Printer size={16} className={`${isSharingImage ? "animate-bounce" : ""} sm:w-[18px] sm:h-[18px]`} />
+                    <span>PDF / طباعة</span>
+                  </button>
+
+                  <button
                     onClick={() => handleExportInvoiceExcel(viewingInvoice as any)}
-                    className="w-10 h-10 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg flex items-center justify-center hover:bg-emerald-100 transition-all shadow-sm print:hidden"
+                    className="w-8 h-8 sm:w-10 sm:h-10 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg flex items-center justify-center hover:bg-emerald-100 transition-all shadow-sm print:hidden shrink-0"
                     title="تحميل كملف إكسيل"
                   >
-                    <Download size={18} />
+                    <Download size={16} className="sm:w-[18px] sm:h-[18px]" />
                   </button>
                 </div>
               </div>
             </div>
           </div>
           )}
+
+          {/* Hidden Print Template matching Excel EXACTLY */}
+          <div className="print-wrapper">
+            <div className="invoice-pdf-page" id="print-invoice-content">
+            <table className="invoice-pdf-table" style={{ border: 'none', marginBottom: '8px' }}>
+              <tbody>
+                <tr style={{ height: '45px' }}>
+                  <td colSpan={8} style={{ border: 'none', fontSize: '22pt', fontWeight: 'bold', textAlign: 'center', verticalAlign: 'middle' }}>معرض اليرموك</td>
+                </tr>
+                <tr style={{ height: '30px' }}>
+                  <td colSpan={8} style={{ border: 'none', fontSize: '16pt', fontWeight: 'bold', textAlign: 'center', verticalAlign: 'middle', color: '#333' }}>للسيراميك والأدوات الصحية</td>
+                </tr>
+                <tr style={{ height: '30px' }}>
+                  <td colSpan={4} style={{ border: 'none', fontSize: '14pt', fontWeight: 'bold', textAlign: 'right', verticalAlign: 'middle' }}>فاتورة مبيعات (بالحساب)</td>
+                  <td colSpan={4} style={{ border: 'none', fontSize: '12pt', fontWeight: 'normal', textAlign: 'left', verticalAlign: 'middle', color: '#333' }}>إربد - الأردن</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table className="invoice-pdf-table">
+              <colgroup><col width="38" /><col width="230" /><col width="45" /><col width="50" /><col width="60" /><col width="40" /><col width="65" /><col width="32" /></colgroup>
+              <tbody>
+                <tr style={{ height: '35px' }}>
+                  <td colSpan={5} style={{ borderTop: '1px solid #111', borderRight: '1px solid #111', borderLeft: '1px solid #111', borderBottom: 'none', fontSize: '11pt', fontWeight: 'bold', textAlign: 'right', padding: '6px', verticalAlign: 'middle' }}>رقم الفاتورة : {viewingInvoice.id.substring(0, 8).toUpperCase()}</td>
+                  <td colSpan={3} style={{ borderTop: '1px solid #111', borderLeft: '1px solid #111', borderRight: '1px solid #111', borderBottom: 'none', fontSize: '11pt', textAlign: 'right', padding: '6px', verticalAlign: 'middle', color: '#333' }}>التاريخ : {new Date(viewingInvoice.date).toLocaleDateString('en-GB')}</td>
+                </tr>
+                <tr style={{ height: '35px' }}>
+                  <td colSpan={5} style={{ borderTop: 'none', borderRight: '1px solid #111', borderLeft: '1px solid #111', borderBottom: 'none', fontSize: '11pt', fontWeight: 'bold', textAlign: 'right', padding: '6px', verticalAlign: 'middle' }}>مطلوب من السادة : {customer?.name || ""} المحترمين</td>
+                  <td colSpan={3} style={{ borderTop: 'none', borderLeft: '1px solid #111', borderRight: '1px solid #111', borderBottom: 'none', fontSize: '11pt', textAlign: 'right', padding: '6px', verticalAlign: 'middle', color: '#333' }}>الاخراج :</td>
+                </tr>
+                <tr style={{ height: '35px' }}>
+                  <td colSpan={5} style={{ borderTop: 'none', borderRight: '1px solid #111', borderLeft: '1px solid #111', borderBottom: '1px solid #111', padding: '6px' }}></td>
+                  <td colSpan={3} style={{ borderTop: 'none', borderLeft: '1px solid #111', borderRight: '1px solid #111', borderBottom: '1px solid #111', fontSize: '11pt', textAlign: 'right', padding: '6px', verticalAlign: 'middle', color: '#333' }}>طلب الشراء :</td>
+                </tr>
+                
+                <tr style={{ height: '8px' }}>
+                  <td colSpan={8} style={{ border: 'none' }}></td>
+                </tr>
+
+                <tr style={{ height: '35px' }}>
+                  <td rowSpan={2} style={{ border: '1px solid #111', fontWeight: 'bold', backgroundColor: '#ffffff', textAlign: 'center', verticalAlign: 'middle' }}>التسلسل</td>
+                  <td rowSpan={2} style={{ border: '1px solid #111', fontWeight: 'bold', backgroundColor: '#ffffff', textAlign: 'center', verticalAlign: 'middle' }}>البيان</td>
+                  <td rowSpan={2} style={{ border: '1px solid #111', fontWeight: 'bold', backgroundColor: '#ffffff', textAlign: 'center', verticalAlign: 'middle' }}>الوحدة</td>
+                  <td rowSpan={2} style={{ border: '1px solid #111', fontWeight: 'bold', backgroundColor: '#ffffff', textAlign: 'center', verticalAlign: 'middle' }}>الكمية</td>
+                  <td colSpan={2} style={{ border: '1px solid #111', fontWeight: 'bold', backgroundColor: '#ffffff', textAlign: 'center', verticalAlign: 'middle' }}>سعر الوحدة</td>
+                  <td colSpan={2} style={{ border: '1px solid #111', fontWeight: 'bold', backgroundColor: '#ffffff', textAlign: 'center', verticalAlign: 'middle' }}>القيمة الاجمالية</td>
+                </tr>
+                <tr style={{ height: '25px' }}>
+                  <td style={{ border: '1px solid #111', fontWeight: 'bold', backgroundColor: '#ffffff', textAlign: 'center', verticalAlign: 'middle' }}>دينار</td>
+                  <td style={{ border: '1px solid #111', fontWeight: 'bold', backgroundColor: '#ffffff', textAlign: 'center', verticalAlign: 'middle' }}>فلس</td>
+                  <td style={{ border: '1px solid #111', fontWeight: 'bold', backgroundColor: '#ffffff', textAlign: 'center', verticalAlign: 'middle' }}>دينار</td>
+                  <td style={{ border: '1px solid #111', fontWeight: 'bold', backgroundColor: '#ffffff', textAlign: 'center', verticalAlign: 'middle' }}>فلس</td>
+                </tr>
+
+                {(() => {
+                  const itemsCount = viewingInvoice.items?.length || 0;
+                  const fillerCount = Math.max(0, 15 - itemsCount);
+                  
+                  return (
+                    <>
+                      {viewingInvoice.items?.map((item, idx) => {
+                        const price = item.price || 0;
+                        const total = item.total || (price * (item.quantity || 1));
+                        
+                        const pD = Math.floor(price);
+                        const pF = Math.round((price - pD) * 1000).toString().padStart(3, '0');
+                        
+                        const tD = Math.floor(total);
+                        const tF = Math.round((total - tD) * 1000).toString().padStart(3, '0');
+                        
+                        return (
+                          <tr key={idx} style={{ height: '32px' }}>
+                            <td style={{ border: '1px solid #111', textAlign: 'center', verticalAlign: 'middle' }}>{idx + 1}</td>
+                            <td style={{ border: '1px solid #111', textAlign: 'right', paddingRight: '15px', fontWeight: 'bold', whiteSpace: 'normal', wordBreak: 'break-all' }}>{item.name}</td>
+                            <td style={{ border: '1px solid #111', textAlign: 'center', verticalAlign: 'middle' }}>{item.unit || 'متر'}</td>
+                            <td style={{ border: '1px solid #111', textAlign: 'center', verticalAlign: 'middle', fontWeight: 'bold' }}>{item.quantity}</td>
+                            <td style={{ border: '1px solid #111', textAlign: 'center', verticalAlign: 'middle' }}>{pD}</td>
+                            <td style={{ border: '1px solid #111', textAlign: 'center', verticalAlign: 'middle' }}>{pF}</td>
+                            <td style={{ border: '1px solid #111', textAlign: 'center', verticalAlign: 'middle' }}>{tD}</td>
+                            <td style={{ border: '1px solid #111', textAlign: 'center', verticalAlign: 'middle' }}>{tF}</td>
+                          </tr>
+                        );
+                      })}
+                      {Array.from({ length: fillerCount }).map((_, i) => (
+                        <tr key={`filler-${i}`} style={{ height: '32px' }}>
+                          <td style={{ border: '1px solid #111', textAlign: 'center', verticalAlign: 'middle' }}>{itemsCount + i + 1}</td>
+                          <td style={{ border: '1px solid #111' }}></td>
+                          <td style={{ border: '1px solid #111' }}></td>
+                          <td style={{ border: '1px solid #111' }}></td>
+                          <td style={{ border: '1px solid #111' }}></td>
+                          <td style={{ border: '1px solid #111' }}></td>
+                          <td style={{ border: '1px solid #111' }}></td>
+                          <td style={{ border: '1px solid #111' }}></td>
+                        </tr>
+                      ))}
+                    </>
+                  );
+                })()}
+
+                <tr style={{ height: '35px' }}>
+                  <td colSpan={5} style={{ borderTop: 'none', borderBottom: 'none', borderLeft: 'none', borderRight: '1px solid #111' }}></td>
+                  <td style={{ border: '1px solid #111', fontWeight: 'bold', textAlign: 'center', padding: '6px' }}>المجموع</td>
+                  <td colSpan={2} style={{ border: '1px solid #111', fontWeight: 'bold', textAlign: 'left', fontSize: '11pt', paddingLeft: '10px' }}>{viewingInvoice.totalAmount.toFixed(3)}</td>
+                </tr>
+                <tr style={{ height: '35px' }}>
+                  <td colSpan={5} style={{ borderTop: 'none', borderBottom: 'none', borderLeft: 'none', borderRight: '1px solid #111', textAlign: 'center', fontWeight: 'bold', fontSize: '11pt', padding: '6px' }}>Page : 1 / 1</td>
+                  <td style={{ border: '1px solid #111', fontWeight: 'bold', textAlign: 'center', padding: '6px' }}>الاجمالي</td>
+                  <td colSpan={2} style={{ border: '1px solid #111', fontWeight: 'bold', textAlign: 'left', fontSize: '11pt', paddingLeft: '10px' }}>{viewingInvoice.totalAmount.toFixed(3)}</td>
+                </tr>
+                <tr style={{ height: '35px' }}>
+                  <td colSpan={5} style={{ borderTop: 'none', borderBottom: '1px solid #111', borderLeft: 'none', borderRight: '1px solid #111', textAlign: 'right', fontWeight: 'bold', paddingRight: '10px', padding: '6px', direction: 'rtl' }}>{tafqeet(viewingInvoice.totalAmount)}</td>
+                  <td style={{ border: '1px solid #111', fontWeight: 'bold', textAlign: 'center', padding: '6px' }}>الصافي</td>
+                  <td colSpan={2} style={{ border: '1px solid #111', fontWeight: 'bold', textAlign: 'left', fontSize: '11pt', paddingLeft: '10px' }}>{viewingInvoice.totalAmount.toFixed(3)}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          </div>
+
         </div>
       )}
 
       {/* Payment Detail Modal */}
       {viewingPayment && (
         <div className="fixed inset-0 bg-[#050510]/80 print:bg-white backdrop-blur-md z-50 flex items-center justify-center p-4 md:p-8 print:p-0 animate-in fade-in duration-300 print:relative print:block print:h-auto print:overflow-visible" dir="rtl">
-          <div id="payment-print-area" className="bg-white w-full max-w-xl print-container print:max-w-none rounded-none print:rounded-none overflow-hidden shadow-2xl print:shadow-none flex flex-col max-h-[90vh] print:max-h-none print:h-auto border border-[#2F9E44]/30 print:border-none print:block print:overflow-visible">
+          <div className="bg-white w-full max-w-xl rounded-none overflow-hidden shadow-2xl flex flex-col max-h-[90vh] border border-[#2F9E44]/30 print:hidden">
             <div className="p-10 bg-white print:border-b print:border-slate-300 flex justify-between items-start">
               <div className="flex items-center gap-6">
                 <div className="w-16 h-16 rounded-none bg-[#2F9E44] text-white flex items-center justify-center shadow-lg shadow-emerald-500/10 print:bg-[#1C1C2E]">
@@ -2009,11 +2229,11 @@ const Ledger: React.FC<Props> = ({
               </div>
             </div>
 
-            <div className="p-10 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+            <div className="p-4 sm:p-10 bg-gray-50 border-t border-gray-100 flex flex-col sm:flex-row gap-4 items-center justify-between">
               <p className="text-center text-[9px] text-gray-400 font-bold uppercase tracking-widest">
                 {new Date(viewingPayment.date).toLocaleDateString('en-GB')}
               </p>
-              <div className="flex gap-4">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2 justify-center items-center">
                   {(role === "admin" || role === "supervisor" || role === "employee") && (
                     <button
                       onClick={() => {
@@ -2024,38 +2244,117 @@ const Ledger: React.FC<Props> = ({
                           viewingPayment.id,
                         );
                       }}
-                      className="w-10 h-10 bg-white text-[#3B5BDB] border border-slate-200 rounded-lg flex items-center justify-center font-black hover:bg-[#3B5BDB] hover:text-white transition-all print:hidden shadow-sm"
+                      className="w-8 h-8 sm:w-10 sm:h-10 bg-white text-[#3B5BDB] border border-slate-200 rounded-lg flex items-center justify-center font-black hover:bg-[#3B5BDB] hover:text-white transition-all print:hidden shadow-sm shrink-0"
+                      title="تعديل السند"
                     >
-                      <Edit size={18} />
+                      <Edit size={16} className="sm:w-[18px] sm:h-[18px]" />
                     </button>
                   )}
 
                   <button
                     onClick={() => sharePaymentWhatsapp(viewingPayment as any)}
                     disabled={isSharingImage}
-                    className={`flex items-center gap-2 px-3 h-10 ${isSharingImage ? 'bg-gray-100 text-gray-400 border-gray-200' : 'bg-[#25D366]/10 text-[#075E54] border-[#25D366]/30 hover:bg-[#25D366]/20'} border rounded-lg font-bold text-xs transition-all shadow-sm print:hidden`}
+                    className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 h-8 sm:h-10 ${isSharingImage ? 'bg-gray-100 text-gray-400 border-gray-200' : 'bg-[#25D366]/10 text-[#075E54] border-[#25D366]/30 hover:bg-[#25D366]/20'} border rounded-lg font-bold text-[11px] sm:text-xs transition-all shadow-sm print:hidden shrink-0`}
                     title="مشاركة السند"
                   >
-                    <Share2 size={18} className={isSharingImage ? "animate-spin" : ""} />
+                    <Share2 size={16} className={`${isSharingImage ? "animate-spin" : ""} sm:w-[18px] sm:h-[18px]`} />
                     <span>{isSharingImage ? "جاري التجهيز..." : "مشاركة"}</span>
                   </button>
 
                   <button
+                    onClick={() => downloadPDF('payment', viewingPayment.id)}
+                    disabled={isSharingImage}
+                    className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 h-8 sm:h-10 bg-[#3B5BDB]/10 text-[#3B5BDB] border border-[#3B5BDB]/30 hover:bg-[#3B5BDB]/20 rounded-lg font-bold text-[11px] sm:text-xs transition-all shadow-sm print:hidden shrink-0"
+                    title="تحميل كملف PDF"
+                  >
+                    <Printer size={16} className={`${isSharingImage ? "animate-bounce" : ""} sm:w-[18px] sm:h-[18px]`} />
+                    <span>PDF / طباعة</span>
+                  </button>
+
+                  <button
                     onClick={() => handleExportPaymentExcel(viewingPayment as any)}
-                    className="w-10 h-10 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg flex items-center justify-center hover:bg-emerald-100 transition-all shadow-sm print:hidden"
+                    className="w-8 h-8 sm:w-10 sm:h-10 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg flex items-center justify-center hover:bg-emerald-100 transition-all shadow-sm print:hidden shrink-0"
                     title="تحميل كملف إكسيل"
                   >
-                    <Download size={18} />
+                    <Download size={16} className="sm:w-[18px] sm:h-[18px]" />
                   </button>
               </div>
             </div>
+          </div>
+
+          {/* Hidden Print Template matching Excel EXACTLY for Payment */}
+          <div className="print-wrapper">
+            <div className="invoice-pdf-page" id="print-payment-content">
+            <h2 style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '24px', marginBottom: '20px' }}>سند قبض مالي</h2>
+            <table className="invoice-pdf-table" style={{ width: '100%', borderCollapse: 'collapse', direction: 'rtl', fontFamily: 'sans-serif', fontSize: '14px', border: '1px solid #111111' }}>
+              <tbody>
+                <tr>
+                  <th colSpan={2} style={{ backgroundColor: '#f2f2f2', fontWeight: 'bold', textAlign: 'right', border: '1px solid #111111', padding: '8px' }}>رقم السند</th>
+                  <td colSpan={4} style={{ textAlign: 'right', border: '1px solid #111111', padding: '8px' }}>{viewingPayment.id.substring(0, 8).toUpperCase()}</td>
+                </tr>
+                <tr>
+                  <th colSpan={2} style={{ backgroundColor: '#f2f2f2', fontWeight: 'bold', textAlign: 'right', border: '1px solid #111111', padding: '8px' }}>التاريخ</th>
+                  <td colSpan={4} style={{ textAlign: 'right', border: '1px solid #111111', padding: '8px' }}>{new Date(viewingPayment.date).toLocaleDateString('en-GB')}</td>
+                </tr>
+                <tr>
+                  <th colSpan={2} style={{ backgroundColor: '#f2f2f2', fontWeight: 'bold', textAlign: 'right', border: '1px solid #111111', padding: '8px' }}>وصلنا من السيد</th>
+                  <td colSpan={4} style={{ textAlign: 'right', border: '1px solid #111111', padding: '8px' }}>{customer?.name || ""}</td>
+                </tr>
+                <tr>
+                  <th colSpan={2} style={{ backgroundColor: '#f2f2f2', fontWeight: 'bold', textAlign: 'right', border: '1px solid #111111', padding: '8px' }}>مبلغ وقدره</th>
+                  <td colSpan={4} style={{ textAlign: 'right', border: '1px solid #111111', padding: '8px', fontWeight: 'bold' }}>{viewingPayment.amount}</td>
+                </tr>
+                <tr>
+                  <th colSpan={2} style={{ backgroundColor: '#f2f2f2', fontWeight: 'bold', textAlign: 'right', border: '1px solid #111111', padding: '8px' }}>الصافي كتابة</th>
+                  <td colSpan={4} style={{ textAlign: 'right', border: '1px solid #111111', padding: '8px', fontWeight: 'bold' }}>{tafqeet(viewingPayment.amount)}</td>
+                </tr>
+                <tr>
+                  <th colSpan={2} style={{ backgroundColor: '#f2f2f2', fontWeight: 'bold', textAlign: 'right', border: '1px solid #111111', padding: '8px' }}>طريقة الدفع</th>
+                  <td colSpan={4} style={{ textAlign: 'right', border: '1px solid #111111', padding: '8px' }}>{viewingPayment.paymentMethod === 'cheque' ? 'شيك بنكي' : 'نقداً'}</td>
+                </tr>
+                <tr>
+                  <th colSpan={2} style={{ backgroundColor: '#f2f2f2', fontWeight: 'bold', textAlign: 'right', border: '1px solid #111111', padding: '8px' }}>وذلك عن / البيان</th>
+                  <td colSpan={4} style={{ textAlign: 'right', border: '1px solid #111111', padding: '8px' }}>{viewingPayment.notes || "دفعة من الحساب"}</td>
+                </tr>
+                
+                {viewingPayment.paymentMethod === 'cheque' && (
+                  <>
+                    <tr>
+                      <th colSpan={6} style={{ backgroundColor: '#f2f2f2', fontWeight: 'bold', border: '1px solid #111111', padding: '8px', textAlign: 'center' }}>تفاصيل الشيك البنكي المرفق</th>
+                    </tr>
+                    <tr>
+                      <th colSpan={2} style={{ backgroundColor: '#f2f2f2', fontWeight: 'bold', textAlign: 'right', border: '1px solid #111111', padding: '8px' }}>رقم الشيك</th>
+                      <td colSpan={4} style={{ textAlign: 'right', border: '1px solid #111111', padding: '8px' }}>{viewingPayment.chequeNumber || ""}</td>
+                    </tr>
+                    <tr>
+                      <th colSpan={2} style={{ backgroundColor: '#f2f2f2', fontWeight: 'bold', textAlign: 'right', border: '1px solid #111111', padding: '8px' }}>اسم البنك</th>
+                      <td colSpan={4} style={{ textAlign: 'right', border: '1px solid #111111', padding: '8px' }}>{viewingPayment.bankName || ""}</td>
+                    </tr>
+                    <tr>
+                      <th colSpan={2} style={{ backgroundColor: '#f2f2f2', fontWeight: 'bold', textAlign: 'right', border: '1px solid #111111', padding: '8px' }}>تاريخ الاستحقاق</th>
+                      <td colSpan={4} style={{ textAlign: 'right', border: '1px solid #111111', padding: '8px' }}>{viewingPayment.dueDate ? new Date(viewingPayment.dueDate).toLocaleDateString('en-GB') : ""}</td>
+                    </tr>
+                  </>
+                )}
+              </tbody>
+            </table>
+            
+            <table style={{ width: '100%', border: 'none', marginTop: '40px', fontSize: '14px', fontWeight: 'bold' }}>
+              <tbody>
+                <tr>
+                  <td style={{ textAlign: 'right', border: 'none', padding: '8px' }}>الاسم والتوقيع: .......................................</td>
+                  <td style={{ textAlign: 'left', border: 'none', padding: '8px' }}>أمين الصندوق: .......................................</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
           </div>
         </div>
       )}
 
       {/* Hidden off-screen Invoice template for sharing */}
       {viewingInvoice && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: 0, height: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: -999 }}>
+        <div className="print:hidden" style={{ position: 'fixed', top: 0, left: 0, width: 0, height: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: -999 }}>
           <div
             id="share-invoice-card"
             className="bg-white p-10 text-black leading-normal animate-none"
@@ -2223,7 +2522,7 @@ const Ledger: React.FC<Props> = ({
 
       {/* Hidden off-screen Payment template for sharing */}
       {viewingPayment && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: 0, height: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: -999 }}>
+        <div className="print:hidden" style={{ position: 'fixed', top: 0, left: 0, width: 0, height: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: -999 }}>
           <div
             id="share-payment-card"
             className="bg-white p-10 text-black leading-normal animate-none"
