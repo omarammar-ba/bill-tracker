@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { ViewState } from '../types';
-import { Users, FileText, Menu, X, LogOut, Home, Receipt, Banknote, List, BarChart3, Settings, Printer, Landmark, Wrench } from 'lucide-react';
+import { Users, FileText, Menu, X, LogOut, Home, Receipt, Banknote, List, BarChart3, Settings, Printer, Landmark, Wrench, Database } from 'lucide-react';
 import { useAuth } from './AuthContext';
 
 interface LayoutProps {
@@ -71,7 +71,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, changeView }) =>
       {/* Mobile Header */}
       <div className="md:hidden relative z-20 print:hidden mb-2">
         {/* Main curved header background */}
-        <div className="absolute inset-x-0 top-0 h-[85px] bg-gradient-to-b from-[#0F2A1E] to-[#05140E] rounded-b-[36px] shadow-[0_8px_20px_rgba(0,0,0,0.08)] overflow-hidden border-b border-white/5">
+        <div className="absolute inset-x-0 top-0 h-[85px] bg-gradient-to-b from-[#0F2A1E] to-[#05140E] rounded-b-[36px] overflow-hidden border-b border-white/5">
           {/* Subtle noise overlay for premium feel */}
           <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay" style={{backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.85%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E")'}}></div>
           
@@ -140,6 +140,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, changeView }) =>
               <div className="px-4 text-[10px] font-black text-gray-300 uppercase tracking-[0.2em] pt-6 pb-3">الإدارة</div>
               <NavItem view="REPORTS" icon={BarChart3} label="التقارير" />
               {role === 'admin' && <NavItem view="STAFF" icon={Settings} label="الموظفين" />}
+              <NavItem view="BACKUP" icon={Database} label="النسخ الاحتياطي" />
             </>
           )}
 

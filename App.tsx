@@ -13,6 +13,7 @@ import Dashboard from './components/Dashboard';
 import Reports from './components/Reports';
 import { StaffManager } from './components/StaffManager';
 import { ChequesManager } from './components/ChequesManager';
+import { BackupRestore } from './components/BackupRestore';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ToastNotifications } from './components/ToastNotifications';
 import { DiagnosticsCenter } from './components/DiagnosticsCenter';
@@ -117,6 +118,8 @@ const AppContent: React.FC = () => {
         return <ChequesManager changeView={changeView} />;
       case 'REPORTS':
         return <Reports customers={visibleCustomers} transactions={visibleTransactions} />;
+      case 'BACKUP':
+        return <BackupRestore />;
       case 'STAFF':
         return <StaffManager />;
       default:

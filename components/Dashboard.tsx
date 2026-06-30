@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { Customer, Transaction, ViewState } from '../types';
-import { Users, Receipt, Banknote, TrendingUp, ArrowUpRight, ArrowDownRight, Clock, Eye, EyeOff, Trash2 } from 'lucide-react';
+import { Users, Receipt, Banknote, TrendingUp, ArrowUpRight, ArrowDownRight, Clock, Eye, EyeOff, Trash2, AlertCircle, ChevronLeft } from 'lucide-react';
 import { useAuth } from './AuthContext';
 import { getDocs, collection } from 'firebase/firestore';
 import { db } from '../services/firebase';
@@ -233,8 +233,34 @@ const Dashboard: React.FC<DashboardProps> = ({ customers, transactions, changeVi
     return { totalSales, totalCollected, totalDebts, customerCount };
   }, [customers, transactions]);
 
+  const [needsBackup, setNeedsBackup] = useState(false);
+  useEffect(() => {
+    const backupDate = localStorage.getItem('last_backup_date');
+    if (backupDate) {
+      const days = (Date.now() - new Date(backupDate).getTime()) / (1000 * 60 * 60 * 24);
+      if (days > 30) setNeedsBackup(true);
+    } else {
+      setNeedsBackup(true);
+    }
+  }, []);
+
   return (
     <div className="space-y-8 animate-in fade-in duration-700 font-['Tajawal']" dir="rtl">
+      
+      {needsBackup && (
+        <div className="bg-amber-50 border border-amber-200 text-amber-800 px-5 py-4 rounded-xl flex items-center justify-between gap-4 cursor-pointer hover:bg-amber-100 transition-colors"
+             onClick={() => changeView('BACKUP')}>
+          <div className="flex items-center gap-3">
+            <AlertCircle className="w-6 h-6 shrink-0" />
+            <div>
+              <h3 className="font-bold text-lg">حان وقت إنشاء نسخة احتياطية شهرية</h3>
+              <p className="text-sm mt-0.5">مر أكثر من 30 يوم على آخر نسخة احتياطية، اضغط هنا لإنشاء نسخة جديدة لحماية بياناتك.</p>
+            </div>
+          </div>
+          <ChevronLeft className="w-5 h-5 shrink-0" />
+        </div>
+      )}
+
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-black text-[#1C1C2E]">لوحة التحكم</h1>

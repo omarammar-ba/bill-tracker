@@ -63,7 +63,7 @@ export interface Payment {
 
 export type Transaction = (Invoice & { type: 'invoice' }) | (Payment & { type: 'payment' });
 
-export type ViewState = 'CUSTOMERS' | 'NEW_TRANSACTION' | 'EDIT_TRANSACTION' | 'LEDGER' | 'LOGIN' | 'REPORTS' | 'STAFF' | 'HOME' | 'INVOICES' | 'PAYMENTS' | 'CHEQUES';
+export type ViewState = 'CUSTOMERS' | 'NEW_TRANSACTION' | 'EDIT_TRANSACTION' | 'LEDGER' | 'LOGIN' | 'REPORTS' | 'STAFF' | 'HOME' | 'INVOICES' | 'PAYMENTS' | 'CHEQUES' | 'BACKUP';
 
 export interface ViewProps {
   changeView: (view: ViewState, customerId?: string, transactionId?: string) => void;
