@@ -158,7 +158,7 @@ const SwipeableTransactionItem: React.FC<{
                     <Eye size={16} />
                 </button>
                 )}
-                {!isDeleted && (
+                {!isDeleted && !isMissingCustomer && (
                 <button 
                    type="button"
                    onClick={(e) => { 

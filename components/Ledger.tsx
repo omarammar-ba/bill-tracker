@@ -1715,6 +1715,7 @@ const Ledger: React.FC<Props> = ({
                       </button>
                       {(role === "admin" || role === "supervisor" || role === "employee") && (
                         <>
+                          {!row.deleted && !!customer && (
                           <button
                             onClick={() =>
                               changeView(
@@ -1728,6 +1729,7 @@ const Ledger: React.FC<Props> = ({
                           >
                             <Edit size={16} />
                           </button>
+                          )}
                           <button
                             onClick={() => handleDeleteTransaction(row)}
                             className="p-2 text-red-300 hover:text-red-600 hover:bg-white rounded-lg transition-all active:scale-95 active:bg-red-50"
@@ -1953,7 +1955,7 @@ const Ledger: React.FC<Props> = ({
 
                <div className="mt-10 pt-6 border-t border-slate-200 flex flex-wrap gap-2 justify-center sm:justify-end items-center bg-[#F4F6FA] p-4 sm:p-6 rounded-none print:hidden">
                  <div className="flex flex-wrap gap-1.5 sm:gap-2 justify-center items-center">
-                  {(role === "admin" || role === "supervisor" || role === "employee") && (
+                  {(role === "admin" || role === "supervisor" || role === "employee") && !viewingInvoice.deleted && !!customer && (
                     <button
                       onClick={() => {
                         closeViewingInvoice();
@@ -2234,7 +2236,7 @@ const Ledger: React.FC<Props> = ({
                 {new Date(viewingPayment.date).toLocaleDateString('en-GB')}
               </p>
               <div className="flex flex-wrap gap-1.5 sm:gap-2 justify-center items-center">
-                  {(role === "admin" || role === "supervisor" || role === "employee") && (
+                  {(role === "admin" || role === "supervisor" || role === "employee") && !viewingPayment.deleted && !!customer && (
                     <button
                       onClick={() => {
                         setViewingPayment(null);
