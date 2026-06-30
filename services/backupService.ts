@@ -302,8 +302,28 @@ export const restoreBackup = async (
 
         const addItem = async (colName: string, item: any) => {
             const ref = doc(db, colName, item.id);
-            // Ensure dates are numbers (timestamps) or correct format if possible
             const cleanItem = { ...item };
+            
+            // Fix dates if they are strings or objects
+            if (cleanItem.date) {
+                if (typeof cleanItem.date === 'string') cleanItem.date = new Date(cleanItem.date).getTime();
+                else if (cleanItem.date.seconds) cleanItem.date = cleanItem.date.seconds * 1000;
+            } else {
+                if (colName === 'invoices' || colName === 'payments') cleanItem.date = Date.now();
+            }
+
+            if (cleanItem.createdAt) {
+                if (typeof cleanItem.createdAt === 'string') cleanItem.createdAt = new Date(cleanItem.createdAt).getTime();
+                else if (cleanItem.createdAt.seconds) cleanItem.createdAt = cleanItem.createdAt.seconds * 1000;
+            } else {
+                if (colName === 'customers') cleanItem.createdAt = Date.now();
+            }
+
+            if (cleanItem.dueDate) {
+                if (typeof cleanItem.dueDate === 'string') cleanItem.dueDate = new Date(cleanItem.dueDate).getTime();
+                else if (cleanItem.dueDate.seconds) cleanItem.dueDate = cleanItem.dueDate.seconds * 1000;
+            }
+
             Object.keys(cleanItem).forEach(key => {
                 if (cleanItem[key] === undefined || cleanItem[key] === null) {
                     delete cleanItem[key];

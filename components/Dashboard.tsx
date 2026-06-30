@@ -221,7 +221,15 @@ const Dashboard: React.FC<DashboardProps> = ({ customers, transactions, changeVi
   }, []);
 
   const recentTransactions = useMemo(() => {
-    return [...transactions].sort((a, b) => b.date - a.date).slice(0, visibleCount);
+    return [...transactions].sort((a, b) => {
+      let da: any = a.date;
+      let dbDate: any = b.date;
+      if (typeof da === 'string') da = new Date(da).getTime();
+      else if (da?.seconds) da = da.seconds * 1000;
+      if (typeof dbDate === 'string') dbDate = new Date(dbDate).getTime();
+      else if (dbDate?.seconds) dbDate = dbDate.seconds * 1000;
+      return (dbDate || 0) - (da || 0);
+    }).slice(0, visibleCount);
   }, [transactions, visibleCount]);
 
   const stats = useMemo(() => {

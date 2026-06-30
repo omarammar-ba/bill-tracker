@@ -184,6 +184,18 @@ const notifyLocalCustomers = () => {
     localCustomerListeners.forEach(cb => cb(list));
 };
 
+const safeSortTransactions = (arr: any[]) => {
+    return arr.sort((a, b) => {
+        let da = a.date;
+        let dbDate = b.date;
+        if (typeof da === 'string') da = new Date(da).getTime();
+        else if (da?.seconds) da = da.seconds * 1000;
+        if (typeof dbDate === 'string') dbDate = new Date(dbDate).getTime();
+        else if (dbDate?.seconds) dbDate = dbDate.seconds * 1000;
+        return (dbDate || 0) - (da || 0);
+    });
+};
+
 const notifyLocalTransactions = () => {
     const invoices = getLocalData('yarmouk_local_invoices', []);
     const payments = getLocalData('yarmouk_local_payments', []);
@@ -193,7 +205,7 @@ const notifyLocalTransactions = () => {
         return { ...p, type: 'payment', totalAmount: p.amount, amount: p.amount };
     });
     
-    const combined = [...combinedInvoices, ...combinedPayments].sort((a, b) => b.date - a.date);
+    const combined = safeSortTransactions([...combinedInvoices, ...combinedPayments]);
     localTransactionListeners.forEach(cb => cb(combined));
 };
 
@@ -281,17 +293,17 @@ export const subscribeToTransactions = (callback: (data: any[]) => void) => {
 
   // If we already have cached transaction values, emit them instantly
   if (currentInvoicesCache.length > 0 || currentPaymentsCache.length > 0) {
-    const combined = [...currentInvoicesCache, ...currentPaymentsCache].sort((a, b) => b.date - a.date);
+    const combined = safeSortTransactions([...currentInvoicesCache, ...currentPaymentsCache]);
     callback(combined);
   }
 
   if (!invUnsub && !payUnsub) {
-    const invQuery = query(collection(db, 'invoices'), orderBy('date', 'desc'));
-    const payQuery = query(collection(db, 'payments'), orderBy('date', 'desc'));
+    const invQuery = query(collection(db, 'invoices'));
+    const payQuery = query(collection(db, 'payments'));
 
     invUnsub = onSnapshot(invQuery, (snapshot) => {
       currentInvoicesCache = snapshot.docs.map(d => ({ ...d.data(), id: d.id, type: 'invoice' } as any));
-      const combined = [...currentInvoicesCache, ...currentPaymentsCache].sort((a, b) => b.date - a.date);
+      const combined = safeSortTransactions([...currentInvoicesCache, ...currentPaymentsCache]);
       transactionSubscribers.forEach(cb => cb(combined));
     }, (e) => handleFirestoreError(e, OperationType.LIST, 'invoices'));
 
@@ -300,7 +312,7 @@ export const subscribeToTransactions = (callback: (data: any[]) => void) => {
         const data = d.data();
         return { ...data, id: d.id, type: 'payment', totalAmount: data.amount, amount: data.amount } as any;
       });
-      const combined = [...currentInvoicesCache, ...currentPaymentsCache].sort((a, b) => b.date - a.date);
+      const combined = safeSortTransactions([...currentInvoicesCache, ...currentPaymentsCache]);
       transactionSubscribers.forEach(cb => cb(combined));
     }, (e) => handleFirestoreError(e, OperationType.LIST, 'payments'));
   }
@@ -703,13 +715,13 @@ export const seedRandomCustomers = async (): Promise<void> => {
 export const getCustomerInvoices = async (customerId: string): Promise<Invoice[]> => {
     if (isLocalMode()) {
         const list = getLocalData('yarmouk_local_invoices', []);
-        return list.filter((i: any) => i.customerId === customerId && !i.deleted).sort((a: any, b: any) => b.date - a.date);
+        return safeSortTransactions(list.filter((i: any) => i.customerId === customerId && !i.deleted));
     }
 
     try {
         const invQuery = query(collection(db, 'invoices'));
         const snap = await getDocs(invQuery);
-        return snap.docs.map(d => d.data() as Invoice).filter(i => i.customerId === customerId && !i.deleted).sort((a, b) => b.date - a.date);
+        return safeSortTransactions(snap.docs.map(d => d.data() as Invoice).filter(i => i.customerId === customerId && !i.deleted));
     } catch(e) {
         handleFirestoreError(e, OperationType.LIST, 'invoices');
         return [];
@@ -719,13 +731,13 @@ export const getCustomerInvoices = async (customerId: string): Promise<Invoice[]
 export const getCustomerPayments = async (customerId: string): Promise<Payment[]> => {
     if (isLocalMode()) {
         const list = getLocalData('yarmouk_local_payments', []);
-        return list.filter((p: any) => p.customerId === customerId && !p.deleted).sort((a: any, b: any) => b.date - a.date);
+        return safeSortTransactions(list.filter((p: any) => p.customerId === customerId && !p.deleted));
     }
 
     try {
         const payQuery = query(collection(db, 'payments'));
         const snap = await getDocs(payQuery);
-        return snap.docs.map(d => d.data() as Payment).filter(p => p.customerId === customerId && !p.deleted).sort((a, b) => b.date - a.date);
+        return safeSortTransactions(snap.docs.map(d => d.data() as Payment).filter(p => p.customerId === customerId && !p.deleted));
     } catch(e) {
         handleFirestoreError(e, OperationType.LIST, 'payments');
         return [];
