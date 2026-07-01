@@ -377,10 +377,10 @@ const Ledger: React.FC<Props> = ({
             <td colspan="2" style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 35px;">القيمة الاجمالية</td>
           </tr>
           <tr style="height: 25px;">
-            <td style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 25px;">فلس</td>
             <td style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 25px;">دينار</td>
             <td style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 25px;">فلس</td>
             <td style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 25px;">دينار</td>
+            <td style="border: 1px solid #111111; font-weight: bold; background-color: #ffffff; padding: 6px; text-align: center; vertical-align: middle; height: 25px;">فلس</td>
           </tr>`;
 
     invoice.items?.forEach((item, idx) => {
@@ -1871,10 +1871,10 @@ const Ledger: React.FC<Props> = ({
                     <th colSpan={2} className="p-1 w-[20%] text-center text-slate-700 font-extrabold">القيمة الاجمالية</th>
                   </tr>
                   <tr className="border-b border-slate-200 bg-slate-50 text-[8px] xs:text-[9.5px] sm:text-[10px] text-gray-500">
-                    <th className="p-0.5 sm:p-1 border-l border-slate-200 text-center font-bold">فلس</th>
                     <th className="p-0.5 sm:p-1 border-l border-slate-200 text-center font-bold">دينار</th>
                     <th className="p-0.5 sm:p-1 border-l border-slate-200 text-center font-bold">فلس</th>
-                    <th className="p-0.5 text-center font-bold">دينار</th>
+                    <th className="p-0.5 sm:p-1 border-l border-slate-200 text-center font-bold">دينار</th>
+                    <th className="p-0.5 text-center font-bold">فلس</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1901,10 +1901,10 @@ const Ledger: React.FC<Props> = ({
                         </td>
                         <td className="p-0.5 sm:p-1 border-l border-slate-200 text-center text-gray-500">{item.unit || 'متر'}</td>
                         <td className="p-0.5 sm:p-1 border-l border-slate-200 text-center font-bold">{item.quantity}</td>
-                        <td className="p-0.5 sm:p-1 border-l border-slate-200 font-mono text-center font-bold">{priceFils.toString().padStart(3, '0')}</td>
                         <td className="p-0.5 sm:p-1 border-l border-slate-200 text-center font-bold bg-slate-50/10">{(priceDinar).toLocaleString('en-US')}</td>
-                        <td className="p-0.5 sm:p-1 border-l border-slate-200 font-mono text-center font-bold">{totalFils.toString().padStart(3, '0')}</td>
-                        <td className="p-0.5 sm:p-1 font-mono text-center font-bold">{(totalDinar).toLocaleString('en-US')}</td>
+                        <td className="p-0.5 sm:p-1 border-l border-slate-200 font-mono text-center font-bold">{priceFils.toString().padStart(3, '0')}</td>
+                        <td className="p-0.5 sm:p-1 border-l border-slate-200 font-mono text-center font-bold">{(totalDinar).toLocaleString('en-US')}</td>
+                        <td className="p-0.5 sm:p-1 font-mono text-center font-bold">{totalFils.toString().padStart(3, '0')}</td>
                       </tr>
                     );
                   })}
@@ -2426,10 +2426,10 @@ const Ledger: React.FC<Props> = ({
               </tr>
               <tr className="bg-slate-50 border-b border-slate-300 text-[10px] text-slate-500">
                 <th colSpan={4} className="border-l border-slate-300"></th>
-                <th className="p-1 border-l border-slate-300 text-center font-semibold">فلس</th>
                 <th className="p-1 border-l border-slate-300 text-center font-semibold">دينار</th>
                 <th className="p-1 border-l border-slate-300 text-center font-semibold">فلس</th>
-                <th className="p-1 text-center font-semibold">دينار</th>
+                <th className="p-1 border-l border-slate-300 text-center font-semibold">دينار</th>
+                <th className="p-1 text-center font-semibold">فلس</th>
               </tr>
             </thead>
             <tbody>
@@ -2457,10 +2457,10 @@ const Ledger: React.FC<Props> = ({
                     </td>
                     <td className="p-1 border-l border-slate-300 text-center text-slate-600">{item.unit || 'متر'}</td>
                     <td className="p-1 border-l border-slate-300 text-center text-slate-900 font-extrabold">{item.quantity}</td>
-                    <td className="p-1 border-l border-slate-300 font-mono text-center text-slate-600">{priceFils.toString().padStart(3, '0')}</td>
                     <td className="p-1 border-l border-slate-300 text-center text-slate-900 font-bold">{priceDinar}</td>
-                    <td className="p-1 border-l border-slate-300 font-mono text-center text-slate-600">{totalFils.toString().padStart(3, '0')}</td>
-                    <td className="p-1 text-center text-slate-900 font-bold">{totalDinar}</td>
+                    <td className="p-1 border-l border-slate-300 font-mono text-center text-slate-600">{priceFils.toString().padStart(3, '0')}</td>
+                    <td className="p-1 border-l border-slate-300 text-center text-slate-900 font-bold">{totalDinar}</td>
+                    <td className="p-1 font-mono text-center text-slate-600">{totalFils.toString().padStart(3, '0')}</td>
                   </tr>
                 );
               })}
