@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Customer, CustomerType, ViewProps } from '../types';
-import { Search, Store, User, Trash2, PlusCircle, History, Phone, MapPin, Database, BarChart3, Banknote } from 'lucide-react';
+import { Search, Store, User, Trash2, PlusCircle, Phone, MapPin, Database, BarChart3, Banknote, FilePlus, Receipt, Lock, Unlock } from 'lucide-react';
 import { saveCustomer, deleteCustomer, seedRandomCustomers, generateId } from '../services/db';
 import { useAuth } from './AuthContext';
 import { ConfirmModal } from './ConfirmModal';
@@ -191,32 +191,32 @@ const CustomerManager: React.FC<Props> = ({ customers, changeView }) => {
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4 pt-4 border-t border-gray-50">
+                  <div className="flex gap-1.5 mt-4 pt-4 border-t border-gray-50">
                     <button 
                       onClick={() => changeView('INVOICES', customer.id)}
-                      className="flex items-center justify-center gap-1.5 bg-[#EEF2FF] text-[#3B5BDB] py-2.5 rounded-xl font-bold hover:bg-[#3B5BDB] hover:text-white transition-all text-xs border border-[#C5D0FA] active:scale-95 duration-100"
+                      className="flex-1 min-w-0 flex flex-col items-center justify-center gap-1.5 bg-[#EEF2FF] text-[#3B5BDB] py-2.5 px-1 rounded-xl font-bold hover:bg-[#3B5BDB] hover:text-white transition-all text-[10px] sm:text-xs border border-[#C5D0FA] active:scale-95 duration-100"
                       title="إصدار فاتورة جديدة"
                     >
-                      <PlusCircle size={14} />
-                      <span>إصدار فاتورة</span>
+                      <FilePlus size={18} />
+                      <span className="truncate w-full text-center">فاتورة</span>
                     </button>
                     
                     <button 
                       onClick={() => changeView('PAYMENTS', customer.id)}
-                      className="flex items-center justify-center gap-1.5 bg-[#EBFBEE] text-[#2F9E44] py-2.5 rounded-xl font-bold hover:bg-[#2F9E44] hover:text-white transition-all text-xs border border-[#B2F2BB] active:scale-95 duration-100"
+                      className="flex-1 min-w-0 flex flex-col items-center justify-center gap-1.5 bg-[#EBFBEE] text-[#2F9E44] py-2.5 px-1 rounded-xl font-bold hover:bg-[#2F9E44] hover:text-white transition-all text-[10px] sm:text-xs border border-[#B2F2BB] active:scale-95 duration-100"
                       title="سحب سند قبض مالي"
                     >
-                      <Banknote size={14} />
-                      <span>سند قبض</span>
+                      <Banknote size={18} />
+                      <span className="truncate w-full text-center">سند قبض</span>
                     </button>
                     
                     <button 
                       onClick={() => changeView('LEDGER', customer.id)}
-                      className="flex items-center justify-center gap-1.5 bg-gray-50 text-gray-700 py-2.5 rounded-xl font-bold hover:bg-gray-100 transition-all border border-gray-200 text-xs col-span-2 md:col-span-2 active:scale-95 duration-100"
+                      className="flex-1 min-w-0 flex flex-col items-center justify-center gap-1.5 bg-slate-50 text-slate-700 py-2.5 px-1 rounded-xl font-bold hover:bg-slate-700 hover:text-white transition-all border border-slate-200 text-[10px] sm:text-xs active:scale-95 duration-100"
                       title="عرض كشف الحساب وجميع الفواتير والمقبوضات"
                     >
-                      <BarChart3 size={14} />
-                      <span>سجل الفواتير والكشف</span>
+                      <Receipt size={18} />
+                      <span className="truncate w-full text-center">كشف</span>
                     </button>
 
                     {role === 'admin' && (
@@ -236,19 +236,24 @@ const CustomerManager: React.FC<Props> = ({ customers, changeView }) => {
                                 showError('فشل تغيير حالة القفل 🔐', 'لم نتمكن من تعديل قفل الحساب المالي، تأكد من صلاحيات الإدارة.');
                               }
                             }}
-                            className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-bold transition-all text-xs border md:col-span-2 active:scale-95 duration-100 ${customer.locked ? 'bg-rose-600 text-white border-rose-700 hover:bg-rose-700' : 'bg-amber-50 border-amber-300 text-amber-800 hover:bg-amber-100'}`}
+                            className={`flex-1 min-w-0 flex flex-col items-center justify-center gap-1.5 py-2.5 px-1 rounded-xl font-bold transition-all text-[10px] sm:text-xs border active:scale-95 duration-100 ${
+                              customer.locked 
+                                ? 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-700 hover:text-white' 
+                                : 'bg-amber-50 text-amber-600 border-amber-200 hover:bg-amber-600 hover:text-white'
+                            }`}
                             title={customer.locked ? 'إلغاء قفل الحساب' : 'قفل الحساب لإخفائه عن الموظفين'}
                           >
-                            <span>{customer.locked ? '🔓 إلغاء قفل الحساب' : '🔒 قفل الحساب'}</span>
+                            {customer.locked ? <Unlock size={18} /> : <Lock size={18} />}
+                            <span className="truncate w-full text-center">{customer.locked ? 'فك القفل' : 'قفل'}</span>
                           </button>
                           
                           <button
                             onClick={(e) => handleDelete(customer.id, e)}
-                            className="flex items-center justify-center gap-1.5 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 py-2.5 rounded-xl font-bold transition-all text-xs md:col-span-2 shadow-sm active:scale-95 duration-100"
+                            className="flex-1 min-w-0 flex flex-col items-center justify-center gap-1.5 bg-red-50 text-red-600 border border-red-200 py-2.5 px-1 rounded-xl font-bold transition-all text-[10px] sm:text-xs hover:bg-red-600 hover:text-white active:scale-95 duration-100"
                             title="حذف الحساب بصفة نهائية"
                           >
-                            <Trash2 size={14} className="text-red-700" />
-                            <span>حذف الحساب</span>
+                            <Trash2 size={18} />
+                            <span className="truncate w-full text-center">حذف</span>
                           </button>
                        </>
                     )}

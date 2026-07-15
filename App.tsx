@@ -72,16 +72,24 @@ const AppContent: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F4F6FA] font-['Tajawal']" dir="rtl">
-        <div className="flex flex-col items-center gap-6">
-          <div className="relative">
-            <div className="w-16 h-16 border-4 border-[#3B5BDB]/20 border-t-[#3B5BDB] rounded-full animate-spin"></div>
-            <div className="absolute inset-0 flex items-center justify-center text-xl">🏠</div>
-          </div>
-          <div className="text-center">
-            <p className="text-[#1C1C2E] font-black text-xl">معرض اليرموك</p>
-            <p className="text-gray-400 font-bold text-sm mt-1">جاري التحقق من الصلاحيات...</p>
-          </div>
+      <div className="min-h-screen bg-[#F4F6FA] flex flex-col font-['Tajawal'] p-4 space-y-4" dir="rtl">
+        {/* Header Skeleton */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between animate-pulse">
+          <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+          <div className="w-24 h-5 bg-gray-200 rounded-full"></div>
+          <div className="w-10 h-10 bg-gray-200 rounded-xl"></div>
+        </div>
+
+        {/* List Skeleton */}
+        <div className="space-y-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 animate-pulse relative h-48">
+               <div className="absolute top-6 right-6 w-16 h-16 bg-gray-200 rounded-2xl"></div>
+               <div className="absolute top-6 left-6 w-20 h-5 bg-gray-200 rounded-full"></div>
+               <div className="absolute bottom-12 right-6 w-32 h-5 bg-gray-200 rounded-full"></div>
+               <div className="absolute bottom-4 right-6 w-48 h-5 bg-gray-200 rounded-full"></div>
+            </div>
+          ))}
         </div>
       </div>
     );
