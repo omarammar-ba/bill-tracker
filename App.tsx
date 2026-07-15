@@ -72,25 +72,56 @@ const AppContent: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F4F6FA] flex flex-col font-['Tajawal'] p-4 space-y-4" dir="rtl">
-        {/* Header Skeleton */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between animate-pulse">
-          <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
-          <div className="w-24 h-5 bg-gray-200 rounded-full"></div>
-          <div className="w-10 h-10 bg-gray-200 rounded-xl"></div>
+      <div className="min-h-screen bg-[#F4F6FA] flex flex-col md:flex-row font-['Tajawal']" dir="rtl">
+        {/* Mobile Header Skeleton */}
+        <div className="md:hidden relative z-20 mb-6">
+          <div className="absolute inset-x-0 top-0 h-[80px] bg-[#2A2A40] rounded-b-[32px] overflow-hidden shadow-sm"></div>
+          <div className="relative h-[80px] px-6 flex justify-center items-center">
+            <div className="w-10 h-10 bg-white/10 rounded-xl absolute right-6 animate-pulse"></div>
+            <div className="w-24 h-6 bg-white/20 rounded-md animate-pulse"></div>
+          </div>
         </div>
 
-        {/* List Skeleton */}
-        <div className="space-y-4">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 animate-pulse relative h-48">
-               <div className="absolute top-6 right-6 w-16 h-16 bg-gray-200 rounded-2xl"></div>
-               <div className="absolute top-6 left-6 w-20 h-5 bg-gray-200 rounded-full"></div>
-               <div className="absolute bottom-12 right-6 w-32 h-5 bg-gray-200 rounded-full"></div>
-               <div className="absolute bottom-4 right-6 w-48 h-5 bg-gray-200 rounded-full"></div>
+        {/* Desktop Sidebar Skeleton */}
+        <div className="hidden md:flex w-72 flex-col bg-[#1C1C2E] border-l border-white/5 relative z-20">
+          <div className="p-8">
+            <div className="w-32 h-8 bg-white/10 rounded-md animate-pulse mb-8"></div>
+            <div className="space-y-4">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="w-full h-12 bg-white/5 rounded-xl animate-pulse"></div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
+
+        {/* Main Content Skeleton */}
+        <main className="flex-1 overflow-x-hidden overflow-y-auto">
+          <div className="p-4 md:p-8 max-w-[1200px] mx-auto w-full pt-4 md:pt-8 min-h-screen">
+            <div className="flex flex-col gap-6">
+              {/* Dashboard Header Skeleton */}
+              <div>
+                <div className="w-48 h-8 bg-gray-200 rounded-md animate-pulse mb-2"></div>
+                <div className="w-64 h-4 bg-gray-200 rounded-md animate-pulse"></div>
+              </div>
+              
+              {/* Stat Cards Skeleton */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white rounded-[32px] p-8 shadow-sm border border-gray-100 animate-pulse h-48"></div>
+                <div className="bg-white rounded-[32px] p-8 shadow-sm border border-gray-100 animate-pulse h-48"></div>
+              </div>
+
+              {/* List Skeleton */}
+              <div className="bg-white rounded-[32px] p-6 shadow-sm border border-gray-100 mt-2">
+                <div className="w-32 h-6 bg-gray-200 rounded-md animate-pulse mb-6"></div>
+                <div className="space-y-4">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="h-20 bg-gray-50 rounded-2xl animate-pulse"></div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
     );
   }
