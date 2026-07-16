@@ -86,9 +86,35 @@ export const BackupRestore: React.FC = () => {
         throw new Error("ملف النسخة غير صحيح: يجب أن يكون ZIP أو JSON");
       }
 
-      if (!backupJson.backupInfo || !backupJson.customers) {
+      if (!backupJson.backupInfo && !backupJson.customers) {
         throw new Error("البيانات ناقصة داخل النسخة");
       }
+
+      const sanitizeId = (id: any) => String(id || '').replace(/[^a-zA-Z0-9_\-]/g, '_').substring(0, 128) || 'unknown_' + Math.random().toString(36).substring(2,9);
+
+      const backupCustomers = (backupJson.customers || []).map((c: any) => ({
+          ...c,
+          id: sanitizeId(c.id || c.customerId || c.customer_id)
+      }));
+
+      const rawInvoices = backupJson.invoices || backupJson.sales || [];
+      const backupInvoices = rawInvoices.map((i: any) => ({
+          ...i,
+          id: sanitizeId(i.id || i.invoiceId || i.invoice_id),
+          customerId: sanitizeId(i.customerId || i.customer_id || i.clientId || i.client_id)
+      }));
+
+      const rawPayments = backupJson.payments || backupJson.receipts || backupJson.transactions || [];
+      const backupPayments = rawPayments.map((p: any) => ({
+          ...p,
+          id: sanitizeId(p.id || p.paymentId || p.payment_id),
+          customerId: sanitizeId(p.customerId || p.customer_id || p.clientId || p.client_id),
+          invoiceId: p.invoiceId ? sanitizeId(p.invoiceId) : undefined
+      }));
+
+      backupJson.customers = backupCustomers;
+      backupJson.invoices = backupInvoices;
+      backupJson.payments = backupPayments;
 
       setProgress("جاري مقارنة البيانات الحالية...");
       
@@ -100,22 +126,22 @@ export const BackupRestore: React.FC = () => {
       const existingInvoiceIds = new Set(currentInvoicesSnap.docs.map(d => d.id));
       const existingPaymentIds = new Set(currentPaymentsSnap.docs.map(d => d.id));
 
-      const newCustomers = backupJson.customers.filter((c: any) => !existingCustomerIds.has(c.id));
-      const newInvoices = backupJson.invoices.filter((i: any) => !existingInvoiceIds.has(i.id));
-      const newPayments = backupJson.payments.filter((p: any) => !existingPaymentIds.has(p.id));
+      const newCustomers = backupCustomers.filter((c: any) => !existingCustomerIds.has(c.id));
+      const newInvoices = backupInvoices.filter((i: any) => !existingInvoiceIds.has(i.id));
+      const newPayments = backupPayments.filter((p: any) => !existingPaymentIds.has(p.id));
 
       const duplicated = 
-        (backupJson.customers.length - newCustomers.length) +
-        (backupJson.invoices.length - newInvoices.length) +
-        (backupJson.payments.length - newPayments.length);
+        (backupCustomers.length - newCustomers.length) +
+        (backupInvoices.length - newInvoices.length) +
+        (backupPayments.length - newPayments.length);
 
       setPreviewData({
-        backupInfo: backupJson.backupInfo,
+        backupInfo: backupJson.backupInfo || { timestamp: new Date().toISOString() },
         backupData: backupJson, // keep for restoration
         stats: {
-          backupCustomers: backupJson.customers.length,
-          backupInvoices: backupJson.invoices.length,
-          backupPayments: backupJson.payments.length,
+          backupCustomers: backupCustomers.length,
+          backupInvoices: backupInvoices.length,
+          backupPayments: backupPayments.length,
           currentCustomers: currentCustomersSnap.size,
           currentInvoices: currentInvoicesSnap.size,
           currentPayments: currentPaymentsSnap.size,

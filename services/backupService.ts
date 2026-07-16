@@ -287,69 +287,78 @@ export const restoreBackup = async (
             throw new Error("حجم النسخة كبير وقد يقترب من حدود Firebase المجانية. يفضل تنفيذ الاستعادة لاحقاً أو تقسيمها.");
         }
 
-        const BATCH_SIZE = 400; // Safe size for firestore
-        let batch = writeBatch(db);
-        let operationCount = 0;
+        const BATCH_SIZE = 100; // Safe size for firestore
         let totalAdded = 0;
 
-        const commitBatch = async () => {
-            if (operationCount > 0) {
-                await batch.commit();
-                batch = writeBatch(db);
-                operationCount = 0;
-            }
-        };
-
-        const addItem = async (colName: string, item: any) => {
-            const ref = doc(db, colName, item.id);
-            const cleanItem = { ...item };
+        const writeRobustBatch = async (colName: string, items: any[]) => {
+            if (items.length === 0) return;
             
-            // Fix dates if they are strings or objects
-            if (cleanItem.date) {
-                if (typeof cleanItem.date === 'string') cleanItem.date = new Date(cleanItem.date).getTime();
-                else if (cleanItem.date.seconds) cleanItem.date = cleanItem.date.seconds * 1000;
-            } else {
-                if (colName === 'invoices' || colName === 'payments') cleanItem.date = Date.now();
-            }
+            for (let i = 0; i < items.length; i += BATCH_SIZE) {
+                const currentBatchItems = items.slice(i, i + BATCH_SIZE);
+                let batch = writeBatch(db);
+                const refsAndData: { ref: any, data: any }[] = [];
 
-            if (cleanItem.createdAt) {
-                if (typeof cleanItem.createdAt === 'string') cleanItem.createdAt = new Date(cleanItem.createdAt).getTime();
-                else if (cleanItem.createdAt.seconds) cleanItem.createdAt = cleanItem.createdAt.seconds * 1000;
-            } else {
-                if (colName === 'customers') cleanItem.createdAt = Date.now();
-            }
+                for (const item of currentBatchItems) {
+                    const ref = doc(db, colName, item.id);
+                    const cleanItem = { ...item };
+                    
+                    // Fix dates if they are strings or objects
+                    if (cleanItem.date) {
+                        if (typeof cleanItem.date === 'string') cleanItem.date = new Date(cleanItem.date).getTime();
+                        else if (cleanItem.date.seconds) cleanItem.date = cleanItem.date.seconds * 1000;
+                    } else {
+                        if (colName === 'invoices' || colName === 'payments') cleanItem.date = Date.now();
+                    }
 
-            if (cleanItem.dueDate) {
-                if (typeof cleanItem.dueDate === 'string') cleanItem.dueDate = new Date(cleanItem.dueDate).getTime();
-                else if (cleanItem.dueDate.seconds) cleanItem.dueDate = cleanItem.dueDate.seconds * 1000;
-            }
+                    if (cleanItem.createdAt) {
+                        if (typeof cleanItem.createdAt === 'string') cleanItem.createdAt = new Date(cleanItem.createdAt).getTime();
+                        else if (cleanItem.createdAt.seconds) cleanItem.createdAt = cleanItem.createdAt.seconds * 1000;
+                    } else {
+                        if (colName === 'customers') cleanItem.createdAt = Date.now();
+                    }
 
-            Object.keys(cleanItem).forEach(key => {
-                if (cleanItem[key] === undefined || cleanItem[key] === null) {
-                    delete cleanItem[key];
+                    if (cleanItem.dueDate) {
+                        if (typeof cleanItem.dueDate === 'string') cleanItem.dueDate = new Date(cleanItem.dueDate).getTime();
+                        else if (cleanItem.dueDate.seconds) cleanItem.dueDate = cleanItem.dueDate.seconds * 1000;
+                    }
+
+                    Object.keys(cleanItem).forEach(key => {
+                        if (cleanItem[key] === undefined || cleanItem[key] === null) {
+                            delete cleanItem[key];
+                        }
+                    });
+
+                    batch.set(ref, cleanItem);
+                    refsAndData.push({ ref, data: cleanItem });
                 }
-            });
 
-            batch.set(ref, cleanItem);
-            operationCount++;
-            totalAdded++;
-
-            if (operationCount >= BATCH_SIZE) {
-                await commitBatch();
+                try {
+                    await batch.commit();
+                    totalAdded += currentBatchItems.length;
+                } catch (batchError) {
+                    console.warn(`Batch failed for ${colName}, falling back to individual writes. Error:`, batchError);
+                    // Fallback to individual writes
+                    for (const { ref, data } of refsAndData) {
+                        try {
+                            await setDoc(ref, data);
+                            totalAdded++;
+                        } catch (singleError) {
+                            console.error(`Failed to write individual document ${ref.id} in ${colName}:`, singleError);
+                            // skip the corrupted document and continue
+                        }
+                    }
+                }
             }
         };
 
         onProgress("جاري رفع العملاء...");
-        for (const c of newCustomers) await addItem('customers', c);
-        await commitBatch();
+        await writeRobustBatch('customers', newCustomers);
 
         onProgress("جاري رفع الفواتير...");
-        for (const i of newInvoices) await addItem('invoices', i);
-        await commitBatch();
+        await writeRobustBatch('invoices', newInvoices);
 
         onProgress("جاري رفع سندات القبض...");
-        for (const p of newPayments) await addItem('payments', p);
-        await commitBatch();
+        await writeRobustBatch('payments', newPayments);
 
         localStorage.setItem('last_restore_date', new Date().toISOString());
         onProgress("تمت الاستعادة بنجاح.");
