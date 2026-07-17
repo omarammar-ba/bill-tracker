@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, Suspense, lazy } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { Customer, ViewState } from './types';
 import { subscribeToCustomers, subscribeToTransactions } from './services/db';
 import { AuthProvider, useAuth } from './components/AuthContext';
@@ -7,14 +7,14 @@ import Layout from './components/Layout';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 
-const CustomerManager = lazy(() => import('./components/CustomerManager'));
-const TransactionForm = lazy(() => import('./components/TransactionForm'));
-const Ledger = lazy(() => import('./components/Ledger'));
-const Reports = lazy(() => import('./components/Reports'));
-const StaffManager = lazy(() => import('./components/StaffManager').then(m => ({ default: m.StaffManager })));
-const ChequesManager = lazy(() => import('./components/ChequesManager').then(m => ({ default: m.ChequesManager })));
-const BackupRestore = lazy(() => import('./components/BackupRestore').then(m => ({ default: m.BackupRestore })));
-const DiagnosticsCenter = lazy(() => import('./components/DiagnosticsCenter').then(m => ({ default: m.DiagnosticsCenter })));
+import CustomerManager from './components/CustomerManager';
+import TransactionForm from './components/TransactionForm';
+import Ledger from './components/Ledger';
+import Reports from './components/Reports';
+import { StaffManager } from './components/StaffManager';
+import { ChequesManager } from './components/ChequesManager';
+import { BackupRestore } from './components/BackupRestore';
+import { DiagnosticsCenter } from './components/DiagnosticsCenter';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ToastNotifications } from './components/ToastNotifications';
 
@@ -23,8 +23,32 @@ const AppContent: React.FC = () => {
   const [view, setView] = useState<ViewState>('HOME');
   const [activeCustomerId, setActiveCustomerId] = useState<string | undefined>();
   const [activeTransactionId, setActiveTransactionId] = useState<string | undefined>();
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [transactions, setTransactions] = useState<any[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>(() => {
+    try {
+      const cachedUser = localStorage.getItem('yarmouk_user_cache');
+      if (cachedUser) {
+        const u = JSON.parse(cachedUser);
+        if (u && u.uid) {
+          const cachedCust = localStorage.getItem(`yarmouk_customers_${u.uid}`);
+          return cachedCust ? JSON.parse(cachedCust) : [];
+        }
+      }
+    } catch {}
+    return [];
+  });
+  const [transactions, setTransactions] = useState<any[]>(() => {
+    try {
+      const cachedUser = localStorage.getItem('yarmouk_user_cache');
+      if (cachedUser) {
+        const u = JSON.parse(cachedUser);
+        if (u && u.uid) {
+          const cachedTrans = localStorage.getItem(`yarmouk_transactions_${u.uid}`);
+          return cachedTrans ? JSON.parse(cachedTrans) : [];
+        }
+      }
+    } catch {}
+    return [];
+  });
 
   const computedCustomers = React.useMemo(() => {
     return customers.map(c => {
@@ -48,11 +72,15 @@ const AppContent: React.FC = () => {
       }
       
       const unsubscribeCust = subscribeToCustomers((data) => {
-        setCustomers(data.sort((a, b) => b.createdAt - a.createdAt));
+        const sorted = data.sort((a, b) => b.createdAt - a.createdAt);
+        setCustomers(sorted);
+        try {
+          localStorage.setItem(`yarmouk_customers_${user.uid}`, JSON.stringify(sorted));
+        } catch (e) {}
       });
 
       const unsubscribeTrans = subscribeToTransactions((data) => {
-        setTransactions(data.sort((a, b) => {
+        const sorted = data.sort((a, b) => {
           let da: any = a.date;
           let dbDate: any = b.date;
           if (typeof da === 'string') da = new Date(da).getTime();
@@ -60,7 +88,11 @@ const AppContent: React.FC = () => {
           if (typeof dbDate === 'string') dbDate = new Date(dbDate).getTime();
           else if (dbDate?.seconds) dbDate = dbDate.seconds * 1000;
           return (dbDate || 0) - (da || 0);
-        }));
+        });
+        setTransactions(sorted);
+        try {
+          localStorage.setItem(`yarmouk_transactions_${user.uid}`, JSON.stringify(sorted));
+        } catch (e) {}
       });
 
       return () => {
@@ -74,10 +106,10 @@ const AppContent: React.FC = () => {
     return (
       <div className="min-h-screen bg-[#F4F6FA] flex flex-col md:flex-row font-['Tajawal']" dir="rtl">
         {/* Mobile Header Skeleton */}
-        <div className="md:hidden relative z-20 mb-6">
+        <div className="md:hidden relative z-20 mb-6 w-full">
           <div className="absolute inset-x-0 top-0 h-[80px] bg-[#2A2A40] rounded-b-[32px] overflow-hidden shadow-sm"></div>
-          <div className="relative h-[80px] px-6 flex justify-center items-center">
-            <div className="w-10 h-10 bg-white/10 rounded-xl absolute right-6 animate-pulse"></div>
+          <div className="relative h-[80px] px-6 flex justify-between items-center">
+            <div className="w-10 h-10 bg-white/10 rounded-xl animate-pulse"></div>
             <div className="w-24 h-6 bg-white/20 rounded-md animate-pulse"></div>
           </div>
         </div>
@@ -105,7 +137,8 @@ const AppContent: React.FC = () => {
               </div>
               
               {/* Stat Cards Skeleton */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="bg-white rounded-[32px] p-8 shadow-sm border border-gray-100 animate-pulse h-48"></div>
                 <div className="bg-white rounded-[32px] p-8 shadow-sm border border-gray-100 animate-pulse h-48"></div>
                 <div className="bg-white rounded-[32px] p-8 shadow-sm border border-gray-100 animate-pulse h-48"></div>
               </div>
@@ -114,7 +147,7 @@ const AppContent: React.FC = () => {
               <div className="bg-white rounded-[32px] p-6 shadow-sm border border-gray-100 mt-2">
                 <div className="w-32 h-6 bg-gray-200 rounded-md animate-pulse mb-6"></div>
                 <div className="space-y-4">
-                  {[...Array(3)].map((_, i) => (
+                  {[...Array(4)].map((_, i) => (
                     <div key={i} className="h-20 bg-gray-50 rounded-2xl animate-pulse"></div>
                   ))}
                 </div>
@@ -174,117 +207,13 @@ const AppContent: React.FC = () => {
     }
   };
 
-  const renderSkeleton = () => {
-    switch (view) {
-      case 'HOME':
-        return (
-          <div className="flex-1 overflow-x-hidden overflow-y-auto w-full">
-            <div className="p-4 md:p-8 max-w-[1200px] mx-auto w-full pt-4 md:pt-8 min-h-screen">
-              <div className="flex flex-col gap-6">
-                <div>
-                  <div className="w-48 h-8 bg-gray-200 rounded-md animate-pulse mb-2"></div>
-                  <div className="w-64 h-4 bg-gray-200 rounded-md animate-pulse"></div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="bg-white rounded-[32px] p-6 shadow-sm border border-gray-100 animate-pulse h-40"></div>
-                  <div className="bg-white rounded-[32px] p-6 shadow-sm border border-gray-100 animate-pulse h-40"></div>
-                </div>
-                <div className="bg-white rounded-[32px] p-6 shadow-sm border border-gray-100 mt-2">
-                  <div className="w-32 h-6 bg-gray-200 rounded-md animate-pulse mb-6"></div>
-                  <div className="space-y-4">
-                    {[...Array(3)].map((_, i) => (
-                      <div key={i} className="h-20 bg-gray-50 rounded-2xl animate-pulse"></div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      case 'CUSTOMERS':
-      case 'STAFF':
-      case 'CHEQUES':
-        return (
-          <div className="flex-1 overflow-x-hidden overflow-y-auto w-full">
-            <div className="p-4 md:p-8 max-w-[1200px] mx-auto w-full pt-4 md:pt-8 min-h-screen">
-              <div className="flex flex-col gap-6">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <div className="w-40 h-8 bg-gray-200 rounded-md animate-pulse mb-2"></div>
-                    <div className="w-56 h-4 bg-gray-200 rounded-md animate-pulse"></div>
-                  </div>
-                  <div className="w-32 h-12 bg-gray-200 rounded-xl animate-pulse"></div>
-                </div>
-                <div className="w-full h-14 bg-white rounded-xl shadow-sm border border-gray-100 animate-pulse"></div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {[...Array(6)].map((_, i) => (
-                    <div key={i} className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 animate-pulse h-48"></div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      case 'INVOICES':
-      case 'PAYMENTS':
-      case 'NEW_TRANSACTION':
-      case 'EDIT_TRANSACTION':
-        return (
-          <div className="flex-1 overflow-x-hidden overflow-y-auto w-full">
-            <div className="p-4 md:p-8 max-w-[800px] mx-auto w-full pt-4 md:pt-8 min-h-screen">
-              <div className="flex flex-col gap-6">
-                <div className="flex justify-between items-center mb-4">
-                  <div className="w-40 h-8 bg-gray-200 rounded-md animate-pulse"></div>
-                  <div className="w-24 h-10 bg-gray-200 rounded-xl animate-pulse"></div>
-                </div>
-                <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 animate-pulse h-[600px]"></div>
-              </div>
-            </div>
-          </div>
-        );
-      case 'LEDGER':
-      case 'REPORTS':
-        return (
-          <div className="flex-1 overflow-x-hidden overflow-y-auto w-full">
-            <div className="p-4 md:p-8 max-w-[1000px] mx-auto w-full pt-4 md:pt-8 min-h-screen">
-              <div className="flex flex-col gap-6">
-                <div className="flex justify-between items-center">
-                  <div className="w-48 h-8 bg-gray-200 rounded-md animate-pulse"></div>
-                  <div className="flex gap-2">
-                    <div className="w-10 h-10 bg-gray-200 rounded-xl animate-pulse"></div>
-                    <div className="w-10 h-10 bg-gray-200 rounded-xl animate-pulse"></div>
-                  </div>
-                </div>
-                <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 animate-pulse h-32"></div>
-                <div className="bg-white rounded-[32px] p-6 shadow-sm border border-gray-100 animate-pulse h-[400px]"></div>
-              </div>
-            </div>
-          </div>
-        );
-      case 'BACKUP':
-        return (
-          <div className="flex-1 overflow-x-hidden overflow-y-auto w-full">
-            <div className="p-4 md:p-8 max-w-[800px] mx-auto w-full pt-4 md:pt-8 min-h-screen">
-              <div className="flex flex-col gap-6">
-                <div className="w-64 h-8 bg-gray-200 rounded-md animate-pulse mb-6"></div>
-                <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 animate-pulse h-64"></div>
-                <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 animate-pulse h-64"></div>
-              </div>
-            </div>
-          </div>
-        );
-      default:
-        return (
-          <div className="flex-1 flex items-center justify-center p-8">
-            <div className="animate-spin w-8 h-8 border-4 border-[#3B5BDB] border-t-transparent rounded-full"></div>
-          </div>
-        );
-    }
-  };
-
   return (
     <Layout currentView={view} changeView={changeView}>
-      <Suspense fallback={renderSkeleton()}>
+      <Suspense fallback={
+        <div className="flex-1 flex items-center justify-center p-8 min-h-[50vh]">
+          <div className="animate-spin w-8 h-8 border-4 border-[#3B5BDB] border-t-transparent rounded-full shadow-sm"></div>
+        </div>
+      }>
         {renderContent()}
       </Suspense>
     </Layout>
