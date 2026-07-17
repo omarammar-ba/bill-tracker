@@ -23,9 +23,16 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [role, setRole] = useState<'admin' | 'supervisor' | 'employee'>('employee');
+  const [user, setUser] = useState<User | null>(() => {
+    const cached = localStorage.getItem('yarmouk_user_cache');
+    return cached ? JSON.parse(cached) : null;
+  });
+  const [loading, setLoading] = useState(() => {
+    return !localStorage.getItem('yarmouk_user_cache');
+  });
+  const [role, setRole] = useState<'admin' | 'supervisor' | 'employee'>(() => {
+    return (localStorage.getItem('yarmouk_role_cache') as 'admin' | 'supervisor' | 'employee') || 'employee';
+  });
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -34,18 +41,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-
       if (firebaseUser) {
         let userDisplayName = firebaseUser.displayName;
+        let finalRole = role;
 
         try {
           const userDocRef = doc(db, 'users', firebaseUser.uid);
-          // Listen to changes smoothly using onSnapshot instead of getDoc
-          // But to align with current code block without breaking much we just do getDoc.
           const userSnap = await getDoc(userDocRef);
           
           if (!userSnap.exists()) {
-             // Self-bootstrap if it is the owner
              if (firebaseUser.email === 'omarprroo1@gmail.com') {
                  await setDoc(userDocRef, {
                     email: firebaseUser.email,
@@ -54,7 +58,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     createdAt: Date.now(),
                     name: firebaseUser.displayName || 'المدير'
                  });
+                 finalRole = 'admin';
                  setRole('admin');
+                 localStorage.setItem('yarmouk_role_cache', 'admin');
              } else {
                  await setDoc(userDocRef, {
                     email: firebaseUser.email,
@@ -66,39 +72,54 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                  setError('تم تسجيل حسابك ولكنه قيد المراجعة. يرجى التواصل مع الإدارة للتفعيل.');
                  await logoutFirebase();
                  setUser(null);
+                 localStorage.removeItem('yarmouk_user_cache');
+                 localStorage.removeItem('yarmouk_role_cache');
+                 setLoading(false);
+                 return;
              }
           } else {
              const data = userSnap.data();
              userDisplayName = data.name || userDisplayName;
              
-             // FORCED OVERRIDE FOR ADMIN EMAIL (In case you previously logged in and got stuck as employee)
              if (firebaseUser.email === 'omarprroo1@gmail.com') {
                 if (data.role !== 'admin' || !data.active) {
                     await setDoc(userDocRef, { ...data, role: 'admin', active: true }, { merge: true });
                 }
+                finalRole = 'admin';
                 setRole('admin');
+                localStorage.setItem('yarmouk_role_cache', 'admin');
              } else {
                  if (data.active) {
-                    setRole(data.role as 'admin' | 'supervisor' | 'employee');
+                    finalRole = data.role as 'admin' | 'supervisor' | 'employee';
+                    setRole(finalRole);
+                    localStorage.setItem('yarmouk_role_cache', finalRole);
                  } else {
                     setError('حسابك غير مفعل أو معطل. يرجى مراجعة الإدارة.');
                     await logoutFirebase();
                     setUser(null);
-                    return; // Early return to prevent setUser below
+                    localStorage.removeItem('yarmouk_user_cache');
+                    localStorage.removeItem('yarmouk_role_cache');
+                    setLoading(false);
+                    return;
                  }
              }
           }
           
-          setUser({ uid: firebaseUser.uid, email: firebaseUser.email, displayName: userDisplayName });
-
+          const newUser = { uid: firebaseUser.uid, email: firebaseUser.email, displayName: userDisplayName };
+          setUser(newUser);
+          localStorage.setItem('yarmouk_user_cache', JSON.stringify(newUser));
         } catch (e: any) {
            console.error("Auth fetch error:", e);
            setError('حدث خطأ أثناء التحقق من الصلاحيات.');
            await logoutFirebase();
            setUser(null);
+           localStorage.removeItem('yarmouk_user_cache');
+           localStorage.removeItem('yarmouk_role_cache');
         }
       } else {
         setUser(null);
+        localStorage.removeItem('yarmouk_user_cache');
+        localStorage.removeItem('yarmouk_role_cache');
       }
       setLoading(false);
     });

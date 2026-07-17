@@ -10,7 +10,22 @@ export default defineConfig(({ mode }) => {
         port: 3000,
         host: '0.0.0.0',
       },
-      plugins: [react(), tailwindcss()],
+      plugins: [
+        react(), 
+        tailwindcss()
+      ],
+      build: {
+        rollupOptions: {
+          output: {
+            manualChunks: {
+              'firebase-core': ['firebase/app', 'firebase/auth'],
+              'firebase-firestore': ['firebase/firestore'],
+              'vendor': ['react', 'react-dom'],
+              'lucide': ['lucide-react']
+            }
+          }
+        }
+      },
       define: {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
         'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
