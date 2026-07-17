@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Database, Download, Upload, AlertTriangle, FileUp, CheckCircle, Info, Clock } from 'lucide-react';
 import { createMonthlyBackup, restoreBackup } from '../services/backupService';
-import JSZip from 'jszip';
 import { db } from '../services/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 
@@ -71,6 +70,8 @@ export const BackupRestore: React.FC = () => {
       let backupJson: any = null;
 
       if (file.name.endsWith('.zip')) {
+        const JSZipModule = await import('jszip');
+        const JSZip = JSZipModule.default;
         const zip = new JSZip();
         const zipContent = await zip.loadAsync(file);
         const jsonFile = zipContent.file("backup.json");

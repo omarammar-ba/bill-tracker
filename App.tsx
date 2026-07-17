@@ -1,22 +1,22 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { Customer, ViewState } from './types';
 import { subscribeToCustomers, subscribeToTransactions } from './services/db';
 import { AuthProvider, useAuth } from './components/AuthContext';
 import Layout from './components/Layout';
-import CustomerManager from './components/CustomerManager';
-import TransactionForm from './components/TransactionForm';
-import Ledger from './components/Ledger';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 
-import Reports from './components/Reports';
-import { StaffManager } from './components/StaffManager';
-import { ChequesManager } from './components/ChequesManager';
-import { BackupRestore } from './components/BackupRestore';
+const CustomerManager = lazy(() => import('./components/CustomerManager'));
+const TransactionForm = lazy(() => import('./components/TransactionForm'));
+const Ledger = lazy(() => import('./components/Ledger'));
+const Reports = lazy(() => import('./components/Reports'));
+const StaffManager = lazy(() => import('./components/StaffManager').then(m => ({ default: m.StaffManager })));
+const ChequesManager = lazy(() => import('./components/ChequesManager').then(m => ({ default: m.ChequesManager })));
+const BackupRestore = lazy(() => import('./components/BackupRestore').then(m => ({ default: m.BackupRestore })));
+const DiagnosticsCenter = lazy(() => import('./components/DiagnosticsCenter').then(m => ({ default: m.DiagnosticsCenter })));
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ToastNotifications } from './components/ToastNotifications';
-import { DiagnosticsCenter } from './components/DiagnosticsCenter';
 
 const AppContent: React.FC = () => {
   const { user, loading, role } = useAuth();
@@ -174,9 +174,119 @@ const AppContent: React.FC = () => {
     }
   };
 
+  const renderSkeleton = () => {
+    switch (view) {
+      case 'HOME':
+        return (
+          <div className="flex-1 overflow-x-hidden overflow-y-auto w-full">
+            <div className="p-4 md:p-8 max-w-[1200px] mx-auto w-full pt-4 md:pt-8 min-h-screen">
+              <div className="flex flex-col gap-6">
+                <div>
+                  <div className="w-48 h-8 bg-gray-200 rounded-md animate-pulse mb-2"></div>
+                  <div className="w-64 h-4 bg-gray-200 rounded-md animate-pulse"></div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-white rounded-[32px] p-6 shadow-sm border border-gray-100 animate-pulse h-40"></div>
+                  <div className="bg-white rounded-[32px] p-6 shadow-sm border border-gray-100 animate-pulse h-40"></div>
+                </div>
+                <div className="bg-white rounded-[32px] p-6 shadow-sm border border-gray-100 mt-2">
+                  <div className="w-32 h-6 bg-gray-200 rounded-md animate-pulse mb-6"></div>
+                  <div className="space-y-4">
+                    {[...Array(3)].map((_, i) => (
+                      <div key={i} className="h-20 bg-gray-50 rounded-2xl animate-pulse"></div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      case 'CUSTOMERS':
+      case 'STAFF':
+      case 'CHEQUES':
+        return (
+          <div className="flex-1 overflow-x-hidden overflow-y-auto w-full">
+            <div className="p-4 md:p-8 max-w-[1200px] mx-auto w-full pt-4 md:pt-8 min-h-screen">
+              <div className="flex flex-col gap-6">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <div className="w-40 h-8 bg-gray-200 rounded-md animate-pulse mb-2"></div>
+                    <div className="w-56 h-4 bg-gray-200 rounded-md animate-pulse"></div>
+                  </div>
+                  <div className="w-32 h-12 bg-gray-200 rounded-xl animate-pulse"></div>
+                </div>
+                <div className="w-full h-14 bg-white rounded-xl shadow-sm border border-gray-100 animate-pulse"></div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {[...Array(6)].map((_, i) => (
+                    <div key={i} className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 animate-pulse h-48"></div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      case 'INVOICES':
+      case 'PAYMENTS':
+      case 'NEW_TRANSACTION':
+      case 'EDIT_TRANSACTION':
+        return (
+          <div className="flex-1 overflow-x-hidden overflow-y-auto w-full">
+            <div className="p-4 md:p-8 max-w-[800px] mx-auto w-full pt-4 md:pt-8 min-h-screen">
+              <div className="flex flex-col gap-6">
+                <div className="flex justify-between items-center mb-4">
+                  <div className="w-40 h-8 bg-gray-200 rounded-md animate-pulse"></div>
+                  <div className="w-24 h-10 bg-gray-200 rounded-xl animate-pulse"></div>
+                </div>
+                <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 animate-pulse h-[600px]"></div>
+              </div>
+            </div>
+          </div>
+        );
+      case 'LEDGER':
+      case 'REPORTS':
+        return (
+          <div className="flex-1 overflow-x-hidden overflow-y-auto w-full">
+            <div className="p-4 md:p-8 max-w-[1000px] mx-auto w-full pt-4 md:pt-8 min-h-screen">
+              <div className="flex flex-col gap-6">
+                <div className="flex justify-between items-center">
+                  <div className="w-48 h-8 bg-gray-200 rounded-md animate-pulse"></div>
+                  <div className="flex gap-2">
+                    <div className="w-10 h-10 bg-gray-200 rounded-xl animate-pulse"></div>
+                    <div className="w-10 h-10 bg-gray-200 rounded-xl animate-pulse"></div>
+                  </div>
+                </div>
+                <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 animate-pulse h-32"></div>
+                <div className="bg-white rounded-[32px] p-6 shadow-sm border border-gray-100 animate-pulse h-[400px]"></div>
+              </div>
+            </div>
+          </div>
+        );
+      case 'BACKUP':
+        return (
+          <div className="flex-1 overflow-x-hidden overflow-y-auto w-full">
+            <div className="p-4 md:p-8 max-w-[800px] mx-auto w-full pt-4 md:pt-8 min-h-screen">
+              <div className="flex flex-col gap-6">
+                <div className="w-64 h-8 bg-gray-200 rounded-md animate-pulse mb-6"></div>
+                <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 animate-pulse h-64"></div>
+                <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 animate-pulse h-64"></div>
+              </div>
+            </div>
+          </div>
+        );
+      default:
+        return (
+          <div className="flex-1 flex items-center justify-center p-8">
+            <div className="animate-spin w-8 h-8 border-4 border-[#3B5BDB] border-t-transparent rounded-full"></div>
+          </div>
+        );
+    }
+  };
+
   return (
     <Layout currentView={view} changeView={changeView}>
-      {renderContent()}
+      <Suspense fallback={renderSkeleton()}>
+        {renderContent()}
+      </Suspense>
     </Layout>
   );
 };

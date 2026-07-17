@@ -28,11 +28,8 @@ import {
   Download,
   Share2
 } from "lucide-react";
-import * as XLSX from "xlsx";
 import { useAuth } from "./AuthContext";
 import { ConfirmModal } from "./ConfirmModal";
-import * as htmlToImage from 'html-to-image';
-import jsPDF from 'jspdf';
 
 function tafqeet(amount: number): string {
   if (isNaN(amount) || amount === 0) return "فقط صفر دينار لا غير";
@@ -700,6 +697,12 @@ const Ledger: React.FC<Props> = ({
       const elementHeight = element.scrollHeight || element.offsetHeight || 1040;
       element.style.width = originalStyleWidth;
 
+      const [htmlToImage, jsPDFModule] = await Promise.all([
+        import('html-to-image'),
+        import('jspdf')
+      ]);
+      const jsPDF = jsPDFModule.default;
+
       const dataUrl = await htmlToImage.toPng(element, { 
         quality: 1, 
         pixelRatio: 2, 
@@ -763,6 +766,7 @@ const Ledger: React.FC<Props> = ({
     setIsSharingImage(true);
     
     try {
+      const htmlToImage = await import('html-to-image');
       const dataUrl = await htmlToImage.toPng(element, { 
         quality: 0.95, 
         pixelRatio: 2, 
@@ -821,6 +825,7 @@ const Ledger: React.FC<Props> = ({
     setIsSharingImage(true);
     
     try {
+      const htmlToImage = await import('html-to-image');
       const dataUrl = await htmlToImage.toPng(element, { 
         quality: 0.95, 
         pixelRatio: 2, 

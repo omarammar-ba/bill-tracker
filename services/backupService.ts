@@ -1,11 +1,17 @@
 import { collection, getDocs, setDoc, doc, writeBatch } from 'firebase/firestore';
 import { db, auth } from './firebase';
-import JSZip from 'jszip';
-import * as XLSX from 'xlsx';
-import { saveAs } from 'file-saver';
 import { Customer, Invoice, Payment } from '../types';
 
 export const createMonthlyBackup = async () => {
+    // Dynamically import heavy libraries
+    const [JSZipModule, XLSX, FileSaverModule] = await Promise.all([
+        import('jszip'),
+        import('xlsx'),
+        import('file-saver')
+    ]);
+    const JSZip = JSZipModule.default;
+    const saveAs = FileSaverModule.default || FileSaverModule.saveAs;
+
     // 1. Fetch current data
     const customersSnap = await getDocs(collection(db, 'customers'));
     const invoicesSnap = await getDocs(collection(db, 'invoices'));
