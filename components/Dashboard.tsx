@@ -190,7 +190,6 @@ const Dashboard: React.FC<DashboardProps> = ({ customers, transactions, changeVi
   const [visibleCount, setVisibleCount] = useState(5);
   const [userNames, setUserNames] = useState<Record<string, string>>({});
   const [confirmingTransaction, setConfirmingTransaction] = useState<Transaction | null>(null);
-  const [isFabOpen, setIsFabOpen] = useState(false);
   const [isBalanceHidden, setIsBalanceHidden] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
       const saved = window.localStorage.getItem('isBalanceHidden');
@@ -396,58 +395,6 @@ const Dashboard: React.FC<DashboardProps> = ({ customers, transactions, changeVi
         }}
         onCancel={() => setConfirmingTransaction(null)}
       />
-
-      {/* Floating Action Button Menu (Mobile Only) */}
-      <div className="md:hidden fixed bottom-6 right-6 z-50 flex flex-col items-center gap-3">
-        {/* Menu Items */}
-        {isFabOpen && (
-          <div className="flex flex-col items-center gap-3 mb-2 animate-in slide-in-from-bottom-5 fade-in duration-200">
-            {/* Invoice Button */}
-            <div className="flex flex-col items-center gap-1">
-              <button 
-                onClick={() => { setIsFabOpen(false); changeView('NEW_TRANSACTION'); }}
-                className="w-14 h-14 rounded-full bg-[#EEF2FF] text-[#3B5BDB] border border-[#C5D0FA] flex flex-col items-center justify-center gap-0.5 shadow-lg hover:bg-[#3B5BDB] hover:text-white transition-all duration-200 active:scale-90 relative group"
-                title="فاتورة بيع"
-              >
-                <FilePlus size={16} />
-                <span className="text-[9px] font-black text-center leading-tight">فاتورة<br/>بيع</span>
-              </button>
-            </div>
-            
-            {/* Customers Button */}
-            <div className="flex flex-col items-center gap-1">
-              <button 
-                onClick={() => { setIsFabOpen(false); changeView('CUSTOMERS'); }}
-                className="w-14 h-14 rounded-full bg-[#FFF4E6] text-[#E8590C] border border-[#FFD8A8] flex flex-col items-center justify-center gap-0.5 shadow-lg hover:bg-[#E8590C] hover:text-white transition-all duration-200 active:scale-90 relative group"
-                title="الزبائن"
-              >
-                <Users size={16} />
-                <span className="text-[9px] font-black text-center leading-tight">الزبائن</span>
-              </button>
-            </div>
-
-            {/* Payment Button */}
-            <div className="flex flex-col items-center gap-1">
-              <button 
-                onClick={() => { setIsFabOpen(false); changeView('PAYMENTS'); }}
-                className="w-14 h-14 rounded-full bg-[#EBFBEE] text-[#2F9E44] border border-[#B2F2BB] flex flex-col items-center justify-center gap-0.5 shadow-lg hover:bg-[#2F9E44] hover:text-white transition-all duration-200 active:scale-90 relative group"
-                title="سند قبض"
-              >
-                <Banknote size={16} />
-                <span className="text-[9px] font-black text-center leading-tight">سند<br/>قبض</span>
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Main FAB */}
-        <button
-          onClick={() => setIsFabOpen(!isFabOpen)}
-          className={`w-14 h-14 rounded-full flex items-center justify-center shadow-xl shadow-blue-900/20 text-white transition-all duration-300 active:scale-90 ${isFabOpen ? 'bg-[#1C1C2E] rotate-90' : 'bg-[#1C1C2E] hover:bg-[#2A2A40]'}`}
-        >
-          {isFabOpen ? <X size={24} className="-rotate-90 transition-transform duration-300" /> : <Plus size={24} />}
-        </button>
-      </div>
     </div>
   );
 };

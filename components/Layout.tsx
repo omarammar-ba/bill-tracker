@@ -3,6 +3,7 @@ import React from 'react';
 import { ViewState } from '../types';
 import { Users, FileText, Menu, X, LogOut, Home, Receipt, Banknote, List, BarChart3, Settings, Printer, Landmark, Wrench, Database } from 'lucide-react';
 import { useAuth } from './AuthContext';
+import { QuickActionsFab } from './QuickActionsFab';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -185,6 +186,9 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, changeView }) =>
              {children}
         </div>
       </main>
+
+      {/* Radial Quick Actions Floating Button */}
+      <QuickActionsFab changeView={changeView} />
     </div>
   );
 };

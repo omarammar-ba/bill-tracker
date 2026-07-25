@@ -225,3 +225,238 @@ body {
     color: black !important;
   }
 }
+
+/* ---- Quick Actions Radial FAB Widget Styles ---- */
+.nrm-root {
+  --nrm-fg: 28 28 46;
+  --nrm-accent: 59 91 219;
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  left: auto;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  overflow: visible;
+  font-family: 'Tajawal', -apple-system, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.nrm-root * { box-sizing: border-box; }
+
+/* soft radial focus dim, blooms on open */
+.nrm-backdrop {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 340px;
+  height: 340px;
+  transform: translate(-50%, -50%) scale(.7);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(circle,
+    rgba(59, 91, 219, 0.18) 0%,
+    rgba(59, 91, 219, 0.05) 38%,
+    rgba(0,0,0,0) 70%);
+  transition:
+    opacity .5s cubic-bezier(.4,0,.2,1),
+    transform .55s cubic-bezier(.34,1.4,.64,1);
+}
+.nrm-root.nrm-open .nrm-backdrop {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.nrm-menu {
+  position: relative;
+  width: 58px;
+  height: 58px;
+}
+
+/* ---- items ---- */
+.nrm-items {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  z-index: 2;
+}
+.nrm-items > li { position: absolute; top: 0; left: 0; }
+
+.nrm-item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin: 0;
+  padding: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--item-border, rgba(255, 255, 255, 0.9));
+  background: var(--item-bg, rgba(255, 255, 255, 0.95));
+  color: var(--item-color, #1C1C2E);
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow:
+    0 8px 22px -4px rgba(28, 28, 46, 0.18),
+    0 2px 8px -2px rgba(0, 0, 0, 0.08);
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, -50%) scale(.34);
+  transition-property: transform, opacity, visibility, border-color, color, box-shadow, background-color;
+  transition-duration: .52s, .32s, 0s, .25s, .25s, .25s, .25s;
+  transition-timing-function:
+    cubic-bezier(.34,1.56,.64,1), ease, linear, ease, ease, ease, ease;
+  transition-delay: var(--nrm-dout, 0ms), 0s, .42s, 0s, 0s, 0s, 0s;
+  pointer-events: none;
+}
+
+.nrm-ico {
+  display: grid;
+  place-items: center;
+  transition: transform .34s cubic-bezier(.34,1.56,.64,1);
+}
+
+.nrm-root.nrm-open .nrm-item {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(
+    calc(-50% + var(--nrm-tx, 0px)),
+    calc(-50% + var(--nrm-ty, 0px))) scale(1);
+  transition-delay: var(--nrm-din, 0ms), 0s, 0s, 0s, 0s, 0s, 0s;
+  pointer-events: auto;
+}
+
+/* interactive hover & press state */
+.nrm-root.nrm-open .nrm-item:hover,
+.nrm-root.nrm-open .nrm-item:focus-visible,
+.nrm-item.nrm-pressed {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.95);
+  background-color: var(--item-accent, #3B5BDB);
+  box-shadow:
+    0 12px 28px -6px rgba(59, 91, 219, 0.5),
+    0 0 0 2px rgba(59, 91, 219, 0.25);
+}
+.nrm-root.nrm-open .nrm-item:hover .nrm-ico,
+.nrm-root.nrm-open .nrm-item:focus-visible .nrm-ico { transform: scale(1.18); }
+.nrm-item.nrm-pressed .nrm-ico { transform: scale(.86); }
+
+.nrm-item:focus-visible {
+  outline: 2px solid #3B5BDB;
+  outline-offset: 3px;
+}
+
+/* ---- FAB ---- */
+.nrm-fab {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  background: #1C1C2E;
+  color: #ffffff;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(9px);
+  backdrop-filter: blur(9px);
+  box-shadow:
+    0 10px 25px -5px rgba(28, 28, 46, 0.38),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  transition:
+    transform .5s cubic-bezier(.34,1.56,.64,1),
+    border-color .32s ease,
+    box-shadow .32s ease,
+    background .32s ease;
+  z-index: 3;
+}
+.nrm-fab:hover { transform: scale(1.06); background: #2A2A40; }
+.nrm-fab:active { transform: scale(.93); }
+.nrm-fab:focus-visible {
+  outline: 2px solid #3B5BDB;
+  outline-offset: 3px;
+}
+.nrm-root.nrm-open .nrm-fab {
+  background: #3B5BDB;
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow:
+    0 12px 30px -8px rgba(59, 91, 219, 0.55),
+    0 0 25px -5px rgba(59, 91, 219, 0.45);
+}
+
+.nrm-fab-icon {
+  display: grid;
+  place-items: center;
+  transition: transform .55s cubic-bezier(.34,1.56,.64,1);
+}
+.nrm-fab-icon svg { width: 24px; height: 24px; display: block; }
+.nrm-root.nrm-open .nrm-fab-icon { transform: rotate(135deg); }
+
+/* ambient idle breathing ring */
+.nrm-fab::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid rgba(59, 91, 219, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  animation: nrm-breathe 3.8s cubic-bezier(.4,0,.2,1) infinite;
+}
+.nrm-root.nrm-open .nrm-fab::after { animation: none; opacity: 0; }
+@keyframes nrm-breathe {
+  0%, 100% { transform: scale(1); opacity: 0; }
+  50% { transform: scale(1.18); opacity: .5; }
+}
+
+/* ---- hint pill (names the active action) ---- */
+.nrm-hint {
+  position: absolute;
+  bottom: calc(100% + 14px);
+  right: 0;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: .01em;
+  white-space: nowrap;
+  color: #1C1C2E;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(220, 225, 240, 0.9);
+  box-shadow: 0 6px 20px -5px rgba(28, 28, 46, 0.18);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-6px);
+  transition:
+    opacity .28s ease,
+    transform .42s cubic-bezier(.34,1.56,.64,1);
+  z-index: 10;
+}
+.nrm-hint.nrm-shown { opacity: 1; transform: translateY(0); }
+
+/* ---- reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  .nrm-backdrop,
+  .nrm-item,
+  .nrm-ico,
+  .nrm-fab,
+  .nrm-fab-icon,
+  .nrm-hint {
+    transition-duration: .001ms !important;
+    animation: none !important;
+  }
+  .nrm-fab::after { animation: none !important; opacity: 0 !important; }
+}
+
