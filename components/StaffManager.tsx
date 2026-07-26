@@ -64,38 +64,38 @@ export const StaffManager: React.FC = () => {
             createdAt: Date.now()
         });
         
-        showSuccess('تمت الإضافة بنجاح 👥', `تم تسجيل الموظف "${newName}" بصفة (${newRole === 'admin' ? 'مدير' : newRole === 'supervisor' ? 'مشرف' : 'موظف مبيعات'}) في النظام.`);
+        showSuccess('تمت الإضافة بنجاح', `تم تسجيل الموظف "${newName}" بصفة (${newRole === 'admin' ? 'مدير' : newRole === 'supervisor' ? 'مشرف' : 'موظف مبيعات'}) في النظام.`);
         setShowAddForm(false);
         setNewName('');
         setNewEmail('');
         setNewPassword('');
         setNewRole('employee');
     } catch(err: any) {
-        showError('فشل إضافة الموظف ⚠️', err.message);
+        showError('فشل إضافة الموظف', err.message);
     }
     setIsAdding(false);
   };
 
   const toggleStatus = async (id: string, currentStatus: boolean, isSelf: boolean) => {
     if (isSelf) {
-      showWarning('تنبيه أمان 🔒', 'لا يمكنك رصد أو تعطيل حسابك النشط الشخصي لتفادي فقدان التحكم بالبروتوكول.');
+      showWarning('تنبيه أمان', 'لا يمكنك رصد أو تعطيل حسابك النشط الشخصي لتفادي فقدان التحكم بالبروتوكول.');
       return;
     }
     try {
         await updateDoc(doc(db, 'users', id), { active: !currentStatus });
         const empName = employees.find(e => e.id === id)?.name || 'المستخدم';
         showSuccess(
-          !currentStatus ? 'تنشيط الحساب 🔓' : 'تعطيل الحساب 🔒',
+          !currentStatus ? 'تنشيط الحساب' : 'تعطيل الحساب',
           `تم ${!currentStatus ? 'تنشيط' : 'تعطيل'} حساب الموظف "${empName}" بنجاح في قاعدة البيانات.`
         );
     } catch(e: any) {
-        showError('خطأ بتعديل الحالة ⚠️', e.message);
+        showError('خطأ بتعديل الحالة', e.message);
     }
   };
 
   const updateRole = async (id: string, newRole: 'admin' | 'supervisor' | 'employee', isSelf: boolean) => {
     if (isSelf) {
-      showWarning('تنبيه أمان 🔒', 'لا يمكنك تخفيض أو تبديل رتبتك الإدارية الشخصية من لوحة التحديثات.');
+      showWarning('تنبيه أمان', 'لا يمكنك تخفيض أو تبديل رتبتك الإدارية الشخصية من لوحة التحديثات.');
       return;
     }
     try {
@@ -103,11 +103,11 @@ export const StaffManager: React.FC = () => {
         const empName = employees.find(e => e.id === id)?.name || 'المستخدم';
         const roleLabel = newRole === 'admin' ? 'مدير' : newRole === 'supervisor' ? 'مشرف' : 'موظف مبيعات';
         showSuccess(
-          'تحديث رتبة الموظف 🎖️',
+          'تحديث رتبة الموظف',
           `تم ترقية/تحديث رتبة الموظف "${empName}" إلى (${roleLabel}) بنجاح.`
         );
     } catch(e: any) {
-        showError('خطأ بتحديث الصلاحية ⚠️', e.message);
+        showError('خطأ بتحديث الصلاحية', e.message);
     }
   };
 
@@ -120,29 +120,29 @@ export const StaffManager: React.FC = () => {
     if (!editingNameValue.trim()) return setEditingNameId(null);
     try {
         await updateDoc(doc(db, 'users', id), { name: editingNameValue.trim() });
-        showSuccess('تم تحديث الاسم المالي 🎉', `تم تعديل الاسم الشخصي للموظف بنجاح.`);
+        showSuccess('تم تحديث الاسم المالي', `تم تعديل الاسم الشخصي للموظف بنجاح.`);
     } catch(e: any) {
-        showError('فشل تعديل الاسم ⚠️', e.message);
+        showError('فشل تعديل الاسم', e.message);
     }
     setEditingNameId(null);
   };
 
   const handleDeleteEmployee = (id: string, isSelf: boolean) => {
     if (isSelf) {
-      showWarning('حظر الإجراء ⚠️', 'لا يمكن تصفير أو حذف حسابك المالي المفتوح حالياً للوقاية.');
+      showWarning('حظر الإجراء', 'لا يمكن تصفير أو حذف حسابك المالي المفتوح حالياً للوقاية.');
       return;
     }
     const empName = employees.find(emp => emp.id === id)?.name || 'المستخدم';
     setConfirmState({
       isOpen: true,
-      title: 'حذف حساب موظف ⚠️',
+      title: 'حذف حساب موظف',
       message: `هل أنت متأكد من حذف حساب "${empName}" نهائياً من النظام؟`,
       onConfirm: async () => {
         try {
            await deleteDoc(doc(db, 'users', id));
-           showSuccess('حذف الحساب بنجاح 🗑️', `تم شطب حساب الموظف "${empName}" نهائياً من قاعدة البيانات.`);
+           showSuccess('حذف الحساب بنجاح', `تم شطب حساب الموظف "${empName}" نهائياً من قاعدة البيانات.`);
         } catch(e: any) {
-           showError('خطأ بالحذف ❌', e.message);
+           showError('خطأ بالحذف', e.message);
         }
         setConfirmState(prev => ({ ...prev, isOpen: false }));
       }
@@ -285,8 +285,8 @@ export const StaffManager: React.FC = () => {
               <div>
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center gap-3 w-full">
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-lg font-black shrink-0 ${isManager ? 'bg-[#EEF2FF] text-[#3B5BDB]' : 'bg-gray-100 text-gray-500'} ${!emp.active && 'bg-red-50 text-red-500'}`}>
-                      {emp.name ? emp.name.charAt(0) : 'U'}
+                    <div className={`w-11 h-11 rounded-full flex items-center justify-center text-sm font-black shrink-0 shadow-sm ${isManager ? 'bg-[#EEF2FF] text-[#3B5BDB] border border-[#C5D0FA]' : 'bg-slate-100 text-slate-600 border border-slate-200'} ${!emp.active && 'bg-red-50 text-red-500 border-red-200'}`}>
+                      <User size={18} />
                     </div>
                     <div className="flex-1 min-w-0 pr-1">
                       {editingNameId === emp.id ? (

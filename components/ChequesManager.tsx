@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Payment, Customer, ViewProps } from '../types';
 import { subscribeToPayments, subscribeToCustomers, savePayment } from '../services/db';
-import { Search, Calendar, FileText, Landmark, Clock, Check, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Search, Calendar, FileText, Landmark, Clock, Check, AlertTriangle, RefreshCw, Inbox } from 'lucide-react';
 import { ConfirmModal } from './ConfirmModal';
+import Counter from './Counter';
 
 export const ChequesManager: React.FC<{ changeView: any }> = ({ changeView }) => {
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -47,7 +48,7 @@ export const ChequesManager: React.FC<{ changeView: any }> = ({ changeView }) =>
     const statusLabel = newStatus === 'cashed' ? 'تم تحصيله' : newStatus === 'bounced' ? 'مرتجع' : 'قيد الانتظار';
     setConfirmState({
       isOpen: true,
-      title: 'تغيير حالة الشيك ✍️',
+      title: 'تغيير حالة الشيك',
       message: `هل أنت متأكد من تغيير حالة الشيك رقم "${cheque.chequeNumber || ''}" إلى "${statusLabel}"؟ سيتم تلقائياً إعادة احتساب الأرصدة والمديونية لكل الأطراف المعنية بنتيجة هذه التسوية.`,
       isDanger: newStatus === 'bounced',
       onConfirm: async () => {
@@ -95,7 +96,7 @@ export const ChequesManager: React.FC<{ changeView: any }> = ({ changeView }) =>
       {/* Top Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
-          <h2 className="text-2xl font-black text-[#1C1C2E]">إدارة وتسوية الشيكات البنكية ✍️</h2>
+          <h2 className="text-2xl font-black text-[#1C1C2E]">إدارة وتسوية الشيكات البنكية</h2>
           <p className="text-gray-400 text-xs font-bold mt-1 uppercase tracking-widest">متابعة مواعيد استحقاق شيكات المقاولين والزبائن وتعديل حالاتها</p>
         </div>
         <button
@@ -112,12 +113,13 @@ export const ChequesManager: React.FC<{ changeView: any }> = ({ changeView }) =>
         <div className="bg-white p-6 rounded-3xl border border-amber-100 shadow-sm flex items-center justify-between">
           <div className="space-y-1 text-right">
             <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest block">شيكات برسم التحصيل (قيد الانتظار)</span>
-            <span className="text-2xl font-black text-[#1C1C2E] block">
-              {totalPending.toLocaleString()} <span className="text-sm font-bold text-gray-500">د.أ</span>
-            </span>
+            <div className="text-2xl font-black text-[#1C1C2E] flex items-center gap-1.5" dir="ltr">
+              <Counter value={totalPending} fontSize={24} textColor="#1C1C2E" fontWeight="900" />
+              <span className="text-sm font-black text-[#1C1C2E]">د.أ</span>
+            </div>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center text-xl font-black">
-            ⏳
+            <Clock size={22} />
           </div>
         </div>
 
@@ -125,12 +127,13 @@ export const ChequesManager: React.FC<{ changeView: any }> = ({ changeView }) =>
         <div className="bg-white p-6 rounded-3xl border border-emerald-100 shadow-sm flex items-center justify-between">
           <div className="space-y-1 text-right">
             <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest block">شيكات مقبولة وتحصلت</span>
-            <span className="text-2xl font-black text-[#1C1C2E] block">
-              {totalCashed.toLocaleString()} <span className="text-sm font-bold text-gray-500">د.أ</span>
-            </span>
+            <div className="text-2xl font-black text-[#2F9E44] flex items-center gap-1.5" dir="ltr">
+              <Counter value={totalCashed} fontSize={24} textColor="#2F9E44" fontWeight="900" />
+              <span className="text-sm font-black text-[#2F9E44]">د.أ</span>
+            </div>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center text-xl font-black">
-            ✅
+            <Check size={22} />
           </div>
         </div>
 
@@ -138,12 +141,13 @@ export const ChequesManager: React.FC<{ changeView: any }> = ({ changeView }) =>
         <div className="bg-white p-6 rounded-3xl border border-rose-100 shadow-sm flex items-center justify-between">
           <div className="space-y-1 text-right">
             <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest block">شيكات مرتجعة (مرفوضة)</span>
-            <span className="text-2xl font-black text-rose-700 block">
-              {totalBounced.toLocaleString()} <span className="text-sm font-bold text-rose-500">د.أ</span>
-            </span>
+            <div className="text-2xl font-black text-[#E03131] flex items-center gap-1.5" dir="ltr">
+              <Counter value={totalBounced} fontSize={24} textColor="#E03131" fontWeight="900" />
+              <span className="text-sm font-black text-[#E03131]">د.أ</span>
+            </div>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center text-xl font-black">
-            ❌
+            <AlertTriangle size={22} />
           </div>
         </div>
       </div>
@@ -166,9 +170,9 @@ export const ChequesManager: React.FC<{ changeView: any }> = ({ changeView }) =>
           <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
             {[
               { id: 'all', label: 'الكل' },
-              { id: 'pending', label: '⏳ قيد الانتظار' },
-              { id: 'cashed', label: '✅ تم تحصيله' },
-              { id: 'bounced', label: '❌ مرتجعة' },
+              { id: 'pending', label: 'قيد الانتظار' },
+              { id: 'cashed', label: 'تم تحصيله' },
+              { id: 'bounced', label: 'مرتجعة' },
             ].map(btn => (
               <button
                 key={btn.id}
@@ -188,7 +192,9 @@ export const ChequesManager: React.FC<{ changeView: any }> = ({ changeView }) =>
         {/* Cheques List */}
         {filteredCheques.length === 0 ? (
           <div className="p-16 text-center space-y-4">
-            <span className="text-4xl block">📬</span>
+            <div className="w-14 h-14 bg-slate-100 text-slate-400 rounded-full mx-auto flex items-center justify-center">
+              <Inbox size={28} />
+            </div>
             <p className="text-gray-400 font-bold text-sm">لا يوجد شيكات بنكية مطابقة للبحث حالياً</p>
           </div>
         ) : (
@@ -234,11 +240,11 @@ export const ChequesManager: React.FC<{ changeView: any }> = ({ changeView }) =>
                           {daysToDue !== null && (
                             cheque.chequeStatus === 'pending' || !cheque.chequeStatus ? (
                               daysToDue === 0 ? (
-                                <span className="text-amber-500 text-[10px] font-black">يستحق اليوم ⚠️</span>
+                                <span className="text-amber-500 text-[10px] font-black">يستحق اليوم</span>
                               ) : daysToDue > 0 ? (
                                 <span className="text-gray-400 text-[10px]">متبقي {daysToDue} يوم</span>
                               ) : (
-                                <span className="text-rose-500 text-[10px] font-black">متأخر عن الاستحقاق بـ {Math.abs(daysToDue)} يوم 🗓️</span>
+                                <span className="text-rose-500 text-[10px] font-black">متأخر عن الاستحقاق بـ {Math.abs(daysToDue)} يوم</span>
                               )
                             ) : null
                           )}

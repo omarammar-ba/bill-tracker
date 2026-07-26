@@ -4,7 +4,8 @@ import { getFirestore, initializeFirestore, persistentLocalCache, persistentMult
 import { showError } from './notifications';
 import { addDiagnosticLog } from './diagnostics';
 
-
+// ----------- قم بوضع بيانات حسابك هنا -----------
+// انسخ هذه القيم من إعدادات مشروعك في Firebase (Project Settings)
 const firebaseConfig = {
   apiKey: "AIzaSyAwDYl4ID7iIzocY-DYc-Nx5mAWZBAOVVI",
   authDomain: "yarmouk-pos.firebaseapp.com",
@@ -17,9 +18,17 @@ const firebaseConfig = {
 // ------------------------------------------------
 
 const app = initializeApp(firebaseConfig);
-export const db = initializeFirestore(app, {
-  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
-});
+
+let firestoreInstance;
+try {
+  firestoreInstance = initializeFirestore(app, {
+    localCache: persistentLocalCache({})
+  });
+} catch (e) {
+  firestoreInstance = getFirestore(app);
+}
+
+export const db = firestoreInstance;
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 
@@ -103,20 +112,20 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
   };
   
   // Format neat user-friendly descriptions based on Firebase error messages
-  let userFriendlyTitle = 'خطأ في العملية ⚠️';
+  let userFriendlyTitle = 'خطأ في العملية';
   let userFriendlyMsg = 'حدث خطأ غير متوقع أثناء معالجة البيانات.';
   let remedy = 'يرجى التحقق من اتصال شبكة الإنترنت الخاصة بك وإعادة المحاولة. إذا تكررت المشكلة، يرجى تصفير التخزين المؤقت للأمان.';
 
   if (originalErrorMsg.includes('permission-denied') || originalErrorMsg.includes('insufficient permissions')) {
-    userFriendlyTitle = 'صلاحية غير كافية 🔒';
+    userFriendlyTitle = 'صلاحية غير كافية';
     userFriendlyMsg = 'ليست لديك الصلاحيات الكافية للقيام بهذا الإجراء على خادم البيانات.';
     remedy = 'المستخدم النشط حالياً لا يملك صلاحيات تعديل هذه السجلات. قم بتسجيل الخروج والدخول مجدداً بالحساب الأعلى (مدير النظام) للقيام بذلك.';
   } else if (originalErrorMsg.includes('quota-exceeded')) {
-    userFriendlyTitle = 'تجاوز الحد الأقصى (الكوتا) ⚠️';
+    userFriendlyTitle = 'تجاوز الحد الأقصى (الكوتا)';
     userFriendlyMsg = 'تم تجاوز حصة العمليات اليومية المجانية لقاعدة البيانات بحساب Spark. سيتم التصفير غداً.';
     remedy = 'تجاوز مشروع Firebase الحالي حاجز الاستفسارات السحابية اليومية المجانية (Spark tier quota limit). يرجى ترقيتها في كونسول Firebase أو الانتظار لتحديث الحصص.';
   } else if (originalErrorMsg.includes('offline') || originalErrorMsg.includes('internet')) {
-    userFriendlyTitle = 'نمط غير متصل بالإنترنت 🌐';
+    userFriendlyTitle = 'نمط غير متصل بالإنترنت';
     userFriendlyMsg = 'يتعذر الاتصال بالخادم الآن. يعمل التطبيق في نمط العمل غير المتصل.';
     remedy = 'تأكد من تفعيل الواي فاي أو خط البيانات الخلوي والاقتراب من تغطية شبكة قوية. سيقوم التطبيق بحفظ الحركات ذاتياً في جهازك وسينقلها للسحابة فور عودة التغطية.';
   }

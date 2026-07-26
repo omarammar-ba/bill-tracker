@@ -20,7 +20,7 @@
       "react",
       "react-dom"
     ],
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "isolatedModules": true,
     "moduleDetection": "force",
     "allowJs": true,

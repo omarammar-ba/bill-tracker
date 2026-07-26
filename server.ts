@@ -78,7 +78,7 @@ async function startServer() {
     
     if (errText.includes("oklch")) {
       return {
-        arabicTitle: "🎨 مشكلة في معالجة ألوان الفاتورة تم حلها بنجاح",
+        arabicTitle: "مشكلة في معالجة ألوان الفاتورة تم حلها بنجاح",
         arabicExplanation: "تعذر على نظام كشف الحساب معالجة الألوان الحديثة (OKLCH) أثناء توليد الصورة.",
         arabicReason: "تستخدم تصاميم السيراميك والموقع ألواناً فائقة الدقة والحديثة، ولم تكن بعض محركات رسم الصور مسبقاً قادرة على تفسيرها مباشرة.",
         arabicRemedySteps: [
@@ -92,7 +92,7 @@ async function startServer() {
     
     if (errText.includes("module_not_found") || errText.includes("cannot find package")) {
       return {
-        arabicTitle: "📦 حزمة مفقودة في خادم التشغيل المحلي",
+        arabicTitle: "حزمة مفقودة في خادم التشغيل المحلي",
         arabicExplanation: "حدث نقص في تحميل الحزم البرمجية والتبعيات اللازمة لتشغيل الخادم المحلي على جهازك الخاصة بـ React.",
         arabicReason: "قد يكون السبب وجود تعارض في إصدارات مكتبات التنسيق أو عدم اكتمال تثبيت الحزم بنجاح.",
         arabicRemedySteps: [
@@ -105,7 +105,7 @@ async function startServer() {
     }
 
     return {
-      arabicTitle: "🔧 عطل فني عام مؤقت من المتصفح",
+      arabicTitle: "عطل فني عام مؤقت من المتصفح",
       arabicExplanation: `حدث خطأ تقني داخلي أثناء معالجة العملية: ${errorMessage || "مشكلة عامة بالاتصال"}`,
       arabicReason: "قد يكون السبب انقطاعاً مؤقتاً في شبكة الإنترنت أو انتهاء صلاحية الجلسة الآمنة للمتصفح.",
       arabicRemedySteps: [
@@ -150,7 +150,7 @@ async function startServer() {
           responseSchema: {
             type: Type.OBJECT,
             properties: {
-              arabicTitle: { type: Type.STRING, description: "عنوان قصير وودود للمشكلة مع إيموجي لطيف" },
+              arabicTitle: { type: Type.STRING, description: "عنوان قصير وودود للمشكلة" },
               arabicExplanation: { type: Type.STRING, description: "شرح مطمن وحنون للمستخدم باللغة العربية الفصحى أو العامية المهذبة يوضح ما الذي حدث بالضبط ببساطة" },
               arabicReason: { type: Type.STRING, description: "السبب المحتمل والمفهوم لحدوث هذا العطل فجأة (مثال: انقطاع مؤقت للنت، انتهاء زمن الجلسة الأمنية)" },
               arabicRemedySteps: {
@@ -173,7 +173,7 @@ async function startServer() {
       const fallback = getLocalErrorAnalysis(errorName, errorMessage, context);
       const errorMsg = e.message || "";
       if (errorMsg.includes("API key not valid") || errorMsg.includes("API_KEY_INVALID")) {
-        fallback.arabicTitle = "🔑 خطأ في مفتاح الترخيص";
+        fallback.arabicTitle = "خطأ في مفتاح الترخيص";
         fallback.arabicExplanation = "مفتاح API للذكاء الاصطناعي (GEMINI_API_KEY) غير صالح أو منتهي.";
         fallback.arabicRemedySteps = ["الرجاء الانتقال إلى الإعدادات وتحديث مفتاح GEMINI_API_KEY."];
       }

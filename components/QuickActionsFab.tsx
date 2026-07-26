@@ -20,7 +20,7 @@ interface ActionItem {
 const ACTION_ITEMS: ActionItem[] = [
   {
     id: 'invoice',
-    label: 'فاتورة جديدة 📄',
+    label: 'فاتورة جديدة',
     view: 'NEW_TRANSACTION',
     icon: FilePlus,
     bgColor: '#EEF2FF',
@@ -30,7 +30,7 @@ const ACTION_ITEMS: ActionItem[] = [
   },
   {
     id: 'payment',
-    label: 'سند قبض 💵',
+    label: 'سند قبض',
     view: 'PAYMENTS',
     icon: Banknote,
     bgColor: '#EBFBEE',
@@ -40,7 +40,7 @@ const ACTION_ITEMS: ActionItem[] = [
   },
   {
     id: 'customers',
-    label: 'الزبائن والمحلات 👥',
+    label: 'الزبائن والمحلات',
     view: 'CUSTOMERS',
     icon: Users,
     bgColor: '#FFF4E6',

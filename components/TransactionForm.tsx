@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Customer, CartItem, Invoice, Payment, ViewProps, PaymentStatus, CustomerType } from '../types';
 import { saveInvoice, savePayment, saveCustomer, generateId } from '../services/db';
-import { Search, Plus, Trash2, Check, ShoppingBag, Banknote, X, Receipt, Wallet, Calculator, ArrowRight, User, Store, UserPlus, Mic, Key } from 'lucide-react';
+import { Search, Plus, Trash2, Check, ShoppingBag, Banknote, X, Receipt, Wallet, Calculator, ArrowRight, User, Store, UserPlus, Mic, Key, Landmark } from 'lucide-react';
 import { useAuth } from './AuthContext';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../services/firebase';
@@ -84,7 +84,7 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
   const startVoiceInput = () => {
     if (!browserSupportsSpeechRecognition) {
       showWarning(
-        'التعرف الصوتي غير مدعوم 🎙️',
+        'التعرف الصوتي غير مدعوم',
         'ميزة التسجيل والتعرف الصوتي المباشر غير مدعومة بالكامل على هذا المتصفح أو داخل هذا الإطار. يرجى فتح التطبيق في نافذة مستقلة واستخدام متصفح Google Chrome أو Safari حديث.'
       );
       return;
@@ -101,7 +101,7 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
       } catch (e) {}
     }
 
-    addDiagnosticLog('info', 'SPEECH', 'تشغيل الاستماع الصوتي 🎙️', 'بدأ معالج المتصفح بتهيئة المايكروفون للاستماع للإملاء بالعامية الأردنية أو العربية الفصحى (ar-JO)...');
+    addDiagnosticLog('info', 'SPEECH', 'تشغيل الاستماع الصوتي', 'بدأ معالج المتصفح بتهيئة المايكروفون للاستماع للإملاء بالعامية الأردنية أو العربية الفصحى (ar-JO)...');
 
     const rec = new SpeechRecognitionAPI();
     rec.continuous = true;
@@ -110,7 +110,7 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
 
     rec.onstart = () => {
       setListening(true);
-      addDiagnosticLog('success', 'SPEECH', 'المايك أصبح نشطاً 🟢', 'أعطى المتصفح موافقة على تشغيل المايكروفون ودفق موجات لقط الصوت بنجاح.');
+      addDiagnosticLog('success', 'SPEECH', 'المايك أصبح نشطاً', 'أعطى المتصفح موافقة على تشغيل المايكروفون ودفق موجات لقط الصوت بنجاح.');
     };
 
     rec.onresult = (event: any) => {
@@ -125,49 +125,49 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
       console.error("Speech recognition error:", event);
       const isInsideIframe = typeof window !== 'undefined' && window.self !== window.top;
       
-      let errorTitle = 'خطأ في التعرف الصوتي 🎙️';
+      let errorTitle = 'خطأ في التعرف الصوتي';
       let errorMessage = 'حدث خطأ غير متوقع أثناء تشغيل مدخلات الصوت.';
       let errorDetails = '';
 
       switch (event.error) {
         case 'not-allowed':
-          errorTitle = 'مرفوض: صلاحية المايكروفون 🚫🎙️';
+          errorTitle = 'مرفوض: صلاحية المايكروفون';
           errorMessage = 'تم رفض الوصول إلى المايكروفون. يرجى تفعيل الصلاحية لتتمكن من استخدام الإدخال الصوتي المتطور.';
-          errorDetails = `⚠️ تنبيه هام:\n${isInsideIframe ? 'أنت تتصفح التطبيق حالياً من داخل إطار المعاينة الداخلي. المتصفحات تحظر استخدام المايكروفون داخل هذه الإطارات المدمجة افتراضياً لدواعي الأمان والخصوصية.\n\n💡 الحل السريع: يرجى فتح رابط التطبيق المباشر (رابط المشاركة / التطبيق المشترك) بشكل كامل ومباشر في علامة تبويب أو متصفح مستقل، ثم امنح الصلاحية مجدداً.\n\n' : ''}🛠️ خطوات تفعيل المايك لكل الأجهزة:\n\n1. على أجهزة اللابتوب (Chrome / Edge): اضغط على علامة القفل 🔒 بجانب رابط الموقع في شريط العنوان بالأعلى، ثم غيّر خيار "الميكروفون" (Microphone) إلى "السماح" (Allow)، وقم بتحديث الصفحة.\n\n2. على هاتف الآيفون (Mobile Safari): اذهب إلى تطبيق إعدادات الهاتف (Settings) ⚙️ > خيار Safari > ميكروفون (Microphone) > ثم اختر "السماح" (Allow) أو "اسأل" (Ask).\n\n3. على هاتف أندرويد (Chrome / Samsung Internet): انقر فوق النقاط الثلاث في أعلى الصفحة > إعدادات الموقع > المايكروفون وتأكد من تفعيله والسماح لهذا الموقع المعتمد.`;
+          errorDetails = `${isInsideIframe ? 'أنت تتصفح التطبيق حالياً من داخل إطار المعاينة الداخلي. المتصفحات تحظر استخدام المايكروفون داخل هذه الإطارات المدمجة افتراضياً لدواعي الأمان والخصوصية.\n\nتأكيد: يرجى فتح رابط التطبيق المباشر بشكل كامل ومباشر في علامة تبويب أو متصفح مستقل، ثم امنح الصلاحية مجدداً.\n\n' : ''}خطوات تفعيل المايك لكل الأجهزة:\n\n1. على أجهزة اللابتوب (Chrome / Edge): اضغط على علامة القفل بجانب رابط الموقع في شريط العنوان بالأعلى، ثم غيّر خيار "الميكروفون" (Microphone) إلى "السماح" (Allow)، وقم بتحديث الصفحة.\n\n2. على هاتف الآيفون (Mobile Safari): اذهب إلى تطبيق إعدادات الهاتف > خيار Safari > ميكروفون (Microphone) > ثم اختر "السماح" (Allow) أو "اسأل" (Ask).\n\n3. على هاتف أندرويد (Chrome / Samsung Internet): انقر فوق النقاط الثلاث في أعلى الصفحة > إعدادات الموقع > المايكروفون وتأكد من تفعيله والسماح لهذا الموقع المعتمد.`;
           break;
           
         case 'audio-capture':
-          errorTitle = 'عطل بالتقاط الصوت ⚠️🎤';
+          errorTitle = 'عطل بالتقاط الصوت';
           errorMessage = 'فشل في رصد وإمساك الموجات الصوتية أو تعذر إيجاد مايكروفون نشط.';
           errorDetails = `خطوات تتبع السلامة العتادية:\n- تأكد من أن جهاز المايكروفون الخاص بلابتوبك أو هاتفك موصول ومفعّل بشكل سليم.\n- يُرجى التحقق من ألا يكون المايكروفون محجوزاً ومستخدماً حالياً من قبل تطبيق آخر في الخلفية (مثل Zoom أو Teams أو الكاميرا).\n- تحقق من لوحة تحكم الصوت في جهازك بأن مستوى حساس لقط الصوت غير صامت أو كتم (Mute).`;
           break;
 
         case 'network':
-          errorTitle = 'مشكلة شبكة واتصال 🌐❌';
+          errorTitle = 'مشكلة شبكة واتصال';
           errorMessage = 'تعذر بلوغ الخدمة السحابية المخصصة لتحليل الكلام الصوتي إلى نصوص.';
           errorDetails = `تفصيل تقني:\nميزة التعرف الصوتي (Web Speech API) على متصفحات Chrome و Safari ترحل موجات الصوت إلى خادم الذكاء السحابي الموثوق لتحليلها وتدقيق النبرات والمفردات بدقة.\nيُرجى التحقق من كفاءة وموثوقية اتصالك الحالي بالإنترنت (Wi-Fi أو 4G/5G) ثم أعد النقر والحديث بوضوح.`;
           break;
 
         case 'no-speech':
-          errorTitle = 'لم يتم تمييز كلام صامت 🤐🎙️';
+          errorTitle = 'لم يتم تمييز كلام صامت';
           errorMessage = 'لم نقم بأي تعديلات في الحقول لأننا لم نرصد أو نميز أي نية صوتية صريحة بالملتقط.';
           errorDetails = `توجيهات لنجاح التسجيل:\n- تحدث فور ظهور الضوء النابض على الزر الملون.\n- اقترب بشكل ملائم من منفع مايكروفون جهازك.\n- ألقِ الكلمات بجمل عربية واضحة بنبرة معتدلة وبمستوى تشويش محيطي منخفض ومريح.`;
           break;
 
         case 'aborted':
-          errorTitle = 'تم مقاطعة وإيقاف الاستماع 🛑';
+          errorTitle = 'تم مقاطعة وإيقاف الاستماع';
           errorMessage = 'أوقف الاستماع الصوتي بشكل قسري قبل إكمال الإفادة.';
           errorDetails = `يحدث هذا الإيقاف المفاجئ تلقائياً في حال ورود مكالمة خلوية فجائية أو عند النقر المزدوج المتتالي على زر المايك.`;
           break;
 
         case 'language-not-supported':
-          errorTitle = 'لهجة الإدخال غير مدعومة 🇸🇦🇯🇴';
+          errorTitle = 'لهجة الإدخال غير مدعومة';
           errorMessage = 'المتصفح النشط حالياً لا يملك التروس الكافية لدعم إملاء العربية باللهجة الأردنية.';
           errorDetails = `المقترح:\nنوصي بأن تستخدم متصفح Google Chrome (على الأندرويد والكمبيوتر) أو Safari (على أجهزة الآيفون والآيباد)، فكلاهما يوفر محرك لغوي محدّد بدقة ومتكامل لمعالجة العربية الفصحى والمحكية.`;
           break;
 
         default:
-          errorTitle = 'تنبيه فني بالتقاط الصوت 🛠️';
+          errorTitle = 'تنبيه فني بالتقاط الصوت';
           errorMessage = `تعذر المتابعة بالتحويل الصوتي نظراً لتنبيه بالمتصفح: ${event.error || 'عطل غير معروف'}`;
           errorDetails = `رمز المشكلة للتدقيق: ${event.error || 'unknown'}\nيرجى محاولة إنعاش الصفحة بإعاده تحميلها وسيقوم المايك بالاستعداد التام مجدداً.`;
           break;
@@ -180,7 +180,7 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
 
     rec.onend = () => {
       setListening(false);
-      addDiagnosticLog('info', 'SPEECH', 'إغلاق المايكروفون 🔴', 'تم إطفاء موجة المايكروفون وتحليل الصوت المنطوق بنجاح.');
+      addDiagnosticLog('info', 'SPEECH', 'إغلاق المايكروفون', 'تم إطفاء موجة المايكروفون وتحليل الصوت المنطوق بنجاح.');
     };
 
     recognitionRef.current = rec;
@@ -189,7 +189,7 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
       rec.start();
     } catch (e: any) {
       console.error("Failed to start speech recognition:", e);
-      showError('خطأ تشغيل المايك 🎙️', 'لم نتمكن من الوصول للمايك المباشر. يرجى التحقق من الصلاحيات.');
+      showError('خطأ تشغيل المايك', 'لم نتمكن من الوصول للمايك المباشر. يرجى التحقق من الصلاحيات.');
     }
   };
 
@@ -203,7 +203,7 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
 
     const currentTranscript = textToProcess !== undefined ? textToProcess : transcript;
     if (!currentTranscript || !currentTranscript.trim()) {
-       showWarning('لم يتم التقاط صوت 🎙️', 'لم يتم التعرف على أي نص صوتي صالح لتحليله. تحدث بوضوح وحاول مرة أخرى.');
+       showWarning('لم يتم التقاط صوت', 'لم يتم التعرف على أي نص صوتي صالح لتحليله. تحدث بوضوح وحاول مرة أخرى.');
        return;
     }
 
@@ -231,18 +231,18 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
                 total: i.quantity * i.price
             }));
             setItems(prev => [...prev, ...newItems]);
-            showSuccess('تم إضافة الأصناف بالتعرف الصوتي 🎙️', `تم ملء الفاتورة مع التعرف على ${newItems.length} أسطر بنجاح.`);
+            showSuccess('تم إضافة الأصناف بالتعرف الصوتي', `تم ملء الفاتورة مع التعرف على ${newItems.length} أسطر بنجاح.`);
         } else {
-            showWarning('تنبيه التحليل الصوتي 🔍', 'تم الاستماع لكلماتك ولكن لم نتمكن من تحديد تفاصيل الأصناف أو الكميات الصالحة للفاتورة بشكل دقيق.');
+            showWarning('تنبيه التحليل الصوتي', 'تم الاستماع لكلماتك ولكن لم نتمكن من تحديد تفاصيل الأصناف أو الكميات الصالحة للفاتورة بشكل دقيق.');
         }
     } catch (e: any) {
         const errMsg = e.message || "";
         if (errMsg.includes("API key not valid") || errMsg.includes("غير صالح")) {
-            showError('مفتاح الـ API غير صالح ⚠️', 'المفتاح الخاص بالذكاء الاصطناعي (Gemini) غير صالح أو غير مفعل. تأكد من صحة المفتاح.');
+            showError('مفتاح الـ API غير صالح', 'المفتاح الخاص بالذكاء الاصطناعي (Gemini) غير صالح أو غير مفعل. تأكد من صحة المفتاح.');
             setHasApiKey(false);
             setShowApiKeySetting(true);
         } else if (errMsg.includes("is not set") || errMsg.includes("لم يتم العثور") || errMsg.includes("مفتاح")) {
-            showError('مفتاح الـ API مفقود ⚠️', 'يرجى إدخال مفتاح الـ API الخاص بـ Gemini في إعدادات التطبيق أو الكود.');
+            showError('مفتاح الـ API مفقود', 'يرجى إدخال مفتاح الـ API الخاص بـ Gemini في إعدادات التطبيق أو الكود.');
             setHasApiKey(false);
             setShowApiKeySetting(true);
         } else if (
@@ -253,11 +253,11 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
             errMsg.toLowerCase().includes("plan")
         ) {
             showWarning(
-                'انتهى رصيد الذكاء الاصطناعي ⚠️', 
+                'انتهى رصيد الذكاء الاصطناعي', 
                 'لقد انتهت الحصة المجانية المؤقتة لمفتاح Gemini API الحالي (Quota Exceeded). يرجى مراجعة الاستهلاك أو تجديد المفتاح لمواصلة الإدخال الصوتي.'
             );
         } else {
-            showError('فشل تحليل الصوت ⚠️', 'حدثت مشكلة أثناء الاتصال بخوادم تحليل الصوت الذكية. يرجى تجربة الإدخال اليدوي مؤقتاً.');
+            showError('فشل تحليل الصوت', 'حدثت مشكلة أثناء الاتصال بخوادم تحليل الصوت الذكية. يرجى تجربة الإدخال اليدوي مؤقتاً.');
         }
     }
     setIsSaving(false);
@@ -454,7 +454,7 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
       
       const customerObj = customers.find(c => c.id === selectedCustomerId);
       showSuccess(
-        activeTransactionId ? 'تم تعديل الفاتورة 🧾' : 'إصدار فاتورة جديدة 🎉',
+        activeTransactionId ? 'تم تعديل الفاتورة' : 'إصدار فاتورة جديدة',
         `تم حفظ الفاتورة بنجاح للعميل (${customerObj?.name || ''}) بقيمة ${finalTotal} د.أ.`
       );
 
@@ -466,7 +466,7 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
       changeView('LEDGER', selectedCustomerId, invoiceId);
     } catch (error) {
       console.error('Error saving invoice:', error);
-      showError('خطأ أثناء حفظ الفاتورة ❌', 'يتعذر حفظ الفاتورة، يرجى مراجعة الصلاحيات وحالة الاتصال.');
+      showError('خطأ أثناء حفظ الفاتورة', 'يتعذر حفظ الفاتورة، يرجى مراجعة الصلاحيات وحالة الاتصال.');
     } finally {
       setIsSaving(false);
     }
@@ -501,7 +501,7 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
       const customerObj = customers.find(c => c.id === selectedCustomerId);
       
       showSuccess(
-        isCheque ? 'تسجيل شيك بنكي 🏛️' : 'سند قبض مالي 💵',
+        isCheque ? 'تسجيل شيك بنكي' : 'سند قبض مالي',
         `تم استلام دفعة بقيمة ${paymentAmount} د.أ. بنجاح من العميل (${customerObj?.name || ''}).`
       );
 
@@ -514,7 +514,7 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
       }
     } catch (error) {
       console.error('Error saving payment:', error);
-      showError('فشل حفظ السند ❌', 'يتعذر تسجيل الدفعة بالخادم، راجع صلاحية العمليات.');
+      showError('فشل حفظ السند', 'يتعذر تسجيل الدفعة بالخادم، راجع صلاحية العمليات.');
     } finally {
       setIsSaving(false);
     }
@@ -543,7 +543,7 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
               onClick={() => stopAndProcess()}
               className="px-5 py-2.5 bg-[#3B5BDB] hover:bg-[#364FC7] text-white rounded-xl text-xs font-black shadow transition-all active:scale-95 duration-100 shrink-0"
             >
-              إنهاء وتحليل الفاتورة ⚡
+              إنهاء وتحليل الفاتورة
             </button>
           </div>
         )}
@@ -586,7 +586,7 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
               {!showNewCustomerForm ? (
                 <>
                   <div className="relative group">
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">🔍</div>
+                    <Search size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                     <input 
                       type="text" 
                       placeholder="ابحث عن اسم..."
@@ -667,8 +667,8 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
           ) : (
             <div className="flex items-center justify-between p-4 bg-[#EEF2FF] rounded-2xl border border-[#C5D0FA]">
               <div className="flex items-center gap-4">
-                 <div className="w-12 h-12 rounded-xl bg-white border border-[#C5D0FA] flex items-center justify-center text-xl shadow-sm text-[#3B5BDB]">
-                    👤
+                 <div className="w-12 h-12 rounded-xl bg-white border border-[#C5D0FA] flex items-center justify-center shadow-sm text-[#3B5BDB]">
+                    {selectedCustomer?.type === CustomerType.SHOP ? <Store size={22} /> : <User size={22} />}
                  </div>
                  <div>
                     <p className="text-[10px] text-[#3B5BDB] font-black uppercase tracking-widest">الزبون المختار</p>
@@ -698,7 +698,7 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
                       title="إعدادات مفتاح الذكاء الاصطناعي (Gemini API Key)"
                     >
                       <Key size={14} className="text-amber-500 animate-pulse" />
-                      <span>مفتاح الـ API 🔑</span>
+                      <span>مفتاح الـ API</span>
                     </button>
                   )}
                   <button
@@ -711,7 +711,7 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
                     }`}
                   >
                     <Mic size={14} className={listening ? "animate-bounce" : ""} />
-                    <span>{listening ? 'إنهاء وتحليل الآن ⚡' : 'إدخال صوتي 🎙️'}</span>
+                    <span>{listening ? 'إنهاء وتحليل الآن' : 'إدخال صوتي'}</span>
                   </button>
                 </div>
               </div>
@@ -719,7 +719,7 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
               {showApiKeySetting && (
                 <div className="bg-amber-50/50 p-4 rounded-2xl border border-amber-100 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 transition-all" dir="rtl">
                   <div className="flex-1 space-y-1">
-                    <label className="block text-xs font-black text-[#1C1C2E]">مفتاح API الخاص بـ Gemini (مخزن محلياً وآمن 🔒):</label>
+                    <label className="block text-xs font-black text-[#1C1C2E]">مفتاح API الخاص بـ Gemini (مخزن محلياً وآمن):</label>
                     <p className="text-[10px] text-gray-500 font-bold">يتم تخزين المفتاح بأمان وسرية تامة داخل متصفحك الشخصي فقط لتشغيل ميزة الفاتورة الصوتية.</p>
                   </div>
                   <div className="flex items-center gap-2 min-w-[280px] md:min-w-[350px]">
@@ -735,7 +735,7 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
                       onClick={() => {
                         saveGeminiApiKey(apiKeyInput);
                         setHasApiKey(!!apiKeyInput.trim());
-                        showSuccess("تم حفظ مفتاح API بنجاح! 🎉", "يمكنك الآن البدء باستخدام ميزة الإدخال والتحليل الصوتي للفواتير مباشرة.");
+                        showSuccess("تم حفظ مفتاح API بنجاح!", "يمكنك الآن البدء باستخدام ميزة الإدخال والتحليل الصوتي للفواتير مباشرة.");
                         setShowApiKeySetting(false);
                       }}
                       className="whitespace-nowrap bg-green-600 hover:bg-green-700 text-white text-xs font-black px-4 py-2.5 rounded-xl shadow-md transition-all"
@@ -910,14 +910,16 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
                     onClick={() => setPaymentMethod('cash')}
                     className={`flex-1 py-3.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${paymentMethod === 'cash' ? 'bg-[#2F9E44] text-white shadow-md' : 'text-gray-400 hover:text-gray-600 bg-white'}`}
                   >
-                    💵 قبض نقدي
+                    <Banknote size={18} />
+                    <span>قبض نقدي</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setPaymentMethod('cheque')}
                     className={`flex-1 py-3.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${paymentMethod === 'cheque' ? 'bg-[#3B5BDB] text-white shadow-md' : 'text-gray-400 hover:text-gray-600 bg-white'}`}
                   >
-                    ✍️ شيك بنكي
+                    <Landmark size={18} />
+                    <span>شيك بنكي</span>
                   </button>
                 </div>
 
@@ -963,9 +965,9 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
                           value={chequeStatus}
                           onChange={(e) => setChequeStatus(e.target.value as any)}
                         >
-                          <option value="pending">⏳ قيد الانتظار</option>
-                          <option value="cashed">✅ تم تحصيله (مقبول)</option>
-                          <option value="bounced">❌ مرتجع (مدين)</option>
+                          <option value="pending">قيد الانتظار</option>
+                          <option value="cashed">تم تحصيله (مقبول)</option>
+                          <option value="bounced">مرتجع (مدين)</option>
                         </select>
                       </div>
                     </div>

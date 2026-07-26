@@ -7,6 +7,7 @@ import { db } from '../services/firebase';
 import { motion } from 'motion/react';
 import { deleteInvoice, deletePayment, deleteInvoicePermanently, deletePaymentPermanently } from '../services/db';
 import { ConfirmModal } from './ConfirmModal';
+import Counter from './Counter';
 
 const SwipeableTransactionItem: React.FC<{
   t: Transaction;
@@ -47,7 +48,7 @@ const SwipeableTransactionItem: React.FC<{
             }`}
           >
             <Trash2 size={18} className="animate-pulse text-white" />
-            <span className="text-[10px] font-black">{isDeleted ? 'حذف نهائي ⚠️' : 'حذف الحركة'}</span>
+            <span className="text-[10px] font-black">{isDeleted ? 'حذف نهائي' : 'حذف الحركة'}</span>
           </div>
         )}
 
@@ -65,7 +66,7 @@ const SwipeableTransactionItem: React.FC<{
             }`}
           >
             <Trash2 size={18} className="animate-pulse text-white" />
-            <span className="text-[10px] font-black">{isDeleted ? 'حذف نهائي ⚠️' : 'حذف الحركة'}</span>
+            <span className="text-[10px] font-black">{isDeleted ? 'حذف نهائي' : 'حذف الحركة'}</span>
           </div>
         )}
       </>
@@ -295,8 +296,10 @@ const Dashboard: React.FC<DashboardProps> = ({ customers, transactions, changeVi
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <StatCard 
-          emoji="💰" 
+          icon={<TrendingUp size={24} />} 
           label="إجمالي الذمم (الديون الدفترية)" 
+          numericValue={stats.totalDebts}
+          suffix="د.أ"
           value={`${stats.totalDebts.toLocaleString()} د.أ`} 
           sub="مجموع الذمم المطلوبة من الزبائن"
           color="red"
@@ -304,8 +307,9 @@ const Dashboard: React.FC<DashboardProps> = ({ customers, transactions, changeVi
           onToggleHide={() => setIsBalanceHidden(!isBalanceHidden)}
         />
         <StatCard 
-          emoji="👥" 
+          icon={<Users size={24} />} 
           label="عدد الزبائن" 
+          numericValue={stats.customerCount}
           value={`${stats.customerCount.toLocaleString()}`} 
           sub="عدد الزبائن المسجلين في النظام"
           color="blue"
@@ -361,8 +365,8 @@ const Dashboard: React.FC<DashboardProps> = ({ customers, transactions, changeVi
         isOpen={!!confirmingTransaction}
         title={
           confirmingTransaction?.deleted
-            ? (confirmingTransaction?.type === 'invoice' ? 'تأكيد الحذف النهائي للفاتورة ⚠️' : 'تأكيد الحذف النهائي للسند ⚠️')
-            : (confirmingTransaction?.type === 'invoice' ? 'تأكيد إلغاء وحذف الفاتورة 🗑️' : 'تأكيد إلغاء وحذف السند 🗑️')
+            ? (confirmingTransaction?.type === 'invoice' ? 'تأكيد الحذف النهائي للفاتورة' : 'تأكيد الحذف النهائي للسند')
+            : (confirmingTransaction?.type === 'invoice' ? 'تأكيد إلغاء وحذف الفاتورة' : 'تأكيد إلغاء وحذف السند')
         }
         message={
           confirmingTransaction?.deleted
@@ -399,7 +403,7 @@ const Dashboard: React.FC<DashboardProps> = ({ customers, transactions, changeVi
   );
 };
 
-const StatCard = ({ emoji, label, value, sub, color, isHidden, onToggleHide }: any) => {
+const StatCard = ({ icon, label, value, numericValue, suffix, sub, color, isHidden, onToggleHide }: any) => {
   const colors: any = {
     blue: 'text-[#3B5BDB] bg-[#EEF2FF] shadow-[#3B5BDB]/5 border-[#C5D0FA]',
     green: 'text-[#2F9E44] bg-[#EBFBEE] shadow-[#2F9E44]/5 border-[#B2F2BB]',
@@ -411,8 +415,8 @@ const StatCard = ({ emoji, label, value, sub, color, isHidden, onToggleHide }: a
   return (
     <div className={`p-6 bg-white rounded-[32px] border border-gray-100 shadow-xl shadow-blue-900/5 flex flex-col justify-between h-48 transition-all hover:-translate-y-1 hover:shadow-2xl`}>
       <div className="flex items-center justify-between">
-        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border-2 text-2xl ${colors[color]}`}>
-          {emoji}
+        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border-2 ${colors[color]}`}>
+          {icon}
         </div>
         {onToggleHide && (
           <button 
@@ -426,7 +430,18 @@ const StatCard = ({ emoji, label, value, sub, color, isHidden, onToggleHide }: a
       </div>
       <div className="mt-4">
         <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">{label}</p>
-        <p className="text-3xl font-black text-[#1C1C2E] tracking-tight">{isHidden ? '***** د.أ' : value}</p>
+        <div className="text-3xl font-black text-[#1C1C2E] tracking-tight h-[36px] flex items-center">
+          {isHidden ? (
+            <span className="text-[#1C1C2E] font-black">***** د.أ</span>
+          ) : typeof numericValue === 'number' ? (
+            <span className="flex items-center gap-1.5" dir="ltr">
+              {suffix && <span className="text-lg font-black text-[#1C1C2E]">{suffix}</span>}
+              <Counter value={numericValue} fontSize={28} textColor="#1C1C2E" fontWeight="900" />
+            </span>
+          ) : (
+            value
+          )}
+        </div>
         <p className="text-xs font-bold text-gray-400 mt-2">{sub}</p>
       </div>
     </div>

@@ -63,7 +63,7 @@ export const ToastNotifications: React.FC = () => {
           className="pointer-events-auto bg-gradient-to-r from-red-600 to-rose-700 text-white px-6 py-2.5 rounded-full shadow-lg flex items-center gap-3 text-xs md:text-sm font-bold border border-red-500/30 max-w-md w-full justify-center transition-all animate-pulse"
         >
           <WifiOff className="w-4 h-4 shrink-0" />
-          <span>لا يوجد اتصال بالإنترنت! أنت تعمل الآن بالنمط غير المتصل 🌐</span>
+          <span>لا يوجد اتصال بالإنترنت! أنت تعمل الآن بالنمط غير المتصل</span>
         </div>
       )}
 
@@ -100,7 +100,7 @@ export const ToastNotifications: React.FC = () => {
                         title="انقر لتتبع سبب العطل وكيفية علاجه"
                       >
                         <Wrench size={11} className="text-rose-600 animate-pulse" />
-                        <span>تتبع أسباب المشكلة وحلها الفوري 🛠️</span>
+                        <span>تتبع أسباب المشكلة وحلها الفوري</span>
                       </button>
                     </div>
                   )}
@@ -118,7 +118,7 @@ export const ToastNotifications: React.FC = () => {
                           </>
                         ) : (
                           <>
-                            <span>عرض التفاصيل التقنية 🛠️</span>
+                            <span>عرض التفاصيل التقنية</span>
                             <ChevronDown className="w-3 h-3" />
                           </>
                         )}

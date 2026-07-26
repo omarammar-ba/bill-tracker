@@ -82,7 +82,7 @@ export const clearDiagnosticLogs = () => {
   logs = [];
   notifyListeners();
   saveLogsToSession();
-  addDiagnosticLog('info', 'SYSTEM', 'تفريغ سجل التتبع 🧹', 'تم مسح جميع السجلات والملخصات الفنية السابقة بشكل يدوي.');
+  addDiagnosticLog('info', 'SYSTEM', 'تفريغ سجل التتبع', 'تم مسح جميع السجلات والملخصات الفنية السابقة بشكل يدوي.');
 };
 
 // --- AUTOMATIC ENV DIAGNOSTIC CHECKS ---
@@ -120,10 +120,15 @@ export const analyzeErrorWithGemini = async (
   context?: string
 ): Promise<GeminiErrorAnalysis | null> => {
   try {
+    const sName = String(errorName || 'RuntimeError');
+    const sMessage = String(errorMessage || '');
+    const sStack = errorStack ? String(errorStack) : undefined;
+    const sContext = context ? String(context) : 'نظام التشغيل';
+
     const response = await fetch('/api/analyze-error', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ errorName, errorMessage, errorStack, context })
+      body: JSON.stringify({ errorName: sName, errorMessage: sMessage, errorStack: sStack, context: sContext })
     });
     
     if (!response.ok) {
@@ -131,6 +136,9 @@ export const analyzeErrorWithGemini = async (
     }
     
     const data: GeminiErrorAnalysis = await response.json();
+    if (!data || !data.arabicTitle) {
+      return null;
+    }
     
     // Log the AI analyze outcome securely inside our tracer
     addDiagnosticLog(
@@ -138,17 +146,19 @@ export const analyzeErrorWithGemini = async (
       'SYSTEM',
       data.arabicTitle,
       data.arabicExplanation,
-      `الخطأ الأصلي: [${errorName}] ${errorMessage}\nسياق الحدوث: ${context || 'غير محدد'}`,
-      `التفسير: ${data.arabicReason}\n\nخطوات الحل الآمنة:\n${data.arabicRemedySteps.map((step, idx) => `${idx + 1}. ${step}`).join('\n')}`
+      `الخطأ الأصلي: [${sName}] ${sMessage}\nسياق الحدوث: ${sContext}`,
+      `التفسير: ${data.arabicReason}\n\nخطوات الحل الآمنة:\n${(data.arabicRemedySteps || []).map((step, idx) => `${idx + 1}. ${step}`).join('\n')}`
     );
 
     // Broadcast event so UI overlays or notification banners can render it
-    const event = new CustomEvent('gemini-error-analyzed', { detail: data });
-    window.dispatchEvent(event);
+    try {
+      const event = new CustomEvent('gemini-error-analyzed', { detail: data });
+      window.dispatchEvent(event);
+    } catch (e) {}
 
     return data;
   } catch (err: any) {
-    console.error('Gemini error analysis proxy error:', err);
+    console.error('Gemini error analysis proxy error:', err?.message || err);
     return null;
   }
 };
@@ -185,7 +195,7 @@ export const checkSystemEnvironment = async (): Promise<EnvHealthResult> => {
         addDiagnosticLog(
           'success', 
           'SYSTEM', 
-          'تنظيف خلايا الكاش النشط (Service Worker) 🧹', 
+          'تنظيف خلايا الكاش النشط (Service Worker)', 
           'تم كشف وإيقاف تشغيل ملفات Service Worker بنجاح لمنع تداخل التصميم والكاش القديم.'
         );
       } else {
@@ -218,7 +228,7 @@ export const checkSystemEnvironment = async (): Promise<EnvHealthResult> => {
         addDiagnosticLog(
           'warning', 
           'SYSTEM', 
-          'تحديث إصدار التطبيق مكتشف 🔄', 
+          'تحديث إصدار التطبيق مكتشف', 
           `تم كشف إصدار أقدم (${savedVersion}) في التخزين الموضعي بينما الإصدار الحالي هو (${APP_VERSION}). تم تحديث المؤشر لمنع تعارض التصاميم.`
         );
       }
@@ -271,12 +281,12 @@ export interface MicTestResult {
 }
 
 export const testMicrophoneAccess = async (): Promise<MicTestResult> => {
-  addDiagnosticLog('info', 'SPEECH', 'بدء فحص عتاد المايكروفون 🎙️', 'جاري التواصل مع موجز خدمات الإدخال الصوتي بالمتصفح...');
+  addDiagnosticLog('info', 'SPEECH', 'بدء فحص عتاد المايكروفون', 'جاري التواصل مع موجز خدمات الإدخال الصوتي بالمتصفح...');
   
   if (typeof navigator === 'undefined' || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     const msg = 'مستعرض الويب لا يعرض منافذ لقط الصوت في سياقه الحالي.';
     const rem = 'قد يكون هذا بسبب تصفح الموقع عبر بروتوكول HTTP غير آمن عوضاً عن HTTPS المجهر للتشفير، أو بسبب تصفحك من متصفح داخل تطبيقات التواصل (مثل ويب فيسبوك/إنستغرام). يرجى نسخ الرابط كاملاً وفتحه بمتصفح Chrome الرسمي.';
-    addDiagnosticLog('error', 'SPEECH', 'عتاد غير متوفر 🎙️', msg, undefined, rem);
+    addDiagnosticLog('error', 'SPEECH', 'عتاد غير متوفر', msg, undefined, rem);
     return { success: false, errorName: 'NotSupported', errorMessage: msg, remedy: rem };
   }
 
@@ -286,7 +296,7 @@ export const testMicrophoneAccess = async (): Promise<MicTestResult> => {
     stream.getTracks().forEach(track => track.stop());
     
     const successMsg = 'تم التقاط إشارة الصوت وتأكيد الأذونات بنجاح كبير!';
-    addDiagnosticLog('success', 'SPEECH', 'نجاح الاتصال بالمايك ✅', successMsg, 'تم التحقق من عتاد الصوت وجاهزية المتصفح.');
+    addDiagnosticLog('success', 'SPEECH', 'نجاح الاتصال بالمايك', successMsg, 'تم التحقق من عتاد الصوت وجاهزية المتصفح.');
     return { success: true };
   } catch (error: any) {
     let errorName = error.name || 'UnknownError';
@@ -295,7 +305,7 @@ export const testMicrophoneAccess = async (): Promise<MicTestResult> => {
 
     if (errorName === 'NotAllowedError' || errorName === 'PermissionDeniedError') {
       errorMessage = 'تم رفض استخدام المخطط الصوتي بشكل قاطع (Permission Denied).';
-      remedy = `1. في المتصفح، انقر فوق أيقونة القفل أو لوحة تحكم الخصوصية 🔒 بجوار شريط العنوان بالأعلى.\n2. ابحث عن خيار الميكروفون (Microphone) وحدد "سماح" (Allow).\n3. أعد تحميل الصفحة ليتم التفعيل.\n\n* تنبيه للمعاينة: إذا كنت تستعرض من داخل واجهة الاستوديو المدمجة، يجب عليك فتح الرابط في متصفح خارجي مستقل (علامة تبويب جديدة) لتتمكن من تخطي الحماية الأمنية للإطار.`;
+      remedy = `1. في المتصفح، انقر فوق أيقونة القفل أو لوحة تحكم الخصوصية بجوار شريط العنوان بالأعلى.\n2. ابحث عن خيار الميكروفون (Microphone) وحدد "سماح" (Allow).\n3. أعد تحميل الصفحة ليتم التفعيل.\n\n* تنبيه للمعاينة: إذا كنت تستعرض من داخل واجهة الاستوديو المدمجة، يجب عليك فتح الرابط في متصفح خارجي مستقل (علامة تبويب جديدة) لتتمكن من تخطي الحماية الأمنية للإطار.`;
     } else if (errorName === 'NotFoundError' || errorName === 'DevicesNotFoundError') {
       errorMessage = 'لم نجد أي جهاز مايكروفون موصول بنظام التشغيل حالياً.';
       remedy = 'تحقق من كابل المايكروفون أو سماعة الرأس، وتأكد من أن جهاز المايك الافتراضي مفعل ويعمل من لوحة التحكم بنظام التشغيل الخاص بك.';
@@ -304,7 +314,7 @@ export const testMicrophoneAccess = async (): Promise<MicTestResult> => {
       remedy = 'أغلق أي برامج أخرى قد تستغل المايك حالياً بالخلفية (مثل مكالمة زوم، تيمز، ديسكورد، أو الكاميرا) ثم أنعش الصفحة.';
     }
 
-    addDiagnosticLog('error', 'SPEECH', 'فشل الوصول للمايك 🎙️❌', `نوع العطل: [${errorName}] - ${errorMessage}`, error.stack, remedy);
+    addDiagnosticLog('error', 'SPEECH', 'فشل الوصول للمايك', `نوع العطل: [${errorName}] - ${errorMessage}`, error.stack, remedy);
     return { success: false, errorName, errorMessage, remedy };
   }
 };
@@ -319,7 +329,7 @@ export interface DbTestResult {
 }
 
 export const testDatabaseConnectivity = async (): Promise<DbTestResult> => {
-  addDiagnosticLog('info', 'DATABASE', 'بدء فحص قاعدة البيانات 🔥', 'جاري التحقق من حالة المزامنة وحساب المستخدم النشط حالياً...');
+  addDiagnosticLog('info', 'DATABASE', 'بدء فحص قاعدة البيانات', 'جاري التحقق من حالة المزامنة وحساب المستخدم النشط حالياً...');
   
   const user = auth.currentUser;
   const authStatus = user ? `متصل بالحساب: ${user.email} (UID: ${user.uid})` : 'غير متصل (زائر مؤقت)';
@@ -329,7 +339,7 @@ export const testDatabaseConnectivity = async (): Promise<DbTestResult> => {
     const q = query(collection(db, 'customers'), limit(1));
     await getDocs(q);
     const latency = Date.now() - startTime;
-    addDiagnosticLog('success', 'DATABASE', 'قاعدة البيانات مستجيبة ✅', `تم الاتصال بنجاح وزمن الاستجابة: ${latency}ms`, `حالة التوثيق: ${authStatus}`);
+    addDiagnosticLog('success', 'DATABASE', 'قاعدة البيانات مستجيبة', `تم الاتصال بنجاح وزمن الاستجابة: ${latency}ms`, `حالة التوثيق: ${authStatus}`);
     return { success: true, latencyMs: latency, authStatus };
   } catch (error: any) {
     const originalErrorMsg = error.message || String(error);
@@ -341,7 +351,7 @@ export const testDatabaseConnectivity = async (): Promise<DbTestResult> => {
       remedy = 'لقد تجاوزت الكوتا السحابية اليومية المجانية لقاعدة البيانات Firestore. يرجى الانتظار حتى تصفير العداد غداً أو التواصل مع الدعم الفني لترقية باقة السحاب.';
     }
 
-    addDiagnosticLog('error', 'DATABASE', 'فشل في الاتصال بقاعدة البيانات ❌', `تفصيل العطل: ${originalErrorMsg}`, error.stack, remedy);
+    addDiagnosticLog('error', 'DATABASE', 'فشل في الاتصال بقاعدة البيانات', `تفصيل العطل: ${originalErrorMsg}`, error.stack, remedy);
     return { success: false, errorMessage: originalErrorMsg, authStatus, remedy };
   }
 };
@@ -351,14 +361,17 @@ if (typeof window !== 'undefined') {
   window.addEventListener('error', (event) => {
     const msg = event.message || '';
     const lowerMsg = msg.toLowerCase();
-    // Skip extension/benign UI loop noise, and platform HMR websocket connection warnings
+    // Skip extension/benign UI loop noise, platform HMR, and internal firestore assertion noise
     if (
       lowerMsg.includes('extension') || 
       lowerMsg.includes('resizeobserver') || 
       lowerMsg.includes('websocket') || 
       lowerMsg.includes('is not a function') ||
       lowerMsg.includes('hmr') ||
-      lowerMsg.includes('vite')
+      lowerMsg.includes('vite') ||
+      lowerMsg.includes('firestore') ||
+      lowerMsg.includes('assertion') ||
+      lowerMsg.includes('eu.get')
     ) return;
     
     // Send to Gemini AI for helpful non-disruptive feedback
@@ -380,7 +393,10 @@ if (typeof window !== 'undefined') {
       lowerMsg.includes('websocket') || 
       lowerMsg.includes('is not a function') ||
       lowerMsg.includes('hmr') ||
-      lowerMsg.includes('vite')
+      lowerMsg.includes('vite') ||
+      lowerMsg.includes('firestore') ||
+      lowerMsg.includes('assertion') ||
+      lowerMsg.includes('eu.get')
     ) return;
 
     analyzeErrorWithGemini(

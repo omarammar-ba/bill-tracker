@@ -35,13 +35,13 @@ if (typeof window !== 'undefined') {
   window.addEventListener('online', () => {
     isOfflineGlobal = false;
     notifyOfflineSubscribers();
-    showSuccess('نمط الاتصال 🟢', 'تم استعادة الاتصال بالإنترنت وتحديث البيانات التلقائي.');
+    showSuccess('نمط الاتصال', 'تم استعادة الاتصال بالإنترنت وتحديث البيانات التلقائي.');
   });
 
   window.addEventListener('offline', () => {
     isOfflineGlobal = true;
     notifyOfflineSubscribers();
-    showWarning('نمط غير متصل 🌐', 'انقطع الاتصال بالإنترنت. يمكنك الاستمرار في استخدام التطبيق وسيتم حفظ البيانات محلياً.');
+    showWarning('نمط غير متصل', 'انقطع الاتصال بالإنترنت. يمكنك الاستمرار في استخدام التطبيق وسيتم حفظ البيانات محلياً.');
   });
 }
 

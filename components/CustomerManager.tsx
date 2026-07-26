@@ -36,7 +36,7 @@ const CustomerManager: React.FC<Props> = ({ customers, changeView }) => {
   const handleSave = async () => {
     const trimmedName = newCustomer.name?.trim();
     if (!trimmedName) {
-      showError('حقل مطلوب ⚠️', 'يرجى إدخال اسم الزبون بشكل صحيح.');
+      showError('حقل مطلوب', 'يرجى إدخال اسم الزبون بشكل صحيح.');
       return;
     }
 
@@ -45,7 +45,7 @@ const CustomerManager: React.FC<Props> = ({ customers, changeView }) => {
       c => c.name.trim().toLowerCase() === trimmedName.toLowerCase()
     );
     if (nameExists) {
-      showWarning('الاسم مسجل مسبقاً ⚠️', 'هذا الاسم مسجل بالفعل كزبون أو محل تجاري.');
+      showWarning('الاسم مسجل مسبقاً', 'هذا الاسم مسجل بالفعل كزبون أو محل تجاري.');
       return;
     }
 
@@ -65,7 +65,7 @@ const CustomerManager: React.FC<Props> = ({ customers, changeView }) => {
       
       // Floating Success Notification from Top
       showSuccess(
-        'تم إضافة جديد 🎉', 
+        'تم إضافة جديد', 
         `تم تسجيل الزبون "${trimmedName}" بنجاح في قاعدة البيانات.`
       );
     } catch (err: any) {
@@ -75,17 +75,17 @@ const CustomerManager: React.FC<Props> = ({ customers, changeView }) => {
          try {
             const parsed = JSON.parse(err.message);
             if (parsed.error && (parsed.error.includes("PERMISSION_DENIED") || parsed.error.includes("permission-denied"))) {
-                errorMsg = '⚠️ ليس لديك الصلاحية لإضافة زبون (تأكد من تفعيل الحساب من الإدارة).';
+                errorMsg = 'ليس لديك الصلاحية لإضافة زبون (تأكد من تفعيل الحساب من الإدارة).';
             }
          } catch {
             if (err.message.includes("permission-denied") || err.message.includes("PERMISSION_DENIED")) {
-                errorMsg = '⚠️ ليس لديك الصلاحية لإضافة زبون (تأكد من تفعيل الحساب من الإدارة).';
+                errorMsg = 'ليس لديك الصلاحية لإضافة زبون (تأكد من تفعيل الحساب من الإدارة).';
             }
          }
       }
       
       // Floating Error Notification from Top
-      showError('فشل إضافة الزبون ⚠️', errorMsg);
+      showError('فشل إضافة الزبون', errorMsg);
     }
   };
 
@@ -94,18 +94,18 @@ const CustomerManager: React.FC<Props> = ({ customers, changeView }) => {
     const customer = customers.find(c => c.id === id);
     setConfirmState({
       isOpen: true,
-      title: 'حذف الحساب المالي ⚠️',
+      title: 'حذف الحساب المالي',
       message: `هل أنت متأكد من حذف الحساب "${customer?.name || ''}" بصفة نهائية مع كافّة فواتيره وسندات القبض المترتبة عليه؟ هذا الإجراء لا يمكن التراجع عنه.`,
       onConfirm: async () => {
         try {
           await deleteCustomer(id);
           setConfirmState(prev => ({ ...prev, isOpen: false }));
           showSuccess(
-            'تم حذف الزبون 🗑️', 
+            'تم حذف الزبون', 
             `تم حذف حساب "${customer?.name || ''}" بالكامل بنجاح.`
           );
         } catch (err) {
-          showError('خطأ أثناء حذف الزبون ⚠️', 'لم نتمكن من حذف حساب الزبون، يرجى التحقق من الصلاحيات.');
+          showError('خطأ أثناء حذف الزبون', 'لم نتمكن من حذف حساب الزبون، يرجى التحقق من الصلاحيات.');
           setConfirmState(prev => ({ ...prev, isOpen: false }));
         }
       }
@@ -136,7 +136,7 @@ const CustomerManager: React.FC<Props> = ({ customers, changeView }) => {
       </div>
 
       <div className="relative group">
-        <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">🔍</div>
+        <Search size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
         <input 
           type="text" 
           placeholder="ابحث عن زبون أو محل..." 
@@ -157,8 +157,7 @@ const CustomerManager: React.FC<Props> = ({ customers, changeView }) => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredCustomers.map((customer, idx) => {
-            const avatarColors = ['bg-[#EEF2FF] text-[#3B5BDB] border-[#C5D0FA]', 'bg-[#EBFBEE] text-[#2F9E44] border-[#B2F2BB]', 'bg-[#FFF4E6] text-[#E8590C] border-[#FFD8A8]', 'bg-[#FFF5F5] text-[#E03131] border-[#FFC9C9]'];
-            const colorClass = avatarColors[idx % avatarColors.length];
+            const isShop = customer.type === CustomerType.SHOP;
             
             return (
               <div 
@@ -168,18 +167,23 @@ const CustomerManager: React.FC<Props> = ({ customers, changeView }) => {
                 <div className="p-4">
                   {role === 'admin' && customer.locked && (
                     <div className="mb-3 w-full bg-rose-50 border-2 border-rose-300 text-rose-700 text-xs font-black py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow-sm animate-pulse">
-                       <span className="font-black text-sm">🔒</span> هذا الحساب مقفل ومخفي عن الموظفين
+                       <Lock size={15} /> هذا الحساب مقفل ومخفي عن الموظفين
                     </div>
                   )}
                   <div className="flex items-center gap-4 mb-4">
-                    <div className={`w-12 h-12 rounded-xl border flex items-center justify-center text-lg font-black shrink-0 ${colorClass}`}>
-                      {customer.name.charAt(0)}
+                    <div className={`w-12 h-12 rounded-xl border flex items-center justify-center shrink-0 ${
+                      isShop 
+                        ? 'bg-[#EEF2FF] text-[#3B5BDB] border-[#C5D0FA]' 
+                        : 'bg-[#EBFBEE] text-[#2F9E44] border-[#B2F2BB]'
+                    }`}>
+                      {isShop ? <Store size={22} /> : <User size={22} />}
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-bold text-[#1C1C2E] text-base truncate leading-tight">{customer.name}</h3>
-                      <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mt-0.5">
-                        {customer.type === CustomerType.SHOP ? '🏠 محل تجاري' : '👤 زبون فردي'}
-                      </p>
+                      <div className="flex items-center gap-1.5 text-[11px] font-bold text-gray-500 mt-1">
+                        {isShop ? <Store size={13} className="text-[#3B5BDB]" /> : <User size={13} className="text-[#2F9E44]" />}
+                        <span>{isShop ? 'محل تجاري' : 'زبون فردي'}</span>
+                      </div>
                     </div>
                     <div className="text-left">
                       <div className={`text-sm font-black ${customer.balance > 0 ? 'text-[#E03131]' : 'text-[#2F9E44]'}`}>
@@ -228,12 +232,12 @@ const CustomerManager: React.FC<Props> = ({ customers, changeView }) => {
                                 const nextLockState = !customer.locked;
                                 await saveCustomer({ ...customer, locked: nextLockState });
                                 if (nextLockState) {
-                                  showWarning('تم قفل الحساب 🔒', `تم حظر وإخفاء الحساب المالي لـ "${customer.name}" عن موظفي المبيعات بصورة مؤقتة.`);
+                                  showWarning('تم قفل الحساب', `تم حظر وإخفاء الحساب المالي لـ "${customer.name}" عن موظفي المبيعات بصورة مؤقتة.`);
                                 } else {
-                                  showSuccess('إلغاء قفل الحساب 🔓', `تم تفعيل الحساب لـ "${customer.name}" وإتاحته لموظفي المبيعات من جديد.`);
+                                  showSuccess('إلغاء قفل الحساب', `تم تفعيل الحساب لـ "${customer.name}" وإتاحته لموظفي المبيعات من جديد.`);
                                 }
                               } catch (err) {
-                                showError('فشل تغيير حالة القفل 🔐', 'لم نتمكن من تعديل قفل الحساب المالي، تأكد من صلاحيات الإدارة.');
+                                showError('فشل تغيير حالة القفل', 'لم نتمكن من تعديل قفل الحساب المالي، تأكد من صلاحيات الإدارة.');
                               }
                             }}
                             className={`flex-1 min-w-0 flex flex-col items-center justify-center gap-1.5 py-2.5 px-1 rounded-xl font-bold transition-all text-[10px] sm:text-xs border active:scale-95 duration-100 ${
@@ -269,7 +273,7 @@ const CustomerManager: React.FC<Props> = ({ customers, changeView }) => {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl border border-gray-100 overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="bg-[#3B5BDB] p-6 text-white text-center">
-              <h3 className="text-xl font-black">إضافة حساب جديد 👥</h3>
+              <h3 className="text-xl font-black">إضافة حساب جديد</h3>
               <p className="text-white/70 text-xs font-bold mt-1 uppercase tracking-widest">تسجيل زبون أو محل جديد في النظام</p>
             </div>
             

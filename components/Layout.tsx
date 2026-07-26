@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { ViewState } from '../types';
-import { Users, FileText, Menu, X, LogOut, Home, Receipt, Banknote, List, BarChart3, Settings, Printer, Landmark, Wrench, Database } from 'lucide-react';
+import { Users, FileText, Menu, X, LogOut, Home, Receipt, Banknote, List, BarChart3, Settings, Printer, Landmark, Wrench, Database, UserCheck, ShieldCheck } from 'lucide-react';
 import { useAuth } from './AuthContext';
 import { QuickActionsFab } from './QuickActionsFab';
 
@@ -103,8 +103,9 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, changeView }) =>
         {/* Header Section */}
         <div className="p-8 border-b border-gray-100">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-[#EEF2FF] text-[#3B5BDB] flex items-center justify-center text-xl font-black shadow-inner">
-              {userInitial}
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#3B5BDB] to-[#2B44A8] text-white flex items-center justify-center shadow-md shadow-[#3B5BDB]/20 border border-white/20 relative shrink-0">
+              {role === 'admin' ? <ShieldCheck size={28} className="text-white" /> : <UserCheck size={28} className="text-white" />}
+              <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></span>
             </div>
             <div className="flex flex-col min-w-0">
               <span className="font-black text-[#1C1C2E] text-lg truncate">{userName}</span>
@@ -174,7 +175,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, changeView }) =>
               title="فحص وحل الأعطال، المايك، والشبكة"
             >
               <Wrench size={10} className="text-indigo-600 animate-pulse" />
-              <span>فحص وحل الأعطال 🛠️</span>
+              <span>فحص وحل الأعطال</span>
             </button>
           </div>
         </div>

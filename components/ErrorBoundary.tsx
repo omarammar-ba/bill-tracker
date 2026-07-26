@@ -50,7 +50,7 @@ export class ErrorBoundary extends Component<Props, State> {
               <AlertOctagon className="w-9 h-9" />
             </div>
 
-            <h1 className="text-xl font-black text-gray-900 mb-2">عذراً، حدث خطأ غير متوقع في الواجهة ⚠️</h1>
+            <h1 className="text-xl font-black text-gray-900 mb-2">عذراً، حدث خطأ غير متوقع في الواجهة</h1>
             <p className="text-sm font-bold text-gray-500 mb-6 leading-relaxed">
               تلقينا تنبيهاً بخطأ غريب أثناء محاولة عرض هذه الصفحة. لا تقلق، بياناتك المسجلة على السيرفر آمنة تماماً ولم تفقد أي شيء.
             </p>
@@ -75,7 +75,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#3B5BDB] text-white font-black text-sm hover:bg-[#2B49BD] transition-all shadow-md shadow-blue-100"
               >
                 <RotateCcw className="w-4 h-4" />
-                <span>إعادة تحميل الصفحة 🔄</span>
+                <span>إعادة تحميل الصفحة</span>
               </button>
               
               <button
@@ -84,7 +84,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 title="قم بتصفير التخزين المؤقت المحلي فقط إذا تكرر العطل لمنع تداخل الجلسات الغريبة"
               >
                 <Trash2 className="w-4 h-4" />
-                <span>تصفير الذاكرة المؤقتة للأمان 🧹</span>
+                <span>تصفير الذاكرة المؤقتة للأمان</span>
               </button>
             </div>
           </div>

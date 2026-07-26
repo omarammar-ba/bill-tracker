@@ -25,11 +25,17 @@ import {
   Edit,
   Trash2,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   Download,
-  Share2
+  Share2,
+  Store,
+  User,
+  UserCheck
 } from "lucide-react";
 import { useAuth } from "./AuthContext";
 import { ConfirmModal } from "./ConfirmModal";
+import Counter from "./Counter";
 
 function tafqeet(amount: number): string {
   if (isNaN(amount) || amount === 0) return "فقط صفر دينار لا غير";
@@ -885,7 +891,7 @@ const Ledger: React.FC<Props> = ({
 
     setConfirmState({
       isOpen: true,
-      title: isInvoice ? 'حذف فاتورة مبيعات ⚠️' : 'حذف سند قبض مالي ⚠️',
+      title: isInvoice ? 'حذف فاتورة مبيعات' : 'حذف سند قبض مالي',
       message: confirmMessage,
       onConfirm: async () => {
         if (isInvoice) {
@@ -967,8 +973,12 @@ const Ledger: React.FC<Props> = ({
                   className="p-6 bg-white border border-gray-100 rounded-[32px] text-right hover:border-[#3B5BDB] hover:shadow-xl transition-all group flex items-center justify-between"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-[#EEF2FF] text-[#3B5BDB] flex items-center justify-center text-xl shadow-sm font-black">
-                      {c.name.charAt(0)}
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm font-black transition-all shrink-0 border ${
+                      c.type === "shop"
+                        ? "bg-[#EEF2FF] text-[#3B5BDB] border-[#C5D0FA]"
+                        : "bg-[#EBFBEE] text-[#2F9E44] border-[#B2F2BB]"
+                    }`}>
+                      {c.type === "shop" ? <Store size={26} /> : <User size={26} />}
                     </div>
                     <div>
                       <span className="block font-black text-xl text-[#1C1C2E] group-hover:text-[#3B5BDB] transition-colors">
@@ -1385,7 +1395,7 @@ const Ledger: React.FC<Props> = ({
                 </div>
                 <div className="text-left">
                   <div className="w-20 h-20 bg-[#1C1C2E] rounded-[32px] flex items-center justify-center text-white text-2xl shadow-lg rotate-3">
-                    🏠
+                    <Store size={28} />
                   </div>
                 </div>
               </div>
@@ -1421,25 +1431,28 @@ const Ledger: React.FC<Props> = ({
                   <p className="text-[10px] text-gray-400 font-black uppercase mb-1">
                     مجموع الفواتير
                   </p>
-                  <p className="text-xl font-black text-[#1C1C2E]">
-                    {totals.totalInvoices.toLocaleString()} د.أ
-                  </p>
+                  <div className="text-xl font-black text-[#1C1C2E] flex items-center gap-1.5 justify-end h-7" dir="ltr">
+                    <Counter value={totals.totalInvoices} fontSize={18} textColor="#1C1C2E" fontWeight="900" minimumFractionDigits={3} maximumFractionDigits={3} />
+                    <span className="text-xs font-black text-[#1C1C2E]">د.أ</span>
+                  </div>
                 </div>
                 <div className="p-4 border-l border-gray-100">
                   <p className="text-[10px] text-gray-400 font-black uppercase mb-1">
                     مجموع المقبوضات
                   </p>
-                  <p className="text-xl font-black text-[#2F9E44]">
-                    {totals.totalPayments.toLocaleString()} د.أ
-                  </p>
+                  <div className="text-xl font-black text-[#2F9E44] flex items-center gap-1.5 justify-end h-7" dir="ltr">
+                    <Counter value={totals.totalPayments} fontSize={18} textColor="#2F9E44" fontWeight="900" minimumFractionDigits={3} maximumFractionDigits={3} />
+                    <span className="text-xs font-black text-[#2F9E44]">د.أ</span>
+                  </div>
                 </div>
                 <div className="p-4 bg-gray-50">
                   <p className="text-[10px] text-gray-400 font-black uppercase mb-1">
                     الرصيد المتبقي
                   </p>
-                  <p className="text-2xl font-black text-[#3B5BDB]">
-                    {totals.balance.toLocaleString()} د.أ
-                  </p>
+                  <div className="text-2xl font-black text-[#3B5BDB] flex items-center gap-1.5 justify-end h-8" dir="ltr">
+                    <Counter value={totals.balance} fontSize={22} textColor="#3B5BDB" fontWeight="900" minimumFractionDigits={3} maximumFractionDigits={3} />
+                    <span className="text-xs font-black text-[#3B5BDB]">د.أ</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1554,7 +1567,8 @@ const Ledger: React.FC<Props> = ({
                               }
                               className="px-4 py-2 bg-[#EEF2FF] hover:bg-[#3B5BDB] hover:text-white border border-[#C5D0FA] hover:border-[#3B5BDB] text-[#3B5BDB] text-xs font-black rounded-xl transition-all flex items-center gap-1 shrink-0"
                             >
-                              عرض تفاصيل المنتجات ↓
+                              <span>عرض تفاصيل المنتجات</span>
+                              <ChevronDown size={14} />
                             </button>
                           </div>
                         )}
@@ -1623,7 +1637,8 @@ const Ledger: React.FC<Props> = ({
                               }
                               className="text-xs font-black text-[#3B5BDB] hover:text-[#364FC7] flex items-center gap-1"
                             >
-                              إغلاق تفاصيل المنتجات ↑
+                              <span>إغلاق تفاصيل المنتجات</span>
+                              <ChevronUp size={14} />
                             </button>
                           </div>
                         )}
@@ -1637,8 +1652,8 @@ const Ledger: React.FC<Props> = ({
                           <div className="flex-1">
                             <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 border-b-2 border-dotted border-gray-200 inline-block pb-1">
                               {row.paymentMethod === "cheque"
-                                ? "سند قبض - شيك بنكي ✍️"
-                                : "سند قبض مالي - نقدي 💵"}
+                                ? "سند قبض - شيك بنكي"
+                                : "سند قبض مالي - نقدي"}
                             </p>
                             <p
                               className="text-4xl font-black text-[#2F9E44]"
@@ -1681,15 +1696,15 @@ const Ledger: React.FC<Props> = ({
                                   <span>الحالة الحالية للشيك البنكي:</span>
                                   {row.chequeStatus === "cashed" ? (
                                     <span className="px-2.5 py-1 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg text-[10px] font-black">
-                                      ✅ تم تحصيله بنجاح
+                                      تم تحصيله بنجاح
                                     </span>
                                   ) : row.chequeStatus === "bounced" ? (
                                     <span className="px-2.5 py-1 bg-rose-50 border border-rose-200 text-rose-700 rounded-lg text-[10px] font-black">
-                                      ❌ شيك مرتجع ومرفوض
+                                      شيك مرتجع ومرفوض
                                     </span>
                                   ) : (
                                     <span className="px-2.5 py-1 bg-amber-50 border border-amber-200 text-amber-700 rounded-lg text-[10px] font-black">
-                                      ⏳ قيد الانتظار
+                                      قيد الانتظار
                                     </span>
                                   )}
                                 </div>
@@ -1802,7 +1817,7 @@ const Ledger: React.FC<Props> = ({
                 <div className="w-16 h-16 bg-[#EBFBEE] text-[#2F9E44] rounded-full flex items-center justify-center mb-4 shadow-sm">
                   <CheckCircle2 size={36} />
                 </div>
-                <h2 className="text-xl font-black text-[#1C1C2E]">تم حفظ الفاتورة بنجاح! 🎉</h2>
+                <h2 className="text-xl font-black text-[#1C1C2E]">تم حفظ الفاتورة بنجاح!</h2>
                 <p className="text-sm text-gray-500 mt-2 font-bold">
                   تم إصدار وتسجيل الفاتورة في كشف الحساب بنجاح.
                 </p>
@@ -2222,10 +2237,10 @@ const Ledger: React.FC<Props> = ({
                         Status:
                         <span className="mr-1.5 inline-block font-black">
                           {viewingPayment.chequeStatus === "cashed"
-                            ? "✅ Accepted & Cashed"
+                            ? "Accepted & Cashed"
                             : viewingPayment.chequeStatus === "bounced"
-                              ? "❌ Rejected & Bounced"
-                              : "⏳ Pending"}
+                              ? "Rejected & Bounced"
+                              : "Pending"}
                         </span>
                       </div>
                     </div>
@@ -2518,14 +2533,14 @@ const Ledger: React.FC<Props> = ({
           {/* Note footer copy */}
           {viewingInvoice.notes && (
             <div className="mt-4 p-3 border border-slate-200 bg-slate-50 text-xs font-bold text-slate-700 rounded-lg text-right">
-              📝 <span className="text-slate-500">ملاحظات الفاتورة:</span> {viewingInvoice.notes}
+              <span className="text-slate-500">ملاحظات الفاتورة:</span> {viewingInvoice.notes}
             </div>
           )}
 
           {/* Elegant Signatures section */}
           <div className="mt-16 pt-6 border-t border-slate-100 flex justify-between px-8 text-xs font-bold text-slate-600">
-            <div>✍️ اسم وتوقيع المستلم: ................................................</div>
-            <div>🏢 اسم وتوقيع البائع: معرض اليرموك للسيراميك</div>
+            <div>اسم وتوقيع المستلم: ................................................</div>
+            <div>اسم وتوقيع البائع: معرض اليرموك للسيراميك</div>
           </div>
           
           <div className="mt-10 text-center text-[10px] text-slate-400 font-medium">
@@ -2617,7 +2632,7 @@ const Ledger: React.FC<Props> = ({
             {viewingPayment.paymentMethod === 'cheque' && (
               <div className="p-4 border border-blue-250 bg-blue-50/40 rounded-lg text-right space-y-3">
                 <h4 className="text-xs font-black text-blue-800 uppercase tracking-wider border-b border-blue-100 pb-1.5 flex items-center gap-1.5">
-                  🏦 تفاصيل الشيك البنكي المرفق:
+                  تفاصيل الشيك البنكي المرفق:
                 </h4>
                 <div className="grid grid-cols-3 gap-4 text-xs font-bold text-slate-700">
                   <div>
@@ -2636,8 +2651,8 @@ const Ledger: React.FC<Props> = ({
 
           {/* Signature Section */}
           <div className="mt-20 pt-6 border-t border-slate-100 flex justify-between px-8 text-xs font-bold text-slate-600">
-            <div>✍️ توقيع المستلم/العميل: ................................................</div>
-            <div>🏢 أمين الصندوق: ................................................</div>
+            <div>توقيع المستلم/العميل: ................................................</div>
+            <div>أمين الصندوق: ................................................</div>
           </div>
 
           <div className="mt-14 text-center text-[10px] text-slate-400 font-medium">
@@ -2676,7 +2691,7 @@ const Ledger: React.FC<Props> = ({
 
             <div className="text-center mt-2.5 select-none">
               <h3 className="text-xl font-black text-slate-800 flex items-center justify-center gap-2">
-                <span>{sharingType === "invoice" ? "مشاركة الفاتورة كـ صورة 🚀" : "مشاركة السند كـ صورة 🚀"}</span>
+                <span>{sharingType === "invoice" ? "مشاركة الفاتورة كـ صورة" : "مشاركة السند كـ صورة"}</span>
               </h3>
               <p className="text-xs text-gray-400 font-extrabold mt-1">تمت معالجة الصورة واختصار الألوان بنجاح!</p>
             </div>
@@ -2694,7 +2709,7 @@ const Ledger: React.FC<Props> = ({
             {/* Micro instructions */}
             <div className="bg-[#EEF2FF] border border-[#C5D0FA] rounded-2xl p-4 text-xs font-bold text-[#1C1C2E]/90 leading-relaxed text-right space-y-2 select-none font-['Tajawal']">
               <p className="text-[#3B5BDB] font-black flex items-center gap-1.5 text-[13px]">
-                <span>💡 نصائح سريعة للمشاركة بسهولة وتوفير الوقت:</span>
+                <span>نصائح سريعة للمشاركة بسهولة وتوفير الوقت:</span>
               </p>
               <ul className="list-disc pr-4 space-y-1 text-[11px] text-[#3B5BDB]/90 leading-relaxed">
                 <li>للجوال (موبايل): اضغط مطولاً على الصورة لعرض خيار المشاركة السريعة أو الحفظ للإرسال الفوري للزبون عبر واتساب!</li>
