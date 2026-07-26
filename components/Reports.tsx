@@ -83,7 +83,7 @@ const Reports: React.FC<Props> = ({ customers, transactions }) => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-black text-[#1C1C2E]">التقارير والتحليلات المالية</h1>
-          <p className="text-gray-500 font-medium text-sm mt-1">كشف تفصيلي لحسابات الذمم والمبيعات الكلية والتحصيلات في النظام</p>
+          <p className="text-gray-500 font-medium text-sm mt-1">كشف تفصيلي لحسابات الذمم والمبيعات والتحصيلات في النظام</p>
         </div>
         <button
           onClick={handleExportBackup}
@@ -101,8 +101,10 @@ const Reports: React.FC<Props> = ({ customers, transactions }) => {
               <TrendingUp size={24} />
            </div>
            <p className="text-gray-400 text-xs font-bold mb-1">إجمالي المبيعات (الفواتير)</p>
-           <div className="text-2xl font-black text-[#1C1C2E] flex items-center gap-1.5" dir="ltr">
-             <Counter value={stats.sales || 0} fontSize={24} textColor="#1C1C2E" fontWeight="900" />
+           <div className="text-2xl font-black text-[#1C1C2E] flex items-center gap-1.5 justify-start w-full" dir="rtl">
+             <span dir="ltr">
+               <Counter value={stats.sales || 0} fontSize={24} textColor="#1C1C2E" fontWeight="900" minimumFractionDigits={3} maximumFractionDigits={3} />
+             </span>
              <span className="text-sm font-black text-[#1C1C2E]">د.أ</span>
            </div>
         </div>
@@ -112,8 +114,10 @@ const Reports: React.FC<Props> = ({ customers, transactions }) => {
               <DollarSign size={24} />
            </div>
            <p className="text-gray-400 text-xs font-bold mb-1">إجمالي المبالغ المحصلة</p>
-           <div className="text-2xl font-black text-[#2F9E44] flex items-center gap-1.5" dir="ltr">
-             <Counter value={stats.collected || 0} fontSize={24} textColor="#2F9E44" fontWeight="900" />
+           <div className="text-2xl font-black text-[#2F9E44] flex items-center gap-1.5 justify-start w-full" dir="rtl">
+             <span dir="ltr">
+               <Counter value={stats.collected || 0} fontSize={24} textColor="#2F9E44" fontWeight="900" minimumFractionDigits={3} maximumFractionDigits={3} />
+             </span>
              <span className="text-sm font-black text-[#2F9E44]">د.أ</span>
            </div>
         </div>
@@ -123,8 +127,10 @@ const Reports: React.FC<Props> = ({ customers, transactions }) => {
               <Wallet size={24} />
            </div>
            <p className="text-gray-400 text-xs font-bold mb-1">إجمالي الذمم المتبقية بالدفتر</p>
-           <div className="text-2xl font-black text-[#E03131] flex items-center gap-1.5" dir="ltr">
-             <Counter value={stats.debt || 0} fontSize={24} textColor="#E03131" fontWeight="900" />
+           <div className="text-2xl font-black text-[#E03131] flex items-center gap-1.5 justify-start w-full" dir="rtl">
+             <span dir="ltr">
+               <Counter value={stats.debt || 0} fontSize={24} textColor="#E03131" fontWeight="900" minimumFractionDigits={3} maximumFractionDigits={3} />
+             </span>
              <span className="text-sm font-black text-[#E03131]">د.أ</span>
            </div>
         </div>
@@ -134,8 +140,10 @@ const Reports: React.FC<Props> = ({ customers, transactions }) => {
               <Users size={24} />
            </div>
            <p className="text-gray-400 text-xs font-bold mb-1">إجمالي عدد الحسابات كلياً</p>
-           <div className="text-2xl font-black text-[#1C1C2E] flex items-center gap-1.5" dir="ltr">
-             <Counter value={stats.customers || 0} fontSize={24} textColor="#1C1C2E" fontWeight="900" />
+           <div className="text-2xl font-black text-[#1C1C2E] flex items-center gap-1.5 justify-start w-full" dir="rtl">
+             <span dir="ltr">
+               <Counter value={stats.customers || 0} fontSize={24} textColor="#1C1C2E" fontWeight="900" minimumFractionDigits={0} maximumFractionDigits={0} />
+             </span>
              <span className="text-sm font-black text-[#1C1C2E]">حساب كلي</span>
            </div>
         </div>
@@ -229,7 +237,7 @@ const Reports: React.FC<Props> = ({ customers, transactions }) => {
                 <div key={c.id} className="p-3 bg-slate-50/70 border border-slate-100/50 rounded-2xl hover:bg-slate-50 transition-all flex flex-col gap-2">
                   <div className="flex justify-between items-center">
                     <span className="font-extrabold text-xs text-gray-850 truncate max-w-[150px]">{c.name}</span>
-                    <span className="font-black text-rose-600 font-mono text-xs">{(c.balance).toLocaleString()} د.أ</span>
+                    <span className="font-black text-rose-600 font-mono text-xs">{(c.balance).toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} د.أ</span>
                   </div>
                   
                   <div className="flex justify-between items-center text-[10px] text-gray-400 font-bold border-t border-gray-100/40 pt-1.5">
@@ -252,7 +260,7 @@ const Reports: React.FC<Props> = ({ customers, transactions }) => {
           <div className="mt-4 pt-4 border-t border-gray-50 flex justify-between items-center text-xs font-bold text-gray-500">
             <span>إجمالي ذمم الدليل المصفى:</span>
             <span className="font-black text-[#1C1C2E] font-mono">
-              {debtorsList.reduce((acc, current) => acc + (current.balance || 0), 0).toLocaleString()} د.أ
+              {debtorsList.reduce((acc, current) => acc + (current.balance || 0), 0).toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} د.أ
             </span>
           </div>
         </div>
