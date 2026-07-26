@@ -24,15 +24,16 @@ function Number({ mv, number, height }: NumberProps) {
   );
 }
 
-function normalizeNearInteger(num: number): number {
-  const nearest = Math.round(num);
-  const tolerance = 1e-9 * Math.max(1, Math.abs(num));
-  return Math.abs(num - nearest) < tolerance ? nearest : num;
-}
-
 function getValueRoundedToPlace(value: number, place: number): number {
-  const scaled = value / place;
-  return Math.floor(normalizeNearInteger(scaled));
+  const absVal = Math.abs(value);
+  if (place < 1) {
+    const multiplier = Math.round(1 / place);
+    return Math.floor(Math.round(absVal * multiplier));
+  } else {
+    const rounded = Math.round(absVal * 1000);
+    const placeScaled = Math.round(place * 1000);
+    return Math.floor(rounded / placeScaled);
+  }
 }
 
 interface DigitProps {
@@ -106,6 +107,8 @@ interface CounterProps {
   gradientTo?: string;
   topGradientStyle?: React.CSSProperties;
   bottomGradientStyle?: React.CSSProperties;
+  minimumFractionDigits?: number;
+  maximumFractionDigits?: number;
 }
 
 export default function Counter({
@@ -125,7 +128,9 @@ export default function Counter({
   gradientFrom = 'transparent',
   gradientTo = 'transparent',
   topGradientStyle,
-  bottomGradientStyle
+  bottomGradientStyle,
+  minimumFractionDigits,
+  maximumFractionDigits
 }: CounterProps) {
   const height = fontSize + padding;
 
@@ -136,8 +141,14 @@ export default function Counter({
     // Absolute value for extracting places
     const absValue = Math.abs(value);
     
-    // Format the number to localized string to find the exact character map (e.g. "1,234.56")
-    const str = absValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    // Format the number to localized string to find the exact character map (e.g. "1,234.567")
+    const minDec = minimumFractionDigits !== undefined ? minimumFractionDigits : 3;
+    const maxDec = maximumFractionDigits !== undefined ? maximumFractionDigits : 3;
+
+    const str = absValue.toLocaleString('en-US', {
+      minimumFractionDigits: minDec,
+      maximumFractionDigits: maxDec
+    });
     const chars = [...str];
     
     // We map characters in the localized string back to their place values
@@ -158,7 +169,7 @@ export default function Counter({
         return Math.pow(10, placePower);
       }
     });
-  }, [value, places]);
+  }, [value, places, minimumFractionDigits, maximumFractionDigits]);
 
   const defaultCounterStyle = {
     fontSize,

@@ -434,10 +434,19 @@ const StatCard = ({ icon, label, value, numericValue, suffix, sub, color, isHidd
           {isHidden ? (
             <span className="text-[#1C1C2E] font-black">***** د.أ</span>
           ) : typeof numericValue === 'number' ? (
-            <span className="flex items-center gap-1.5" dir="ltr">
+            <div className="flex items-center gap-1.5 justify-start w-full" dir="rtl">
+              <span dir="ltr">
+                <Counter 
+                  value={numericValue} 
+                  fontSize={28} 
+                  textColor="#1C1C2E" 
+                  fontWeight="900" 
+                  minimumFractionDigits={suffix ? 3 : 0}
+                  maximumFractionDigits={suffix ? 3 : 0}
+                />
+              </span>
               {suffix && <span className="text-lg font-black text-[#1C1C2E]">{suffix}</span>}
-              <Counter value={numericValue} fontSize={28} textColor="#1C1C2E" fontWeight="900" />
-            </span>
+            </div>
           ) : (
             value
           )}

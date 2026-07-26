@@ -113,8 +113,10 @@ export const ChequesManager: React.FC<{ changeView: any }> = ({ changeView }) =>
         <div className="bg-white p-6 rounded-3xl border border-amber-100 shadow-sm flex items-center justify-between">
           <div className="space-y-1 text-right">
             <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest block">شيكات برسم التحصيل (قيد الانتظار)</span>
-            <div className="text-2xl font-black text-[#1C1C2E] flex items-center gap-1.5" dir="ltr">
-              <Counter value={totalPending} fontSize={24} textColor="#1C1C2E" fontWeight="900" />
+            <div className="text-2xl font-black text-[#1C1C2E] flex items-center gap-1.5 justify-start w-full" dir="rtl">
+              <span dir="ltr">
+                <Counter value={totalPending} fontSize={24} textColor="#1C1C2E" fontWeight="900" minimumFractionDigits={3} maximumFractionDigits={3} />
+              </span>
               <span className="text-sm font-black text-[#1C1C2E]">د.أ</span>
             </div>
           </div>
@@ -127,8 +129,10 @@ export const ChequesManager: React.FC<{ changeView: any }> = ({ changeView }) =>
         <div className="bg-white p-6 rounded-3xl border border-emerald-100 shadow-sm flex items-center justify-between">
           <div className="space-y-1 text-right">
             <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest block">شيكات مقبولة وتحصلت</span>
-            <div className="text-2xl font-black text-[#2F9E44] flex items-center gap-1.5" dir="ltr">
-              <Counter value={totalCashed} fontSize={24} textColor="#2F9E44" fontWeight="900" />
+            <div className="text-2xl font-black text-[#2F9E44] flex items-center gap-1.5 justify-start w-full" dir="rtl">
+              <span dir="ltr">
+                <Counter value={totalCashed} fontSize={24} textColor="#2F9E44" fontWeight="900" minimumFractionDigits={3} maximumFractionDigits={3} />
+              </span>
               <span className="text-sm font-black text-[#2F9E44]">د.أ</span>
             </div>
           </div>
@@ -141,8 +145,10 @@ export const ChequesManager: React.FC<{ changeView: any }> = ({ changeView }) =>
         <div className="bg-white p-6 rounded-3xl border border-rose-100 shadow-sm flex items-center justify-between">
           <div className="space-y-1 text-right">
             <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest block">شيكات مرتجعة (مرفوضة)</span>
-            <div className="text-2xl font-black text-[#E03131] flex items-center gap-1.5" dir="ltr">
-              <Counter value={totalBounced} fontSize={24} textColor="#E03131" fontWeight="900" />
+            <div className="text-2xl font-black text-[#E03131] flex items-center gap-1.5 justify-start w-full" dir="rtl">
+              <span dir="ltr">
+                <Counter value={totalBounced} fontSize={24} textColor="#E03131" fontWeight="900" minimumFractionDigits={3} maximumFractionDigits={3} />
+              </span>
               <span className="text-sm font-black text-[#E03131]">د.أ</span>
             </div>
           </div>
