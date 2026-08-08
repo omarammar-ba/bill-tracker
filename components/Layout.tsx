@@ -106,12 +106,12 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, changeView }) =>
       {/* Mobile Header */}
       <div 
         className="md:hidden relative z-20 print:hidden mb-6"
-        style={{ height: 'calc(80px + env(safe-area-inset-top, 0px))' }}
+        style={{ height: 'calc(80px + max(env(safe-area-inset-top), 32px))' }}
       >
         {/* Main curved header background */}
         <div 
           className="absolute inset-x-0 top-0 bg-[#2A2A40] dark:bg-[#121212] rounded-b-[32px] overflow-hidden shadow-sm"
-          style={{ height: 'calc(80px + env(safe-area-inset-top, 0px))' }}
+          style={{ height: 'calc(80px + max(env(safe-area-inset-top), 32px))' }}
         >
         </div>
 
@@ -119,8 +119,8 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, changeView }) =>
         <div 
           className="relative px-6 flex justify-between items-center"
           style={{ 
-            height: 'calc(80px + env(safe-area-inset-top, 0px))', 
-            paddingTop: 'env(safe-area-inset-top, 0px)' 
+            height: 'calc(80px + max(env(safe-area-inset-top), 32px))', 
+            paddingTop: 'max(env(safe-area-inset-top), 32px)' 
           }}
         >
           <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="p-2 text-white/90 bg-white/10 rounded-xl border border-white/5 hover:bg-white/20 hover:text-white transition-all active:scale-95">
@@ -149,13 +149,16 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, changeView }) =>
         />
       )}
 
-      {/* Sidebar */}
-      <aside className={`
-        fixed md:static inset-y-0 right-0 w-72 bg-white dark:bg-[#121212] border-l border-gray-200 dark:border-[#262626] shadow-sm transform transition-transform duration-300 ease-in-out z-40 print:hidden flex flex-col
-        ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}
-      `}>
-        {/* Header Section */}
-        <div className="p-6 border-b border-gray-100 dark:border-[#262626]">
+        {/* Sidebar */}
+        <aside 
+          className={`
+            fixed md:static inset-y-0 right-0 w-72 bg-white dark:bg-[#121212] border-l border-gray-200 dark:border-[#262626] shadow-sm transform transition-transform duration-300 ease-in-out z-40 print:hidden flex flex-col md:pt-0
+            ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}
+          `}
+          style={{ paddingTop: isSidebarOpen ? 'max(env(safe-area-inset-top), 24px)' : undefined }}
+        >
+          {/* Header Section */}
+          <div className="p-6 border-b border-gray-100 dark:border-[#262626]">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#3B5BDB] to-[#2B44A8] text-white flex items-center justify-center shadow-md shadow-[#3B5BDB]/20 border border-white/20 relative shrink-0">
               {role === 'admin' ? <ShieldCheck size={28} className="text-white" /> : <UserCheck size={28} className="text-white" />}
