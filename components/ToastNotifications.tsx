@@ -45,18 +45,22 @@ export const ToastNotifications: React.FC = () => {
   const getColorClass = (type: string) => {
     switch (type) {
       case 'success':
-        return 'bg-white border-emerald-100 shadow-emerald-50/50';
+        return 'bg-white dark:bg-[#1E1E24] border-emerald-100 dark:border-emerald-950/40 shadow-emerald-50/50 dark:shadow-black/20 text-gray-900 dark:text-gray-100';
       case 'error':
-        return 'bg-white border-rose-100 shadow-rose-50/50';
+        return 'bg-white dark:bg-[#1E1E24] border-rose-100 dark:border-rose-950/40 shadow-rose-50/50 dark:shadow-black/20 text-gray-900 dark:text-gray-100';
       case 'warning':
-        return 'bg-white border-amber-100 shadow-amber-50/50';
+        return 'bg-white dark:bg-[#1E1E24] border-amber-100 dark:border-amber-950/40 shadow-amber-50/50 dark:shadow-black/20 text-gray-900 dark:text-gray-100';
       default:
-        return 'bg-white border-blue-100 shadow-blue-50/50';
+        return 'bg-white dark:bg-[#1E1E24] border-blue-100 dark:border-blue-950/40 shadow-blue-50/50 dark:shadow-black/20 text-gray-900 dark:text-gray-100';
     }
   };
 
   return (
-    <div className="fixed top-0 inset-x-0 z-[9999] pointer-events-none flex flex-col items-center gap-3 p-4 md:p-6 font-['Tajawal']" dir="rtl">
+    <div 
+      className="fixed top-0 inset-x-0 z-[9999] pointer-events-none flex flex-col items-center gap-3 px-4 pb-4 md:p-6 font-['Tajawal']" 
+      dir="rtl"
+      style={{ paddingTop: 'calc(env(safe-area-inset-top, 16px) + 12px)' }}
+    >
       {/* Offline Status Persistent Banner */}
       {isOffline && (
         <div
@@ -82,10 +86,10 @@ export const ToastNotifications: React.FC = () => {
                 </div>
                 
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-extrabold text-sm text-gray-900 leading-tight">
+                  <h4 className="font-extrabold text-sm text-gray-900 dark:text-white leading-tight">
                     {toast.title}
                   </h4>
-                  <p className="text-gray-600 text-xs mt-1 font-bold whitespace-pre-line leading-relaxed">
+                  <p className="text-gray-600 dark:text-gray-300 text-xs mt-1 font-bold whitespace-pre-line leading-relaxed">
                     {toast.message}
                   </p>
 

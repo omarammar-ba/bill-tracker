@@ -63,7 +63,14 @@ export interface Payment {
 
 export type Transaction = (Invoice & { type: 'invoice' }) | (Payment & { type: 'payment' });
 
-export type ViewState = 'CUSTOMERS' | 'NEW_TRANSACTION' | 'EDIT_TRANSACTION' | 'LEDGER' | 'LOGIN' | 'REPORTS' | 'STAFF' | 'HOME' | 'INVOICES' | 'PAYMENTS' | 'CHEQUES' | 'BACKUP';
+export type ViewState = 'CUSTOMERS' | 'NEW_TRANSACTION' | 'EDIT_TRANSACTION' | 'LEDGER' | 'LOGIN' | 'REPORTS' | 'STAFF' | 'HOME' | 'INVOICES' | 'PAYMENTS' | 'CHEQUES' | 'BACKUP' | 'SETTINGS';
+
+export interface BusinessInfo {
+  companyName: string;
+  defaultCurrency: string;
+  phone: string;
+  invoiceFooter: string;
+}
 
 export interface ViewProps {
   changeView: (view: ViewState, customerId?: string, transactionId?: string) => void;

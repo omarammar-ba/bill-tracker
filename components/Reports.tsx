@@ -82,12 +82,12 @@ const Reports: React.FC<Props> = ({ customers, transactions }) => {
       {/* Visual Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-black text-[#1C1C2E]">التقارير والتحليلات المالية</h1>
-          <p className="text-gray-500 font-medium text-sm mt-1">كشف تفصيلي لحسابات الذمم والمبيعات والتحصيلات في النظام</p>
+          <h1 className="text-3xl font-black text-[#1C1C2E] dark:text-white">التقارير والتحليلات المالية</h1>
+          <p className="text-gray-500 dark:text-gray-400 font-medium text-sm mt-1">كشف تفصيلي لحسابات الذمم والمبيعات والتحصيلات في النظام</p>
         </div>
         <button
           onClick={handleExportBackup}
-          className="bg-white border border-gray-200 text-[#1C1C2E] px-4 py-2.5 rounded-2xl text-sm font-bold shadow-sm hover:bg-gray-50 flex items-center justify-center gap-2 transition-all shrink-0"
+          className="bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#262626] text-[#1C1C2E] dark:text-white px-4 py-2.5 rounded-2xl text-sm font-bold shadow-sm hover:bg-gray-50 dark:hover:bg-[#1A1A1A] flex items-center justify-center gap-2 transition-all shrink-0"
         >
           <Download size={18} />
           <span>تصدير نسخة احتياطية (JSON)</span>
@@ -96,56 +96,68 @@ const Reports: React.FC<Props> = ({ customers, transactions }) => {
 
       {/* Stats Cards Dashboard */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-3xl border border-blue-50 shadow-xl shadow-blue-900/5">
-           <div className="w-12 h-12 rounded-2xl bg-[#EEF2FF] text-[#3B5BDB] flex items-center justify-center mb-4">
-              <TrendingUp size={24} />
+        <div className="bg-white dark:bg-[#121212] p-6 rounded-3xl border border-blue-50 dark:border-[#262626] shadow-xl shadow-blue-900/5 flex flex-col justify-between">
+           <div>
+              <div className="text-[#3B5BDB] dark:text-[#7A98FF] mb-3">
+                 <TrendingUp size={24} />
+              </div>
+              <p className="text-gray-400 dark:text-gray-500 text-xs font-bold mb-1">إجمالي المبيعات (الفواتير)</p>
+              <div className="text-2xl font-black text-[#1C1C2E] dark:text-white flex items-center gap-1.5 justify-start w-full" dir="rtl">
+                <span dir="ltr">
+                  <Counter value={stats.sales || 0} fontSize={24} textColor="currentColor" fontWeight="900" minimumFractionDigits={3} maximumFractionDigits={3} />
+                </span>
+                <span className="text-sm font-black text-[#1C1C2E] dark:text-white">د.أ</span>
+              </div>
            </div>
-           <p className="text-gray-400 text-xs font-bold mb-1">إجمالي المبيعات (الفواتير)</p>
-           <div className="text-2xl font-black text-[#1C1C2E] flex items-center gap-1.5 justify-start w-full" dir="rtl">
-             <span dir="ltr">
-               <Counter value={stats.sales || 0} fontSize={24} textColor="#1C1C2E" fontWeight="900" minimumFractionDigits={3} maximumFractionDigits={3} />
-             </span>
-             <span className="text-sm font-black text-[#1C1C2E]">د.أ</span>
-           </div>
+           <p className="text-[11px] font-bold text-gray-400 dark:text-gray-500 mt-2.5">مجموع مبيعات الفواتير غير المحذوفة</p>
         </div>
         
-        <div className="bg-white p-6 rounded-3xl border border-green-50 shadow-xl shadow-green-900/5">
-           <div className="w-12 h-12 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center mb-4">
-              <DollarSign size={24} />
+        <div className="bg-white dark:bg-[#121212] p-6 rounded-3xl border border-green-50 dark:border-[#262626] shadow-xl shadow-green-900/5 flex flex-col justify-between">
+           <div>
+              <div className="text-green-600 dark:text-green-400 mb-3">
+                 <DollarSign size={24} />
+              </div>
+              <p className="text-gray-400 dark:text-gray-500 text-xs font-bold mb-1">إجمالي المبالغ المحصلة</p>
+              <div className="text-2xl font-black text-[#2F9E44] dark:text-[#51CF66] flex items-center gap-1.5 justify-start w-full" dir="rtl">
+                <span dir="ltr">
+                  <Counter value={stats.collected || 0} fontSize={24} textColor="currentColor" fontWeight="900" minimumFractionDigits={3} maximumFractionDigits={3} />
+                </span>
+                <span className="text-sm font-black text-[#2F9E44] dark:text-[#51CF66]">د.أ</span>
+              </div>
            </div>
-           <p className="text-gray-400 text-xs font-bold mb-1">إجمالي المبالغ المحصلة</p>
-           <div className="text-2xl font-black text-[#2F9E44] flex items-center gap-1.5 justify-start w-full" dir="rtl">
-             <span dir="ltr">
-               <Counter value={stats.collected || 0} fontSize={24} textColor="#2F9E44" fontWeight="900" minimumFractionDigits={3} maximumFractionDigits={3} />
-             </span>
-             <span className="text-sm font-black text-[#2F9E44]">د.أ</span>
-           </div>
+           <p className="text-[11px] font-bold text-gray-400 dark:text-gray-500 mt-2.5">مجموع المقبوضات النقدية والبنكية المستلمة</p>
         </div>
         
-        <div className="bg-white p-6 rounded-3xl border border-red-50 shadow-xl shadow-red-900/5">
-           <div className="w-12 h-12 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mb-4">
-              <Wallet size={24} />
+        <div className="bg-white dark:bg-[#121212] p-6 rounded-3xl border border-red-50 dark:border-[#262626] shadow-xl shadow-red-900/5 flex flex-col justify-between">
+           <div>
+              <div className="text-red-600 dark:text-red-400 mb-3">
+                 <Wallet size={24} />
+              </div>
+              <p className="text-gray-400 dark:text-gray-500 text-xs font-bold mb-1">إجمالي الذمم المتبقية بالدفتر</p>
+              <div className="text-2xl font-black text-[#E03131] dark:text-[#FF6B6B] flex items-center gap-1.5 justify-start w-full" dir="rtl">
+                <span dir="ltr">
+                  <Counter value={stats.debt || 0} fontSize={24} textColor="currentColor" fontWeight="900" minimumFractionDigits={3} maximumFractionDigits={3} />
+                </span>
+                <span className="text-sm font-black text-[#E03131] dark:text-[#FF6B6B]">د.أ</span>
+              </div>
            </div>
-           <p className="text-gray-400 text-xs font-bold mb-1">إجمالي الذمم المتبقية بالدفتر</p>
-           <div className="text-2xl font-black text-[#E03131] flex items-center gap-1.5 justify-start w-full" dir="rtl">
-             <span dir="ltr">
-               <Counter value={stats.debt || 0} fontSize={24} textColor="#E03131" fontWeight="900" minimumFractionDigits={3} maximumFractionDigits={3} />
-             </span>
-             <span className="text-sm font-black text-[#E03131]">د.أ</span>
-           </div>
+           <p className="text-[11px] font-bold text-gray-400 dark:text-gray-500 mt-2.5">صافي الديون المستحقة على الزبائن حالياً</p>
         </div>
         
-        <div className="bg-white p-6 rounded-3xl border border-slate-50 shadow-xl shadow-slate-200/5">
-           <div className="w-12 h-12 rounded-2xl bg-slate-50 text-slate-600 flex items-center justify-center mb-4">
-              <Users size={24} />
+        <div className="bg-white dark:bg-[#121212] p-6 rounded-3xl border border-slate-50 dark:border-[#262626] shadow-xl shadow-slate-200/5 flex flex-col justify-between">
+           <div>
+              <div className="text-slate-600 dark:text-slate-300 mb-3">
+                 <Users size={24} />
+              </div>
+              <p className="text-gray-400 dark:text-gray-500 text-xs font-bold mb-1">إجمالي عدد الحسابات كلياً</p>
+              <div className="text-2xl font-black text-[#1C1C2E] dark:text-white flex items-center gap-1.5 justify-start w-full" dir="rtl">
+                <span dir="ltr">
+                  <Counter value={stats.customers || 0} fontSize={24} textColor="currentColor" fontWeight="900" minimumFractionDigits={0} maximumFractionDigits={0} />
+                </span>
+                <span className="text-sm font-black text-[#1C1C2E] dark:text-white">حساب كلي</span>
+              </div>
            </div>
-           <p className="text-gray-400 text-xs font-bold mb-1">إجمالي عدد الحسابات كلياً</p>
-           <div className="text-2xl font-black text-[#1C1C2E] flex items-center gap-1.5 justify-start w-full" dir="rtl">
-             <span dir="ltr">
-               <Counter value={stats.customers || 0} fontSize={24} textColor="#1C1C2E" fontWeight="900" minimumFractionDigits={0} maximumFractionDigits={0} />
-             </span>
-             <span className="text-sm font-black text-[#1C1C2E]">حساب كلي</span>
-           </div>
+           <p className="text-[11px] font-bold text-gray-400 dark:text-gray-500 mt-2.5">عدد الزبائن والمحلات المسجلين بالدفتر</p>
         </div>
       </div>
       
@@ -153,27 +165,27 @@ const Reports: React.FC<Props> = ({ customers, transactions }) => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Visual Chart Card */}
-        <div className="bg-white p-6 md:p-8 rounded-[32px] border border-gray-100 shadow-sm lg:col-span-2 flex flex-col justify-between">
+        <div className="bg-white dark:bg-[#121212] p-6 md:p-8 rounded-[32px] border border-gray-100 dark:border-[#262626] shadow-sm lg:col-span-2 flex flex-col justify-between">
           <div>
             <div className="flex items-center gap-3 mb-6">
-              <ChartIcon className="text-[#3B5BDB]" size={22} />
-              <h3 className="text-lg font-black text-[#1C1C2E]">أعلى 8 حسابات ذمم مطلوبة بالدفتر</h3>
+              <ChartIcon className="text-[#3B5BDB] dark:text-[#7A98FF]" size={22} />
+              <h3 className="text-lg font-black text-[#1C1C2E] dark:text-white">أعلى 8 حسابات ذمم مطلوبة بالدفتر</h3>
             </div>
             
             <div className="h-80 w-full font-sans">
               {chartData.length === 0 ? (
-                <div className="h-full flex items-center justify-center text-gray-400 font-bold">
+                <div className="h-full flex items-center justify-center text-gray-400 dark:text-gray-500 font-bold">
                   لا توجد أرصدة مديونية حالياً بالدفتر لعرضها في الرسم
                 </div>
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData} layout="horizontal" margin={{ top: 20, right: 10, left: 10, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
-                    <XAxis dataKey="name" tick={{ fill: '#868E96', fontSize: 10, fontWeight: 'bold' }} axisLine={{ stroke: '#E9ECEF' }} />
-                    <YAxis tick={{ fill: '#868E96', fontSize: 10, fontWeight: 'bold' }} axisLine={{ stroke: '#E9ECEF' }} />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#333" />
+                    <XAxis dataKey="name" tick={{ fill: '#868E96', fontSize: 10, fontWeight: 'bold' }} axisLine={{ stroke: '#444' }} />
+                    <YAxis tick={{ fill: '#868E96', fontSize: 10, fontWeight: 'bold' }} axisLine={{ stroke: '#444' }} />
                     <Tooltip 
-                      contentStyle={{ borderRadius: 12, border: '1px solid #E9ECEF', direction: 'rtl', fontFamily: 'Tajawal', fontWeight: 'bold', fontSize: 12 }} 
-                      cursor={{ fill: '#F8F9FA' }}
+                      contentStyle={{ borderRadius: 12, border: '1px solid #333', backgroundColor: '#1A1A1A', color: '#FFF', direction: 'rtl', fontFamily: 'Tajawal', fontWeight: 'bold', fontSize: 12 }} 
+                      cursor={{ fill: 'rgba(255,255,255,0.05)' }}
                     />
                     <Bar dataKey="الذمم المطلوبة (د.أ)" radius={[8, 8, 0, 0]} fill="#3B5BDB" barSize={32}>
                       {chartData.map((entry, index) => (
@@ -186,7 +198,7 @@ const Reports: React.FC<Props> = ({ customers, transactions }) => {
             </div>
           </div>
           
-          <div className="mt-4 border-t border-gray-100 pt-4 flex gap-4 text-xs font-bold text-gray-500">
+          <div className="mt-4 border-t border-gray-100 dark:border-[#262626] pt-4 flex gap-4 text-xs font-bold text-gray-500 dark:text-gray-400">
             <div className="flex items-center gap-1.5">
               <span className="w-3 h-3 rounded-full bg-[#E03131]"></span>
               <span>المديونية الأكبر</span>
@@ -202,13 +214,13 @@ const Reports: React.FC<Props> = ({ customers, transactions }) => {
           </div>
         </div>
 
-        {/* Directory Card - No print, highly interactive directory */}
-        <div className="bg-white p-6 md:p-8 rounded-[32px] border border-gray-100 shadow-sm flex flex-col h-[500px]">
+        {/* Directory Card */}
+        <div className="bg-white dark:bg-[#121212] p-6 md:p-8 rounded-[32px] border border-gray-100 dark:border-[#262626] shadow-sm flex flex-col h-[500px]">
           <div className="flex items-center gap-3 mb-2">
-            <FileSpreadsheet className="text-[#3B5BDB]" size={22} />
-            <h3 className="text-lg font-black text-[#1C1C2E]">دليل حسابات الذمم المستحقة</h3>
+            <FileSpreadsheet className="text-[#3B5BDB] dark:text-[#7A98FF]" size={22} />
+            <h3 className="text-lg font-black text-[#1C1C2E] dark:text-white">دليل حسابات الذمم المستحقة</h3>
           </div>
-          <p className="text-gray-400 text-xs font-bold leading-relaxed mb-4">
+          <p className="text-gray-400 dark:text-gray-500 text-xs font-bold leading-relaxed mb-4">
             قائمة محدثة تلقائياً بجميع الحسابات النشطة التي يترتب عليها ذمم لمتابعتها مباشرة بالهاتف:
           </p>
 
@@ -220,29 +232,29 @@ const Reports: React.FC<Props> = ({ customers, transactions }) => {
               placeholder="ابحث سريعاً عن المدين..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pr-10 pl-3 py-2 text-xs rounded-xl border border-gray-200 outline-none focus:border-[#3B5BDB] font-bold text-gray-800"
+              className="w-full pr-10 pl-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#1A1A1A] outline-none focus:border-[#3B5BDB] font-bold text-gray-800 dark:text-white"
             />
           </div>
 
           <div className="flex-1 overflow-y-auto pr-1 space-y-3">
             {debtorsList.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-center p-6 bg-slate-50 rounded-2xl">
-                <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
+              <div className="h-full flex flex-col items-center justify-center text-center p-6 bg-slate-50 dark:bg-[#1A1A1A] rounded-2xl">
+                <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
                   <Search size={20} />
                 </div>
-                <p className="text-xs font-bold text-slate-500 mt-2">لا توجد ذمم مستحقة تتطابق مع البحث حالياً</p>
+                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mt-2">لا توجد ذمم مستحقة تتطابق مع البحث حالياً</p>
               </div>
             ) : (
               debtorsList.map(c => (
-                <div key={c.id} className="p-3 bg-slate-50/70 border border-slate-100/50 rounded-2xl hover:bg-slate-50 transition-all flex flex-col gap-2">
+                <div key={c.id} className="p-3 bg-slate-50/70 dark:bg-[#1A1A1A]/70 border border-slate-100/50 dark:border-[#262626] rounded-2xl hover:bg-slate-50 dark:hover:bg-[#1A1A1A] transition-all flex flex-col gap-2">
                   <div className="flex justify-between items-center">
-                    <span className="font-extrabold text-xs text-gray-850 truncate max-w-[150px]">{c.name}</span>
-                    <span className="font-black text-rose-600 font-mono text-xs">{(c.balance).toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} د.أ</span>
+                    <span className="font-extrabold text-xs text-gray-850 dark:text-white truncate max-w-[150px]">{c.name}</span>
+                    <span className="font-black text-rose-600 dark:text-rose-400 font-mono text-xs">{(c.balance).toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} د.أ</span>
                   </div>
                   
-                  <div className="flex justify-between items-center text-[10px] text-gray-400 font-bold border-t border-gray-100/40 pt-1.5">
+                  <div className="flex justify-between items-center text-[10px] text-gray-400 dark:text-gray-500 font-bold border-t border-gray-100/40 dark:border-[#262626] pt-1.5">
                     <div className="flex items-center gap-1">
-                      <Phone size={10} className="text-[#3B5BDB]" />
+                      <Phone size={10} className="text-[#3B5BDB] dark:text-[#7A98FF]" />
                       <span>{c.phone || 'بدون هاتف'}</span>
                     </div>
                     {c.address && (
@@ -257,9 +269,9 @@ const Reports: React.FC<Props> = ({ customers, transactions }) => {
             )}
           </div>
           
-          <div className="mt-4 pt-4 border-t border-gray-50 flex justify-between items-center text-xs font-bold text-gray-500">
+          <div className="mt-4 pt-4 border-t border-gray-50 dark:border-[#262626] flex justify-between items-center text-xs font-bold text-gray-500 dark:text-gray-400">
             <span>إجمالي ذمم الدليل المصفى:</span>
-            <span className="font-black text-[#1C1C2E] font-mono">
+            <span className="font-black text-[#1C1C2E] dark:text-white font-mono">
               {debtorsList.reduce((acc, current) => acc + (current.balance || 0), 0).toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} د.أ
             </span>
           </div>

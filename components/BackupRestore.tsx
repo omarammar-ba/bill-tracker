@@ -201,13 +201,13 @@ export const BackupRestore: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto py-8 px-4" dir="rtl">
       <div className="flex items-center gap-3 mb-8">
-        <Database className="w-8 h-8 text-[#3B5BDB]" />
-        <h1 className="text-2xl font-bold text-slate-800">النسخ الاحتياطي والاستعادة</h1>
+        <Database className="w-8 h-8 text-[#3B5BDB] dark:text-[#7A98FF]" />
+        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">النسخ الاحتياطي والاستعادة</h1>
       </div>
 
       {needsBackup && (
-        <div className="mb-6 bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
+        <div className="mb-6 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 px-4 py-3 rounded-xl flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
           <div>
             <h3 className="font-bold">حان وقت إنشاء نسخة احتياطية شهرية</h3>
             <p className="text-sm mt-1">مر أكثر من 30 يوم على آخر نسخة احتياطية، يُنصح بإنشاء نسخة جديدة لحماية بياناتك.</p>
@@ -217,39 +217,39 @@ export const BackupRestore: React.FC = () => {
 
       {status && (
         <div className={`mb-6 px-4 py-3 rounded-xl flex items-start gap-3 ${
-          status.type === 'success' ? 'bg-green-50 border border-green-200 text-green-800' :
-          status.type === 'error' ? 'bg-red-50 border border-red-200 text-red-800' :
-          'bg-blue-50 border border-blue-200 text-blue-800'
+          status.type === 'success' ? 'bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-300' :
+          status.type === 'error' ? 'bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-300' :
+          'bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300'
         }`}>
-          {status.type === 'success' ? <CheckCircle className="w-5 h-5 shrink-0 mt-0.5" /> :
-           status.type === 'error' ? <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" /> :
-           <Info className="w-5 h-5 shrink-0 mt-0.5" />}
+          {status.type === 'success' ? <CheckCircle className="w-5 h-5 shrink-0 mt-0.5 text-green-600 dark:text-green-400" /> :
+           status.type === 'error' ? <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-red-600 dark:text-red-400" /> :
+           <Info className="w-5 h-5 shrink-0 mt-0.5 text-blue-600 dark:text-blue-400" />}
           <p className="text-sm">{status.message}</p>
         </div>
       )}
 
       {progress && (
-        <div className="mb-6 bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-xl flex items-center justify-center gap-3">
-          <div className="animate-spin rounded-full h-5 w-5 border-2 border-blue-600 border-t-transparent"></div>
+        <div className="mb-6 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300 px-4 py-3 rounded-xl flex items-center justify-center gap-3">
+          <div className="animate-spin rounded-full h-5 w-5 border-2 border-blue-600 dark:border-blue-400 border-t-transparent"></div>
           <span className="font-medium">{progress}</span>
         </div>
       )}
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* Backup Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col items-center text-center">
-          <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-4">
-            <Download className="w-8 h-8 text-[#3B5BDB]" />
+        <div className="bg-white dark:bg-[#121212] rounded-2xl shadow-sm border border-slate-200 dark:border-[#262626] p-6 flex flex-col items-center text-center">
+          <div className="w-16 h-16 bg-blue-50 dark:bg-blue-950/40 rounded-full flex items-center justify-center mb-4">
+            <Download className="w-8 h-8 text-[#3B5BDB] dark:text-[#7A98FF]" />
           </div>
-          <h2 className="text-xl font-bold text-slate-800 mb-2">إنشاء نسخة احتياطية</h2>
-          <p className="text-slate-500 mb-6 flex-grow">
+          <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-2">إنشاء نسخة احتياطية</h2>
+          <p className="text-slate-500 dark:text-slate-400 mb-6 flex-grow">
             سيتم إنشاء ملف ZIP يحتوي على جميع بيانات النظام بما في ذلك العملاء والفواتير والسندات في ملف JSON و Excel للمراجعة.
           </p>
           
-          <div className="w-full bg-slate-50 p-4 rounded-xl mb-6 text-sm text-slate-600 space-y-2">
+          <div className="w-full bg-slate-50 dark:bg-[#1A1A1A] p-4 rounded-xl mb-6 text-sm text-slate-600 dark:text-slate-300 space-y-2">
             <div className="flex justify-between">
               <span>آخر نسخة احتياطية:</span>
-              <span className="font-semibold">{lastBackupDate || 'لا يوجد'}</span>
+              <span className="font-semibold text-slate-800 dark:text-white">{lastBackupDate || 'لا يوجد'}</span>
             </div>
           </div>
 
@@ -264,12 +264,12 @@ export const BackupRestore: React.FC = () => {
         </div>
 
         {/* Restore Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col items-center text-center">
-          <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mb-4">
-            <Upload className="w-8 h-8 text-emerald-600" />
+        <div className="bg-white dark:bg-[#121212] rounded-2xl shadow-sm border border-slate-200 dark:border-[#262626] p-6 flex flex-col items-center text-center">
+          <div className="w-16 h-16 bg-emerald-50 dark:bg-emerald-950/40 rounded-full flex items-center justify-center mb-4">
+            <Upload className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
           </div>
-          <h2 className="text-xl font-bold text-slate-800 mb-2">استعادة نسخة احتياطية</h2>
-          <p className="text-slate-500 mb-6 flex-grow">
+          <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-2">استعادة نسخة احتياطية</h2>
+          <p className="text-slate-500 dark:text-slate-400 mb-6 flex-grow">
             لن يتم الكتابة فوق البيانات الحالية أبداً.
           </p>
           
@@ -283,13 +283,13 @@ export const BackupRestore: React.FC = () => {
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={loading || !!previewData}
-            className="w-full py-10 border-2 border-dashed border-slate-300 hover:border-emerald-500 hover:bg-emerald-50 text-slate-500 font-bold rounded-2xl transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-3 mb-6"
+            className="w-full py-10 border-2 border-dashed border-slate-300 dark:border-[#333333] hover:border-emerald-500 dark:hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 text-slate-500 dark:text-slate-400 font-bold rounded-2xl transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-3 mb-6"
           >
             <Upload className="w-8 h-8 text-slate-400" />
             <span className="text-base font-normal">اضغط هنا أو<br/>اسحب ملف<br/>(ZIP)</span>
           </button>
 
-          <div className="flex items-center justify-center gap-2 text-sm text-slate-400">
+          <div className="flex items-center justify-center gap-2 text-sm text-slate-400 dark:text-slate-500">
              <div className="text-right">
                 آخر استرجاع: {lastRestoreDate ? lastRestoreDate.split(' ')[0] : 'لا يوجد'}<br/>
                 {lastRestoreDate ? lastRestoreDate.split(' ').slice(1).join(' ') : ''}
@@ -301,14 +301,14 @@ export const BackupRestore: React.FC = () => {
 
       {/* Restore Preview Modal */}
       {previewData && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full p-8 animate-in fade-in zoom-in-95">
-            <div className="flex items-center gap-3 text-slate-800 mb-6">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-[#121212] rounded-3xl shadow-2xl border border-gray-100 dark:border-[#262626] max-w-2xl w-full p-8 animate-in fade-in zoom-in-95">
+            <div className="flex items-center gap-3 text-slate-800 dark:text-white mb-6">
               <Database className="w-7 h-7 text-[#0f9d58]" />
               <h2 className="text-2xl font-black">تأكيد دمج واسترجاع البيانات</h2>
             </div>
             
-            <div className="bg-[#fff9e6] border border-[#fce4a6] text-[#b07d00] p-4 rounded-xl flex items-start gap-3 mb-8">
+            <div className="bg-[#fff9e6] dark:bg-amber-950/40 border border-[#fce4a6] dark:border-amber-800 text-[#b07d00] dark:text-amber-300 p-4 rounded-xl flex items-start gap-3 mb-8">
                <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
                <p className="text-sm font-medium">
                   تنبيه آمن: عملية الاسترجاع هذه ستقوم بدمج البيانات الجديدة فقط. لن يتم حذف أي بيانات حالية، ولن يتم الكتابة فوق البيانات الموجودة.
@@ -316,66 +316,66 @@ export const BackupRestore: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-6">
-               <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5">
-                  <h3 className="text-slate-500 font-bold mb-4 text-center">البيانات الموجودة حالياً</h3>
+               <div className="bg-slate-50 dark:bg-[#1A1A1A] border border-slate-100 dark:border-[#262626] rounded-2xl p-5">
+                  <h3 className="text-slate-500 dark:text-slate-400 font-bold mb-4 text-center">البيانات الموجودة حالياً</h3>
                   <div className="space-y-3 text-sm">
                      <div className="flex justify-between items-center">
-                        <span className="text-slate-500">العملاء:</span>
-                        <span className="font-bold text-slate-800">{previewData.stats.currentCustomers}</span>
+                        <span className="text-slate-500 dark:text-slate-400">العملاء:</span>
+                        <span className="font-bold text-slate-800 dark:text-white">{previewData.stats.currentCustomers}</span>
                      </div>
                      <div className="flex justify-between items-center">
-                        <span className="text-slate-500">الفواتير:</span>
-                        <span className="font-bold text-slate-800">{previewData.stats.currentInvoices}</span>
+                        <span className="text-slate-500 dark:text-slate-400">الفواتير:</span>
+                        <span className="font-bold text-slate-800 dark:text-white">{previewData.stats.currentInvoices}</span>
                      </div>
                      <div className="flex justify-between items-center">
-                        <span className="text-slate-500">السندات:</span>
-                        <span className="font-bold text-slate-800">{previewData.stats.currentPayments}</span>
+                        <span className="text-slate-500 dark:text-slate-400">السندات:</span>
+                        <span className="font-bold text-slate-800 dark:text-white">{previewData.stats.currentPayments}</span>
                      </div>
                   </div>
                </div>
 
-               <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5">
-                  <h3 className="text-slate-500 font-bold mb-4 text-center">بيانات النسخة المرفوعة</h3>
+               <div className="bg-slate-50 dark:bg-[#1A1A1A] border border-slate-100 dark:border-[#262626] rounded-2xl p-5">
+                  <h3 className="text-slate-500 dark:text-slate-400 font-bold mb-4 text-center">بيانات النسخة المرفوعة</h3>
                   <div className="space-y-3 text-sm">
                      <div className="flex justify-between items-center">
-                        <span className="text-slate-500">تاريخ النسخة:</span>
-                        <span className="font-bold text-slate-800 text-xs text-left" dir="ltr">{new Date(previewData.backupInfo.createdAt).toLocaleString('ar')}</span>
+                        <span className="text-slate-500 dark:text-slate-400">تاريخ النسخة:</span>
+                        <span className="font-bold text-slate-800 dark:text-white text-xs text-left" dir="ltr">{new Date(previewData.backupInfo.createdAt).toLocaleString('ar')}</span>
                      </div>
                      <div className="flex justify-between items-center">
-                        <span className="text-slate-500">العملاء:</span>
-                        <span className="font-bold text-slate-800">{previewData.stats.backupCustomers}</span>
+                        <span className="text-slate-500 dark:text-slate-400">العملاء:</span>
+                        <span className="font-bold text-slate-800 dark:text-white">{previewData.stats.backupCustomers}</span>
                      </div>
                      <div className="flex justify-between items-center">
-                        <span className="text-slate-500">الفواتير:</span>
-                        <span className="font-bold text-slate-800">{previewData.stats.backupInvoices}</span>
+                        <span className="text-slate-500 dark:text-slate-400">الفواتير:</span>
+                        <span className="font-bold text-slate-800 dark:text-white">{previewData.stats.backupInvoices}</span>
                      </div>
                      <div className="flex justify-between items-center">
-                        <span className="text-slate-500">السندات:</span>
-                        <span className="font-bold text-slate-800">{previewData.stats.backupPayments}</span>
+                        <span className="text-slate-500 dark:text-slate-400">السندات:</span>
+                        <span className="font-bold text-slate-800 dark:text-white">{previewData.stats.backupPayments}</span>
                      </div>
                   </div>
                </div>
             </div>
 
-            <div className="bg-[#f0fdf4] border border-[#dcfce7] rounded-2xl p-5 mb-6">
-                <h3 className="text-[#166534] font-bold mb-4 text-center">البيانات الجديدة التي سيتم إضافتها</h3>
+            <div className="bg-[#f0fdf4] dark:bg-emerald-950/30 border border-[#dcfce7] dark:border-emerald-800/40 rounded-2xl p-5 mb-6">
+                <h3 className="text-[#166534] dark:text-emerald-400 font-bold mb-4 text-center">البيانات الجديدة التي سيتم إضافتها</h3>
                 <div className="grid grid-cols-3 gap-3">
-                   <div className="bg-white border border-[#dcfce7] rounded-xl py-4 flex flex-col items-center justify-center">
-                      <span className="text-2xl font-black text-[#0f9d58] mb-1">{previewData.stats.newPayments}</span>
-                      <span className="text-xs text-slate-500 font-bold">سند جديد</span>
+                   <div className="bg-white dark:bg-[#121212] border border-[#dcfce7] dark:border-emerald-800/40 rounded-xl py-4 flex flex-col items-center justify-center">
+                      <span className="text-2xl font-black text-[#0f9d58] dark:text-emerald-400 mb-1">{previewData.stats.newPayments}</span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400 font-bold">سند جديد</span>
                    </div>
-                   <div className="bg-white border border-[#dcfce7] rounded-xl py-4 flex flex-col items-center justify-center">
-                      <span className="text-2xl font-black text-[#0f9d58] mb-1">{previewData.stats.newInvoices}</span>
-                      <span className="text-xs text-slate-500 font-bold">فاتورة جديدة</span>
+                   <div className="bg-white dark:bg-[#121212] border border-[#dcfce7] dark:border-emerald-800/40 rounded-xl py-4 flex flex-col items-center justify-center">
+                      <span className="text-2xl font-black text-[#0f9d58] dark:text-emerald-400 mb-1">{previewData.stats.newInvoices}</span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400 font-bold">فاتورة جديدة</span>
                    </div>
-                   <div className="bg-white border border-[#dcfce7] rounded-xl py-4 flex flex-col items-center justify-center">
-                      <span className="text-2xl font-black text-[#0f9d58] mb-1">{previewData.stats.newCustomers}</span>
-                      <span className="text-xs text-slate-500 font-bold">عميل جديد</span>
+                   <div className="bg-white dark:bg-[#121212] border border-[#dcfce7] dark:border-emerald-800/40 rounded-xl py-4 flex flex-col items-center justify-center">
+                      <span className="text-2xl font-black text-[#0f9d58] dark:text-emerald-400 mb-1">{previewData.stats.newCustomers}</span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400 font-bold">عميل جديد</span>
                    </div>
                 </div>
             </div>
 
-            <div className="bg-slate-50 rounded-xl p-4 flex justify-between items-center text-sm font-bold text-slate-500 mb-8">
+            <div className="bg-slate-50 dark:bg-[#1A1A1A] rounded-xl p-4 flex justify-between items-center text-sm font-bold text-slate-500 dark:text-slate-400 mb-8">
                <span>عمليات الكتابة المتوقعة: {previewData.stats.newCustomers + previewData.stats.newInvoices + previewData.stats.newPayments}</span>
                <span>العناصر المكررة (سيتم تجاهلها): {previewData.stats.duplicated}</span>
             </div>
@@ -384,7 +384,7 @@ export const BackupRestore: React.FC = () => {
               <button
                 onClick={cancelRestore}
                 disabled={loading}
-                className="w-32 py-3.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold rounded-xl transition-all disabled:opacity-50"
+                className="w-32 py-3.5 bg-white dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#262626] hover:bg-slate-50 dark:hover:bg-[#222] text-slate-700 dark:text-slate-200 font-bold rounded-xl transition-all disabled:opacity-50"
               >
                 إلغاء
               </button>

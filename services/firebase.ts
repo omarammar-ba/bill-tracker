@@ -5,15 +5,15 @@ import { showError } from './notifications';
 import { addDiagnosticLog } from './diagnostics';
 
 // ----------- قم بوضع بيانات حسابك هنا -----------
-// انسخ هذه القيم من إعدادات مشروعك في Firebase (Project Settings)
+// يتم قراءة هذه القيم من ملف .env حصراً للحفاظ على الأمان
 const firebaseConfig = {
-  apiKey: "AIzaSyAwDYl4ID7iIzocY-DYc-Nx5mAWZBAOVVI",
-  authDomain: "yarmouk-pos.firebaseapp.com",
-  projectId: "yarmouk-pos",
-  storageBucket: "yarmouk-pos.firebasestorage.app",
-  messagingSenderId: "935913225579",
-  appId: "1:935913225579:web:0a2dc773a5d793c457602e",
-  measurementId: "G-L7L26N5T0P"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 // ------------------------------------------------
 
@@ -117,6 +117,9 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
   let remedy = 'يرجى التحقق من اتصال شبكة الإنترنت الخاصة بك وإعادة المحاولة. إذا تكررت المشكلة، يرجى تصفير التخزين المؤقت للأمان.';
 
   if (originalErrorMsg.includes('permission-denied') || originalErrorMsg.includes('insufficient permissions')) {
+    // If the user is logging out or already logged out, ignore these lingering listener errors silently
+    if (!auth.currentUser) return;
+    
     userFriendlyTitle = 'صلاحية غير كافية';
     userFriendlyMsg = 'ليست لديك الصلاحيات الكافية للقيام بهذا الإجراء على خادم البيانات.';
     remedy = 'المستخدم النشط حالياً لا يملك صلاحيات تعديل هذه السجلات. قم بتسجيل الخروج والدخول مجدداً بالحساب الأعلى (مدير النظام) للقيام بذلك.';
@@ -148,5 +151,7 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
   );
 
   console.error('Firestore Error: ', JSON.stringify(errInfo));
-  throw new Error(JSON.stringify(errInfo));
+  if (operationType !== 'list') {
+    throw new Error(JSON.stringify(errInfo));
+  }
 }

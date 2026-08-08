@@ -136,6 +136,29 @@ const Ledger: React.FC<Props> = ({
     Record<string, boolean>
   >({});
 
+  const businessInfo = useMemo(() => {
+    try {
+      const saved = localStorage.getItem('yarmouk_business_info');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed) {
+          return {
+            companyName: parsed.companyName || 'معرض اليرموك',
+            phone: parsed.phone || '079XXXXXXX',
+            invoiceFooter: parsed.invoiceFooter || 'شكراً لتعاملكم معنا',
+            defaultCurrency: parsed.defaultCurrency || 'د.أ'
+          };
+        }
+      }
+    } catch (e) {}
+    return {
+      companyName: 'معرض اليرموك',
+      phone: '079XXXXXXX',
+      invoiceFooter: 'شكراً لتعاملكم معنا',
+      defaultCurrency: 'د.أ'
+    };
+  }, [viewingInvoice]);
+
   const closeViewingInvoice = () => {
     setViewingInvoice(null);
     setIsJustSavedInvoice(false);
@@ -936,13 +959,13 @@ const Ledger: React.FC<Props> = ({
       {!activeCustomerId ? (
         <div className="max-w-4xl mx-auto space-y-12 py-10 print:hidden text-center animate-in fade-in zoom-in duration-500">
           <div className="space-y-4">
-            <div className="bg-white w-24 h-24 rounded-[32px] flex items-center justify-center mx-auto mb-6 text-[#3B5BDB] shadow-xl shadow-[#3B5BDB]/10 border border-[#EEF2FF] rotate-3">
+            <div className="bg-white dark:bg-[#121212] w-24 h-24 rounded-[32px] flex items-center justify-center mx-auto mb-6 text-[#3B5BDB] shadow-xl shadow-[#3B5BDB]/10 border border-[#EEF2FF] dark:border-[#262626] rotate-3">
               <FileText size={44} />
             </div>
-            <h1 className="text-4xl font-black text-[#1C1C2E]">
+            <h1 className="text-4xl font-black text-[#1C1C2E] dark:text-white">
               كشوف الحسابات
             </h1>
-            <p className="text-gray-400 font-bold max-w-md mx-auto">
+            <p className="text-gray-400 dark:text-gray-500 font-bold max-w-md mx-auto">
               اختر أحد الزبائن أو المحلات لمشاهدة تفاصيل الحساب والعمليات
               المالية والطباعة
             </p>
@@ -955,7 +978,7 @@ const Ledger: React.FC<Props> = ({
             <input
               type="text"
               placeholder="ابحث عن اسم زبون أو محل..."
-              className="w-full pr-14 pl-6 py-5 rounded-3xl border-2 border-white bg-white/70 backdrop-blur-md shadow-lg focus:border-[#3B5BDB] focus:bg-white outline-none transition-all text-xl font-black text-[#1C1C2E] placeholder:text-gray-300"
+              className="w-full pr-14 pl-6 py-5 rounded-3xl border-2 border-white dark:border-[#262626] bg-white/70 dark:bg-[#121212]/70 backdrop-blur-md shadow-lg focus:border-[#3B5BDB] focus:bg-white dark:focus:bg-[#121212] outline-none transition-all text-xl font-black text-[#1C1C2E] dark:text-white placeholder:text-gray-300 dark:placeholder:text-gray-600"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -970,28 +993,28 @@ const Ledger: React.FC<Props> = ({
                 <button
                   key={c.id}
                   onClick={() => changeView("LEDGER", c.id)}
-                  className="p-6 bg-white border border-gray-100 rounded-[32px] text-right hover:border-[#3B5BDB] hover:shadow-xl transition-all group flex items-center justify-between"
+                  className="p-6 bg-white dark:bg-[#121212] border border-gray-100 dark:border-[#262626] rounded-[32px] text-right hover:border-[#3B5BDB] hover:shadow-xl transition-all group flex items-center justify-between"
                 >
                   <div className="flex items-center gap-4">
                     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm font-black transition-all shrink-0 border ${
                       c.type === "shop"
-                        ? "bg-[#EEF2FF] text-[#3B5BDB] border-[#C5D0FA]"
-                        : "bg-[#EBFBEE] text-[#2F9E44] border-[#B2F2BB]"
+                        ? "bg-[#EEF2FF] dark:bg-[#3B5BDB]/20 text-[#3B5BDB] dark:text-[#7A98FF] border-[#C5D0FA] dark:border-[#3B5BDB]/40"
+                        : "bg-[#EBFBEE] dark:bg-[#2F9E44]/20 text-[#2F9E44] dark:text-[#51CF66] border-[#B2F2BB] dark:border-[#2F9E44]/40"
                     }`}>
                       {c.type === "shop" ? <Store size={26} /> : <User size={26} />}
                     </div>
                     <div>
-                      <span className="block font-black text-xl text-[#1C1C2E] group-hover:text-[#3B5BDB] transition-colors">
+                      <span className="block font-black text-xl text-[#1C1C2E] dark:text-white group-hover:text-[#3B5BDB] transition-colors">
                         {c.name}
                       </span>
-                      <span className="text-[10px] text-gray-400 font-black tracking-widest uppercase mt-1 block">
+                      <span className="text-[10px] text-gray-400 dark:text-gray-500 font-black tracking-widest uppercase mt-1 block">
                         {c.type === "shop"
                           ? "محل تجاري / معرض"
                           : "زبون فردي / خاص"}
                       </span>
                     </div>
                   </div>
-                  <div className="p-3 bg-gray-50 rounded-xl group-hover:bg-[#3B5BDB] group-hover:text-white transition-all">
+                  <div className="p-3 bg-gray-50 dark:bg-[#1A1A1A] rounded-xl group-hover:bg-[#3B5BDB] group-hover:text-white transition-all">
                     <ChevronRight size={20} className="rotate-180" />
                   </div>
                 </button>
@@ -1005,64 +1028,64 @@ const Ledger: React.FC<Props> = ({
               <div className="flex items-center gap-5">
                 <button
                   onClick={() => changeView("CUSTOMERS")}
-                  className="w-12 h-12 bg-white border border-gray-100 rounded-2xl text-[#1C1C2E] hover:bg-[#3B5BDB] hover:text-white transition-all shadow-sm flex items-center justify-center"
+                  className="w-12 h-12 bg-white dark:bg-[#121212] border border-gray-100 dark:border-[#262626] rounded-2xl text-[#1C1C2E] dark:text-white hover:bg-[#3B5BDB] hover:text-white transition-all shadow-sm flex items-center justify-center"
                 >
                   <ArrowRight size={24} />
                 </button>
                 <div>
                   <div className="flex items-center gap-3">
-                    <h1 className="text-3xl font-black text-[#1C1C2E]">
+                    <h1 className="text-3xl font-black text-[#1C1C2E] dark:text-white">
                       {customer?.name}
                     </h1>
                     <span
-                      className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${customer?.type === "shop" ? "bg-indigo-50 text-indigo-600" : "bg-amber-50 text-amber-600"}`}
+                      className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${customer?.type === "shop" ? "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-300" : "bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-300"}`}
                     >
                       {customer?.type === "shop" ? "محل" : "فرد"}
                     </span>
                   </div>
-                  <p className="text-gray-400 font-bold text-xs mt-2 flex items-center gap-2">
+                  <p className="text-gray-400 dark:text-gray-500 font-bold text-xs mt-2 flex items-center gap-2">
                     <Calendar size={14} /> سجل العمليات وكشف الحساب التفصيلي
                   </p>
                 </div>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 items-center w-full lg:w-auto shrink-0">
-                <div className="flex bg-gray-100 p-1 rounded-xl gap-1 shrink-0 print:hidden">
+                <div className="flex bg-gray-100 dark:bg-[#1A1A1A] p-1 rounded-xl gap-1 shrink-0 print:hidden">
                   <button
                     onClick={() => applyPreset("today")}
-                    className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-white text-gray-800 shadow-sm hover:bg-[#EEF2FF] hover:text-[#3B5BDB] transition-all"
+                    className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-white dark:bg-[#262626] text-gray-800 dark:text-white shadow-sm hover:bg-[#EEF2FF] hover:text-[#3B5BDB] transition-all"
                   >
                     اليوم
                   </button>
                   <button
                     onClick={() => applyPreset("yesterday")}
-                    className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-transparent text-gray-500 hover:text-gray-800 transition-all"
+                    className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-transparent text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-all"
                   >
                     أمس
                   </button>
                   <button
                     onClick={() => applyPreset("week")}
-                    className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-transparent text-gray-500 hover:text-gray-800 transition-all"
+                    className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-transparent text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-all"
                   >
                     أسبوع
                   </button>
                   <button
                     onClick={() => applyPreset("month")}
-                    className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-transparent text-gray-500 hover:text-gray-800 transition-all"
+                    className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-transparent text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-all"
                   >
                     الشهر
                   </button>
                   <button
                     onClick={() => applyPreset("all")}
-                    className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-transparent text-gray-500 hover:text-gray-800 transition-all"
+                    className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-transparent text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-all"
                   >
                     الكل
                   </button>
                 </div>
 
-                <div className="flex flex-wrap gap-2 items-center bg-white/50 backdrop-blur-sm p-1.5 rounded-2xl border border-white shadow-sm shrink-0">
-                  <div className="flex items-center gap-2 px-3 py-1 bg-white rounded-lg border border-gray-100 max-w-[130px]">
-                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest shrink-0">
+                <div className="flex flex-wrap gap-2 items-center bg-white/50 dark:bg-[#121212]/80 backdrop-blur-sm p-1.5 rounded-2xl border border-white dark:border-[#262626] shadow-sm shrink-0">
+                  <div className="flex items-center gap-2 px-3 py-1 bg-white dark:bg-[#1A1A1A] rounded-lg border border-gray-100 dark:border-[#262626] max-w-[130px]">
+                    <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest shrink-0">
                       من
                     </span>
                     <input
@@ -1074,11 +1097,11 @@ const Ledger: React.FC<Props> = ({
                         } catch (e) {}
                       }}
                       onChange={(e) => setFromDate(e.target.value)}
-                      className="bg-transparent text-[11px] font-bold outline-none text-[#1C1C2E] cursor-pointer w-full"
+                      className="bg-transparent text-[11px] font-bold outline-none text-[#1C1C2E] dark:text-white cursor-pointer w-full"
                     />
                   </div>
-                  <div className="flex items-center gap-2 px-3 py-1 bg-white rounded-lg border border-gray-100 max-w-[130px]">
-                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest shrink-0">
+                  <div className="flex items-center gap-2 px-3 py-1 bg-white dark:bg-[#1A1A1A] rounded-lg border border-gray-100 dark:border-[#262626] max-w-[130px]">
+                    <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest shrink-0">
                       إلى
                     </span>
                     <input
@@ -1090,11 +1113,11 @@ const Ledger: React.FC<Props> = ({
                         } catch (e) {}
                       }}
                       onChange={(e) => setToDate(e.target.value)}
-                      className="bg-transparent text-[11px] font-bold outline-none text-[#1C1C2E] cursor-pointer w-full"
+                      className="bg-transparent text-[11px] font-bold outline-none text-[#1C1C2E] dark:text-white cursor-pointer w-full"
                     />
                   </div>
                   <select
-                    className="px-3 py-1 bg-white rounded-lg text-xs font-bold outline-none border border-gray-100 text-[#1C1C2E]"
+                    className="px-3 py-1 bg-white dark:bg-[#1A1A1A] rounded-lg text-xs font-bold outline-none border border-gray-100 dark:border-[#262626] text-[#1C1C2E] dark:text-white"
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
                   >
@@ -1110,7 +1133,7 @@ const Ledger: React.FC<Props> = ({
                         setToDate("");
                         setStatusFilter("all");
                       }}
-                      className="p-1 px-2.5 text-red-500 hover:bg-red-50 rounded-lg"
+                      className="p-1 px-2.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg"
                     >
                       <X size={16} />
                     </button>
@@ -1120,39 +1143,39 @@ const Ledger: React.FC<Props> = ({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm flex flex-col justify-between h-40">
+              <div className="bg-white dark:bg-[#121212] p-6 rounded-[32px] border border-gray-100 dark:border-[#262626] shadow-sm flex flex-col justify-between h-40">
                 <div className="flex items-center justify-between">
-                  <div className="w-10 h-10 rounded-xl bg-[#EEF2FF] text-[#3B5BDB] flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-[#EEF2FF] dark:bg-[#3B5BDB]/20 text-[#3B5BDB] dark:text-[#7A98FF] flex items-center justify-center">
                     <Receipt size={20} />
                   </div>
-                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                  <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">
                     إجمالي الفواتير
                   </span>
                 </div>
                 <div className="mt-4">
-                  <p className="text-3xl font-black text-[#1C1C2E]" dir="ltr">
+                  <p className="text-3xl font-black text-[#1C1C2E] dark:text-white" dir="ltr">
                     {totals.totalInvoices.toLocaleString()}{" "}
                     <span className="text-sm">د.أ</span>
                   </p>
                 </div>
               </div>
-              <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm flex flex-col justify-between h-40">
+              <div className="bg-white dark:bg-[#121212] p-6 rounded-[32px] border border-gray-100 dark:border-[#262626] shadow-sm flex flex-col justify-between h-40">
                 <div className="flex items-center justify-between">
-                  <div className="w-10 h-10 rounded-xl bg-[#EBFBEE] text-[#2F9E44] flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-[#EBFBEE] dark:bg-[#2F9E44]/20 text-[#2F9E44] dark:text-[#51CF66] flex items-center justify-center">
                     <Banknote size={20} />
                   </div>
-                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                  <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">
                     إجمالي المقبوضات
                   </span>
                 </div>
                 <div className="mt-4">
-                  <p className="text-3xl font-black text-[#2F9E44]" dir="ltr">
+                  <p className="text-3xl font-black text-[#2F9E44] dark:text-[#51CF66]" dir="ltr">
                     {totals.totalPayments.toLocaleString()}{" "}
                     <span className="text-sm">د.أ</span>
                   </p>
                 </div>
               </div>
-              <div className="bg-[#1C1C2E] p-6 rounded-[40px] shadow-2xl shadow-blue-900/10 flex flex-col justify-between h-40 relative overflow-hidden group">
+              <div className="bg-[#1C1C2E] dark:bg-[#121212] border border-transparent dark:border-[#262626] p-6 rounded-[40px] shadow-2xl shadow-blue-900/10 flex flex-col justify-between h-40 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full -mr-16 -mt-16 transition-all group-hover:scale-110"></div>
                 <div className="flex items-center justify-between relative z-10">
                   <div className="w-10 h-10 rounded-xl bg-[#3B5BDB] text-white flex items-center justify-center">
@@ -1343,15 +1366,15 @@ const Ledger: React.FC<Props> = ({
             </div>
           </div>
 
-          <div className="bg-white rounded-none shadow-xl shadow-blue-900/5 border border-gray-100 mt-10 overflow-hidden print:hidden">
+          <div className="bg-white dark:bg-[#121212] rounded-3xl shadow-xl shadow-blue-900/5 border border-gray-100 dark:border-[#262626] mt-10 overflow-hidden print:hidden">
             {/* Table Header Controls */}
-            <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center print:hidden bg-gray-50/50">
+            <div className="p-6 md:p-8 border-b border-gray-100 dark:border-[#262626] flex flex-col md:flex-row gap-4 justify-between items-start md:items-center print:hidden bg-gray-50/50 dark:bg-[#181818]">
               <div>
-                <h3 className="text-xl font-black text-[#1C1C2E] flex items-center gap-3">
-                  <Clock size={22} className="text-[#3B5BDB]" /> تفاصيل الحركات
+                <h3 className="text-xl font-black text-[#1C1C2E] dark:text-white flex items-center gap-3">
+                  <Clock size={22} className="text-[#3B5BDB] dark:text-[#7A98FF]" /> تفاصيل الحركات
                   المالية
                 </h3>
-                <p className="text-xs text-gray-400 font-bold mt-1">
+                <p className="text-xs text-gray-400 dark:text-gray-500 font-bold mt-1">
                   إجمالي {statementRows.length} حركات مسجلة (منها{" "}
                   {statementRows.filter((r) => r.type === "invoice").length}{" "}
                   فواتير مبيعات، و{" "}
@@ -1363,7 +1386,7 @@ const Ledger: React.FC<Props> = ({
                 <button
                   onClick={() => downloadPDF('ledger')}
                   disabled={isSharingImage}
-                  className="px-4 py-2.5 sm:px-6 sm:py-3 bg-[#3B5BDB]/10 border border-[#3B5BDB]/30 rounded-2xl font-black text-xs sm:text-sm text-[#3B5BDB] hover:bg-[#3B5BDB]/20 hover:border-[#3B5BDB]/40 transition-all flex items-center gap-2 sm:gap-3 shadow-sm hover:shadow-md shrink-0 print:hidden"
+                  className="px-4 py-2.5 sm:px-6 sm:py-3 bg-[#3B5BDB]/10 border border-[#3B5BDB]/30 rounded-2xl font-black text-xs sm:text-sm text-[#3B5BDB] dark:text-[#7A98FF] hover:bg-[#3B5BDB]/20 hover:border-[#3B5BDB]/40 transition-all flex items-center gap-2 sm:gap-3 shadow-sm hover:shadow-md shrink-0 print:hidden"
                   title="تحميل كشف الحساب كملف PDF"
                 >
                   <Printer size={16} className={isSharingImage ? "animate-bounce" : ""} />
@@ -1371,7 +1394,7 @@ const Ledger: React.FC<Props> = ({
                 </button>
                 <button
                   onClick={handleExportExcel}
-                  className="px-4 py-2.5 sm:px-6 sm:py-3 bg-emerald-50 border border-emerald-200 rounded-2xl font-black text-xs sm:text-sm text-emerald-800 hover:bg-emerald-100 hover:border-emerald-300 transition-all flex items-center gap-2 sm:gap-3 shadow-sm hover:shadow-md shrink-0"
+                  className="px-4 py-2.5 sm:px-6 sm:py-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 rounded-2xl font-black text-xs sm:text-sm text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 transition-all flex items-center gap-2 sm:gap-3 shadow-sm hover:shadow-md shrink-0"
                   title="تحميل كملف إكسيل"
                 >
                   <Download size={16} /> تحميل إكسيل
@@ -1476,20 +1499,20 @@ const Ledger: React.FC<Props> = ({
                 statementRows.map((row) => (
                   <div
                     key={row.id}
-                    className={`bg-white border-[3px] border-[#1C1C2E] shadow-sm overflow-hidden relative ${row.deleted ? 'opacity-70 bg-gray-100 grayscale-[30%]' : ''}`}
+                    className={`bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#262626] rounded-3xl shadow-sm overflow-hidden relative ${row.deleted ? 'opacity-70 bg-gray-100 dark:bg-[#181818] grayscale-[30%]' : ''}`}
                   >
                     {/* Header */}
                     <div
-                      className={`p-4 md:p-6 border-b-[3px] border-[#1C1C2E] flex justify-between items-center ${row.deleted ? 'bg-red-50' : (row.type === "invoice" ? "bg-gradient-to-r from-blue-50 to-[#EEF2FF]" : "bg-gradient-to-r from-green-50 to-[#EBFBEE]")}`}
+                      className={`p-4 md:p-6 border-b border-gray-200 dark:border-[#262626] flex justify-between items-center ${row.deleted ? 'bg-red-50 dark:bg-[#2A1515]' : (row.type === "invoice" ? "bg-gradient-to-r from-blue-50 to-[#EEF2FF] dark:from-[#1A2238] dark:to-[#121212]" : "bg-gradient-to-r from-green-50 to-[#EBFBEE] dark:from-[#122A1A] dark:to-[#121212]")}`}
                     >
                       <div>
                         <div className="flex items-center gap-3">
                           {row.deleted ? <Trash2 size={24} className="text-red-500" /> : (row.type === "invoice" ? (
-                            <Receipt size={24} className="text-[#3B5BDB]" />
+                            <Receipt size={24} className="text-[#3B5BDB] dark:text-[#7A98FF]" />
                           ) : (
-                            <Banknote size={24} className="text-[#2F9E44]" />
+                            <Banknote size={24} className="text-[#2F9E44] dark:text-[#51CF66]" />
                           ))}
-                          <p className={`font-black text-base md:text-xl ${row.deleted ? 'text-red-600 line-through' : 'text-[#1C1C2E]'}`}>
+                          <p className={`font-black text-base md:text-xl ${row.deleted ? 'text-red-600 line-through' : 'text-[#1C1C2E] dark:text-white'}`}>
                             {row.type === "invoice"
                               ? "فاتورة مبيعات"
                               : "سند قبض مالي"}
@@ -1497,10 +1520,10 @@ const Ledger: React.FC<Props> = ({
                           </p>
                         </div>
                         <div className="flex gap-4 mt-3">
-                          <p className="text-xs font-bold text-gray-500 bg-white px-3 py-1 rounded-md border border-gray-200">
+                          <p className="text-xs font-bold text-gray-600 dark:text-gray-300 bg-white dark:bg-[#1A1A1A] px-3 py-1 rounded-xl border border-gray-200 dark:border-[#262626]">
                             رقم: #{row.id.substring(0, 8)}
                           </p>
-                          <p className="text-xs font-bold text-gray-500 bg-white px-3 py-1 rounded-md border border-gray-200">
+                          <p className="text-xs font-bold text-gray-600 dark:text-gray-300 bg-white dark:bg-[#1A1A1A] px-3 py-1 rounded-xl border border-gray-200 dark:border-[#262626]">
                             التاريخ:{" "}
                             {new Date(row.date).toLocaleDateString("ar-EG")}
                           </p>
@@ -1509,14 +1532,14 @@ const Ledger: React.FC<Props> = ({
                       <div className="flex flex-col items-end gap-2">
                         {row.type === "invoice" && !row.deleted && getStatusIcon(row.status)}
                         <p
-                          className={`text-2xl font-black shrink-0 ${row.deleted ? 'text-red-500 line-through' : (row.type === "payment" ? "text-[#2F9E44]" : "text-[#1C1C2E]")}`}
+                          className={`text-2xl font-black shrink-0 ${row.deleted ? 'text-red-500 line-through' : (row.type === "payment" ? "text-[#2F9E44] dark:text-[#51CF66]" : "text-[#1C1C2E] dark:text-white")}`}
                           dir="ltr"
                         >
                           {(row.type === "invoice"
                             ? row.totalAmount || 0
                             : row.amount || 0
                           ).toLocaleString()}{" "}
-                          <span className="text-sm text-gray-500">د.أ</span>
+                          <span className="text-sm text-gray-500 dark:text-gray-400">د.أ</span>
                         </p>
                         {!row.deleted && (
                           <button
@@ -1530,9 +1553,9 @@ const Ledger: React.FC<Props> = ({
                                 setTimeout(() => sharePaymentWhatsapp(row as any), 50);
                               }
                             }}
-                            className="px-3 py-1.5 mt-1 bg-white hover:bg-gray-50 border border-gray-200 text-[#1C1C2E] text-[11px] font-black flex items-center gap-1 rounded-lg shadow-sm transition-all active:scale-95"
+                            className="px-3 py-1.5 mt-1 bg-white dark:bg-[#1A1A1A] hover:bg-gray-50 dark:hover:bg-[#222222] border border-gray-200 dark:border-[#262626] text-[#1C1C2E] dark:text-white text-[11px] font-black flex items-center gap-1 rounded-xl shadow-sm transition-all active:scale-95"
                           >
-                            <Share2 size={14} className="text-[#3B5BDB]" />
+                            <Share2 size={14} className="text-[#3B5BDB] dark:text-[#7A98FF]" />
                             مشاركة
                           </button>
                         )}
@@ -1543,17 +1566,17 @@ const Ledger: React.FC<Props> = ({
                     {row.type === "invoice" ? (
                       <div className="p-0">
                         {!expandedInvoiceIds[row.id] && (
-                          <div className="p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs font-bold bg-white text-gray-500 print:hidden border-t-[1px] border-gray-100 gap-3">
+                          <div className="p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs font-bold bg-white dark:bg-[#121212] text-gray-500 dark:text-gray-400 print:hidden border-t border-gray-100 dark:border-[#262626] gap-3">
                             <div>
                               <span>
                                 عدد الأصناف بالفاتورة:{" "}
-                                <strong className="text-[#3B5BDB]">
+                                <strong className="text-[#3B5BDB] dark:text-[#7A98FF]">
                                   {row.items?.length || 0}
                                 </strong>{" "}
                                 أصناف مختلفة
                               </span>
                               {row.notes && (
-                                <span className="bg-gray-50 text-gray-600 px-2.5 py-1 rounded-md mr-4 font-bold border border-gray-150">
+                                <span className="bg-gray-50 dark:bg-[#1A1A1A] text-gray-600 dark:text-gray-300 px-2.5 py-1 rounded-md mr-4 font-bold border border-gray-150 dark:border-[#262626]">
                                   ملاحظة: {row.notes}
                                 </span>
                               )}
@@ -1565,7 +1588,7 @@ const Ledger: React.FC<Props> = ({
                                   [row.id]: true,
                                 }))
                               }
-                              className="px-4 py-2 bg-[#EEF2FF] hover:bg-[#3B5BDB] hover:text-white border border-[#C5D0FA] hover:border-[#3B5BDB] text-[#3B5BDB] text-xs font-black rounded-xl transition-all flex items-center gap-1 shrink-0"
+                              className="px-4 py-2 bg-[#EEF2FF] dark:bg-[#3B5BDB]/20 hover:bg-[#3B5BDB] hover:text-white border border-[#C5D0FA] dark:border-[#3B5BDB]/40 text-[#3B5BDB] dark:text-[#7A98FF] text-xs font-black rounded-xl transition-all flex items-center gap-1 shrink-0"
                             >
                               <span>عرض تفاصيل المنتجات</span>
                               <ChevronDown size={14} />
@@ -1576,16 +1599,16 @@ const Ledger: React.FC<Props> = ({
                         <div
                           className={expandedInvoiceIds[row.id] ? "block" : "print-only"}
                         >
-                          <table className="w-full text-center border-collapse bg-white">
-                            <thead className="bg-gray-50 text-[#1C1C2E] border-b-[3px] border-[#1C1C2E]">
+                          <table className="w-full text-center border-collapse bg-white dark:bg-[#121212]">
+                            <thead className="bg-gray-50 dark:bg-[#1A1A1A] text-[#1C1C2E] dark:text-white border-b border-gray-200 dark:border-[#262626]">
                               <tr className="text-xs font-black">
-                                <th className="p-2 border-l-[3px] border-[#1C1C2E] w-[45%] text-right pr-4">
+                                <th className="p-2 border-l border-gray-200 dark:border-[#262626] w-[45%] text-right pr-4">
                                   البيان
                                 </th>
-                                <th className="p-2 border-l-[3px] border-[#1C1C2E] w-[15%]">
+                                <th className="p-2 border-l border-gray-200 dark:border-[#262626] w-[15%]">
                                   العدد
                                 </th>
-                                <th className="p-2 border-l-[3px] border-[#1C1C2E] w-[20%]">
+                                <th className="p-2 border-l border-gray-200 dark:border-[#262626] w-[20%]">
                                   الإفرادي
                                 </th>
                                 <th className="p-2 w-[20%]">الإجمالي</th>
@@ -1595,15 +1618,15 @@ const Ledger: React.FC<Props> = ({
                               {(row.items || []).map((item, idx) => (
                                 <tr
                                   key={idx}
-                                  className="border-b-[1.5px] border-[#1C1C2E]/20 text-sm font-bold"
+                                  className="border-b border-gray-100 dark:border-[#262626] text-sm font-bold text-gray-800 dark:text-gray-200"
                                 >
-                                  <td className="p-3 border-l-[3px] border-[#1C1C2E] text-right pr-4">
+                                  <td className="p-3 border-l border-gray-100 dark:border-[#262626] text-right pr-4">
                                     {item.name}
                                   </td>
-                                  <td className="p-3 border-l-[3px] border-[#1C1C2E]">
+                                  <td className="p-3 border-l border-gray-100 dark:border-[#262626]">
                                     {item.quantity}
                                   </td>
-                                  <td className="p-3 border-l-[3px] border-[#1C1C2E]">
+                                  <td className="p-3 border-l border-gray-100 dark:border-[#262626]">
                                     {(item.price || 0).toLocaleString()}
                                   </td>
                                   <td className="p-3">
@@ -1614,12 +1637,12 @@ const Ledger: React.FC<Props> = ({
                             </tbody>
                           </table>
 
-                          <div className="p-4 bg-gray-50 border-t-[3px] border-[#1C1C2E] flex justify-between items-center">
-                            <p className="text-xs font-black text-gray-500">
+                          <div className="p-4 bg-gray-50 dark:bg-[#1A1A1A] border-t border-gray-200 dark:border-[#262626] flex justify-between items-center">
+                            <p className="text-xs font-black text-gray-500 dark:text-gray-400">
                               ملاحظات: {row.notes || "لا يوجد"}
                             </p>
                             {row.paidAmount > 0 && (
-                              <p className="text-xs font-black px-3 py-1 bg-[#EBFBEE] border border-[#B2F2BB] rounded-lg text-[#2F9E44]">
+                              <p className="text-xs font-black px-3 py-1 bg-[#EBFBEE] dark:bg-emerald-950/40 border border-[#B2F2BB] dark:border-emerald-800/40 rounded-lg text-[#2F9E44] dark:text-[#51CF66]">
                                 المدفوع نقداً/سندات:{" "}
                                 {(row.paidAmount || 0).toLocaleString()} د.أ
                               </p>
@@ -1627,7 +1650,7 @@ const Ledger: React.FC<Props> = ({
                           </div>
                         </div>
                         {expandedInvoiceIds[row.id] && (
-                          <div className="p-3 bg-gray-50 flex justify-center border-t border-gray-100 print:hidden">
+                          <div className="p-3 bg-gray-50 dark:bg-[#1A1A1A] flex justify-center border-t border-gray-100 dark:border-[#262626] print:hidden">
                             <button
                               onClick={() =>
                                 setExpandedInvoiceIds((prev) => ({
@@ -1635,7 +1658,7 @@ const Ledger: React.FC<Props> = ({
                                   [row.id]: false,
                                 }))
                               }
-                              className="text-xs font-black text-[#3B5BDB] hover:text-[#364FC7] flex items-center gap-1"
+                              className="text-xs font-black text-[#3B5BDB] dark:text-[#7A98FF] hover:text-[#364FC7] flex items-center gap-1"
                             >
                               <span>إغلاق تفاصيل المنتجات</span>
                               <ChevronUp size={14} />
@@ -1644,19 +1667,19 @@ const Ledger: React.FC<Props> = ({
                         )}
                       </div>
                     ) : (
-                      <div className="p-6 md:p-8 flex items-center justify-between bg-white text-[#1C1C2E]">
+                      <div className="p-6 md:p-8 flex items-center justify-between bg-white dark:bg-[#121212] text-[#1C1C2E] dark:text-white">
                         <div className="flex gap-6 items-center w-full">
-                          <div className="p-5 rounded-2xl bg-[#EBFBEE] border-2 border-[#B2F2BB] text-[#2F9E44] shrink-0 hidden md:block">
+                          <div className="p-5 rounded-2xl bg-[#EBFBEE] dark:bg-[#2F9E44]/20 border-2 border-[#B2F2BB] dark:border-[#2F9E44]/40 text-[#2F9E44] dark:text-[#51CF66] shrink-0 hidden md:block">
                             <Banknote size={40} />
                           </div>
                           <div className="flex-1">
-                            <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 border-b-2 border-dotted border-gray-200 inline-block pb-1">
+                            <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 border-b-2 border-dotted border-gray-200 dark:border-[#262626] inline-block pb-1">
                               {row.paymentMethod === "cheque"
                                 ? "سند قبض - شيك بنكي"
                                 : "سند قبض مالي - نقدي"}
                             </p>
                             <p
-                              className="text-4xl font-black text-[#2F9E44]"
+                              className="text-4xl font-black text-[#2F9E44] dark:text-[#51CF66]"
                               dir="ltr"
                             >
                               {(row.amount || 0).toLocaleString()}{" "}
@@ -1667,24 +1690,24 @@ const Ledger: React.FC<Props> = ({
 
                             {row.paymentMethod === "cheque" && (
                               <div
-                                className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-bold text-gray-600 bg-blue-50/40 p-4 border border-blue-100 rounded-2xl text-right"
+                                className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-bold text-gray-600 dark:text-gray-300 bg-blue-50/40 dark:bg-[#1A1A1A] p-4 border border-blue-100 dark:border-[#262626] rounded-2xl text-right"
                                 dir="rtl"
                               >
                                 <div>
                                   رقم الشيك:{" "}
-                                  <span className="font-mono text-gray-800">
+                                  <span className="font-mono text-gray-800 dark:text-gray-200">
                                     {row.chequeNumber || "غير محدد"}
                                   </span>
                                 </div>
                                 <div>
                                   البنك المسحوب عليه:{" "}
-                                  <span className="text-gray-800">
+                                  <span className="text-gray-800 dark:text-gray-200">
                                     {row.bankName || "غير محدد"}
                                   </span>
                                 </div>
                                 <div>
                                   تاريخ الاستحقاق:{" "}
-                                  <span className="text-gray-800">
+                                  <span className="text-gray-800 dark:text-gray-200">
                                     {row.dueDate
                                       ? new Date(
                                           row.dueDate,
@@ -1692,29 +1715,13 @@ const Ledger: React.FC<Props> = ({
                                       : "غير محدد"}
                                   </span>
                                 </div>
-                                <div className="sm:col-span-3 mt-2 flex items-center gap-2 border-t border-blue-100/50 pt-2 text-xs">
-                                  <span>الحالة الحالية للشيك البنكي:</span>
-                                  {row.chequeStatus === "cashed" ? (
-                                    <span className="px-2.5 py-1 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg text-[10px] font-black">
-                                      تم تحصيله بنجاح
-                                    </span>
-                                  ) : row.chequeStatus === "bounced" ? (
-                                    <span className="px-2.5 py-1 bg-rose-50 border border-rose-200 text-rose-700 rounded-lg text-[10px] font-black">
-                                      شيك مرتجع ومرفوض
-                                    </span>
-                                  ) : (
-                                    <span className="px-2.5 py-1 bg-amber-50 border border-amber-200 text-amber-700 rounded-lg text-[10px] font-black">
-                                      قيد الانتظار
-                                    </span>
-                                  )}
-                                </div>
                               </div>
                             )}
                             {row.notes && (
-                              <div className="mt-4 p-3 bg-gray-50 border-r-4 border-gray-300 rounded-l-lg">
-                                <p className="text-xs font-black text-gray-500">
+                              <div className="mt-4 p-3 bg-gray-50 dark:bg-[#1A1A1A] border-r-4 border-gray-300 dark:border-gray-600 rounded-l-lg">
+                                <p className="text-xs font-black text-gray-500 dark:text-gray-400">
                                   ملاحظات والتفاصيل:{" "}
-                                  <span className="text-gray-800">
+                                  <span className="text-gray-800 dark:text-gray-200">
                                     {row.notes}
                                   </span>
                                 </p>
@@ -1726,7 +1733,7 @@ const Ledger: React.FC<Props> = ({
                     )}
 
                     {/* Actions */}
-                    <div className="p-2 bg-gray-50 flex justify-end gap-2 border-t-[1px] border-gray-100 print:hidden">
+                    <div className="p-2 bg-gray-50 dark:bg-[#181818] flex justify-end gap-2 border-t border-gray-100 dark:border-[#262626] print:hidden">
                       <button
                         onClick={() => {
                           if (row.type === "invoice") {
@@ -1804,185 +1811,123 @@ const Ledger: React.FC<Props> = ({
       {/* Invoice Detail Modal (PDF Look) */}
       {viewingInvoice && (
         <div className="fixed inset-0 bg-[#050510]/80 print:bg-white backdrop-blur-md z-50 flex items-center justify-center p-1 sm:p-4 md:p-8 print:p-0 animate-in fade-in duration-300 print:relative print:block print:h-auto print:overflow-visible" dir="rtl">
-          {isJustSavedInvoice ? (
-            <div className="bg-white w-full max-w-md rounded-3xl overflow-hidden shadow-2xl flex flex-col p-8 text-center relative border border-gray-100 animate-in zoom-in-95 duration-200 print:hidden">
-              <button
-                onClick={closeViewingInvoice}
-                className="absolute top-4 right-4 p-2 bg-gray-50 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all"
-              >
+          <div className="bg-white w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh] relative border border-gray-200 print:hidden text-gray-900">
+            <button
+              onClick={closeViewingInvoice}
+              className="absolute top-6 right-6 p-2 bg-gray-100 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all print:hidden z-10"
+            >
                 <X size={20} />
               </button>
 
-              <div className="flex flex-col items-center my-6">
-                <div className="w-16 h-16 bg-[#EBFBEE] text-[#2F9E44] rounded-full flex items-center justify-center mb-4 shadow-sm">
-                  <CheckCircle2 size={36} />
-                </div>
-                <h2 className="text-xl font-black text-[#1C1C2E]">تم حفظ الفاتورة بنجاح!</h2>
-                <p className="text-sm text-gray-500 mt-2 font-bold">
-                  تم إصدار وتسجيل الفاتورة في كشف الحساب بنجاح.
-                </p>
+              <div id="invoice-print-area" className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 text-gray-900 print:overflow-visible print:h-auto print:block bg-white">
+                
+                {/* Items Table - Highly responsive font and padding to fit all viewport sizes completely */}
+                <div className="overflow-x-auto border border-slate-200 rounded-2xl bg-white">
+                  <table className="w-full text-center border-collapse text-[10px] xs:text-[11px] sm:text-xs font-bold text-gray-800 print-table" dir="rtl">
+                    <thead>
+                      <tr className="border-b border-slate-200 bg-slate-100/50">
+                        <th className="p-2 border-l border-slate-200 w-[6%] text-center text-slate-700 font-extrabold" rowSpan={2}>الرقم</th>
+                        <th className="p-2 border-l border-slate-200 w-[36%] text-right pr-3 text-slate-700 font-extrabold" rowSpan={2}>البيان</th>
+                        <th className="p-2 border-l border-slate-200 w-[10%] text-center text-slate-700 font-extrabold" rowSpan={2}>الوحدة</th>
+                        <th className="p-2 border-l border-slate-200 w-[10%] text-center text-slate-700 font-extrabold" rowSpan={2}>العدد</th>
+                        <th colSpan={2} className="p-2 border-l border-slate-200 w-[18%] text-center text-slate-700 font-extrabold">سعر الوحدة</th>
+                        <th colSpan={2} className="p-2 w-[20%] text-center text-slate-700 font-extrabold">القيمة الاجمالية</th>
+                      </tr>
+                      <tr className="border-b border-slate-200 bg-slate-50 text-[8px] xs:text-[9.5px] sm:text-[10px] text-gray-500">
+                        <th className="p-1 border-l border-slate-200 text-center font-bold">فلس</th>
+                        <th className="p-1 border-l border-slate-200 text-center font-bold">دينار</th>
+                        <th className="p-1 border-l border-slate-200 text-center font-bold">فلس</th>
+                        <th className="p-1 text-center font-bold">دينار</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {viewingInvoice.items.map((item, idx) => {
+                        const priceDinar = Math.floor(item.price || 0);
+                        const priceFils = Math.round(((item.price || 0) - priceDinar) * 1000);
+                        
+                        const actualTotal = item.total || ((item.price || 0) * (item.quantity || 1));
+                        const totalDinar = Math.floor(actualTotal);
+                        const totalFils = Math.round((actualTotal - totalDinar) * 1000);
 
-                {/* Quick Info summary */}
-                <div className="w-full bg-slate-50/70 rounded-2xl p-4 mt-6 space-y-3.5 text-right text-xs border border-slate-100/80">
-                  <div className="flex justify-between items-center pb-2 border-b border-dashed border-slate-200/60">
-                    <span className="text-gray-400 font-bold">الزبون / العميل:</span>
-                    <span className="font-extrabold text-[#3B5BDB] text-sm">{customer?.name}</span>
-                  </div>
-                  <div className="flex justify-between items-center pb-2 border-b border-dashed border-slate-200/60">
-                    <span className="text-gray-400 font-bold">المجموع الكلي:</span>
-                    <span className="font-black text-[#1C1C2E] text-sm">
-                      {(viewingInvoice.totalAmount || 0).toLocaleString()} د.أ
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-400 font-bold">رقم الفاتورة:</span>
-                    <span className="font-mono font-bold text-gray-600 bg-gray-100 px-2.5 py-1 rounded-lg">
-                      {viewingInvoice.id.substring(0, 8).toUpperCase()}
-                    </span>
-                  </div>
+                        return (
+                          <tr key={idx} className="border-b border-slate-100 h-10 text-gray-800 hover:bg-slate-50/50 transition-colors">
+                            <td className="p-1 text-center font-mono text-gray-400 border-l border-slate-200">{idx + 1}</td>
+                            <td 
+                              className="p-1 border-l border-slate-200 text-right pr-3 font-extrabold text-[#111827] break-words"
+                              style={{
+                                wordBreak: 'break-all',
+                                wordWrap: 'break-word',
+                                whiteSpace: 'normal'
+                              }}
+                            >
+                              {item.name}
+                            </td>
+                            <td className="p-1 border-l border-slate-200 text-center text-gray-500">{item.unit || 'متر'}</td>
+                            <td className="p-1 border-l border-slate-200 text-center font-bold">{item.quantity}</td>
+                            <td className="p-1 border-l border-slate-200 text-center font-bold">{priceFils.toString().padStart(3, '0')}</td>
+                            <td className="p-1 border-l border-slate-200 text-center font-bold bg-slate-50/20">{(priceDinar).toLocaleString('en-US')}</td>
+                            <td className="p-1 border-l border-slate-200 text-center font-bold">{totalFils.toString().padStart(3, '0')}</td>
+                            <td className="p-1 text-center font-bold bg-slate-50/20">{(totalDinar).toLocaleString('en-US')}</td>
+                          </tr>
+                        );
+                      })}
+                      {/* Filler rows */}
+                      {Array.from({ length: Math.max(0, 8 - viewingInvoice.items.length) }).map((_, i) => (
+                        <tr key={`empty-${i}`} className="border-b border-slate-50 h-10 opacity-30">
+                          <td className="border-l border-slate-200"></td>
+                          <td className="border-l border-slate-200"></td>
+                          <td className="border-l border-slate-200"></td>
+                          <td className="border-l border-slate-200"></td>
+                          <td className="border-l border-slate-200"></td>
+                          <td className="border-l border-slate-200"></td>
+                          <td className="border-l border-slate-200"></td>
+                          <td></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot>
+                      {(() => {
+                        const grandDinar = Math.floor(viewingInvoice.totalAmount || 0);
+                        const grandFils = Math.round(((viewingInvoice.totalAmount || 0) - grandDinar) * 1000);
+                        return (
+                          <>
+                            <tr className="border-t-[1.5px] border-slate-300 h-11 font-extrabold text-gray-800 bg-slate-50/50">
+                              <td colSpan={4} className="border-l border-slate-200 text-left pl-4 font-bold text-[8px] xs:text-[10px] sm:text-xs text-gray-400" dir="ltr">Page : 1 / 1</td>
+                              <td colSpan={2} className="border-l border-slate-200 text-center font-black">المجموع</td>
+                              <td className="p-1 border-l border-slate-200 text-center font-bold">{grandFils.toString().padStart(3, '0')}</td>
+                              <td className="p-1 text-center font-bold">{(grandDinar).toLocaleString('en-US')}</td>
+                            </tr>
+                            <tr className="border-t border-slate-200 h-11 font-extrabold text-gray-800 bg-slate-50/50">
+                              <td colSpan={4} className="border-l border-slate-200"></td>
+                              <td colSpan={2} className="border-l border-slate-200 text-center font-black">الاجمالي</td>
+                              <td className="p-1 border-l border-slate-200 text-center font-bold">{grandFils.toString().padStart(3, '0')}</td>
+                              <td className="p-1 text-center font-bold">{(grandDinar).toLocaleString('en-US')}</td>
+                            </tr>
+                            <tr className="border-t border-slate-200 h-11 font-extrabold text-gray-800 bg-indigo-50/10">
+                              <td colSpan={4} className="border-l border-slate-200 text-center text-[10px] xs:text-[11px] sm:text-xs font-black text-[#3B5BDB] bg-indigo-50/20 px-2">{tafqeet(viewingInvoice.totalAmount)}</td>
+                              <td colSpan={2} className="border-l border-slate-200 text-center font-black text-[#3B5BDB]">الصافي</td>
+                              <td className="p-1 border-l border-slate-200 text-center font-black text-[#3B5BDB]">{grandFils.toString().padStart(3, '0')}</td>
+                              <td className="p-1 text-center font-black text-[#3B5BDB]">{(grandDinar).toLocaleString('en-US')}</td>
+                            </tr>
+                          </>
+                        );
+                      })()}
+                    </tfoot>
+                  </table>
                 </div>
+
+                {/* Invoice notes info (if any) */}
+                {viewingInvoice.notes && (
+                  <div className="mt-5 p-4 rounded-2xl border border-blue-100 bg-blue-50/20 text-xs font-bold text-gray-700">
+                    <span className="text-blue-600 font-extrabold block mb-1">ملاحظات الفاتورة:</span>
+                    <span className="font-normal leading-relaxed text-gray-600">{viewingInvoice.notes}</span>
+                  </div>
+                )}
               </div>
 
               {/* Action Buttons */}
-              <div className="space-y-3 mt-4 w-full">
-                <button
-                  type="button"
-                  onClick={() => shareInvoiceWhatsapp(viewingInvoice as any)}
-                  disabled={isSharingImage}
-                  className={`w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl font-black text-sm transition-all shadow-sm cursor-pointer ${
-                    isSharingImage 
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                      : 'bg-[#25D366] text-white hover:bg-[#20ba59] hover:shadow-md active:scale-[0.98]'
-                  }`}
-                >
-                  <Share2 size={18} className={isSharingImage ? "animate-spin" : ""} />
-                  <span>{isSharingImage ? "جاري تجهيز الصورة..." : "مشاركة الفاتورة للزبون عبر واتساب"}</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={closeViewingInvoice}
-                  className="w-full py-3 px-4 border border-gray-200 text-gray-600 font-black text-sm rounded-2xl hover:bg-gray-50 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
-                >
-                  <X size={16} />
-                  <span>إغلاق وخروج</span>
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="bg-white w-full max-w-3xl rounded-none overflow-hidden shadow-2xl flex flex-col max-h-[95vh] relative print:hidden">
-              <button
-                onClick={closeViewingInvoice}
-                className="absolute top-6 right-6 p-2 bg-gray-100 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all print:hidden z-10"
-              >
-                <X size={20} />
-              </button>
-
-              <div id="invoice-print-area" className="flex-1 overflow-y-auto px-1 sm:px-4 py-6 text-black print:overflow-visible print:h-auto print:block">
-              {/* Items Table - Highly responsive font and padding to fit all viewport sizes completely */}
-              <table className="w-full text-center border-collapse border border-slate-200 text-[10px] xs:text-[11px] sm:text-xs font-bold text-gray-800 print-table" dir="rtl">
-                <thead>
-                  <tr className="border-b border-slate-200 bg-slate-100/50">
-                    <th className="p-1 sm:p-2 border-l border-slate-200 w-[6%] text-center text-slate-700 font-extrabold" rowSpan={2}>الرقم</th>
-                    <th className="p-1 sm:p-2 border-l border-slate-200 w-[36%] text-right pr-1 sm:pr-4 text-slate-700 font-extrabold" rowSpan={2}>البيان</th>
-                    <th className="p-1 sm:p-2 border-l border-slate-200 w-[10%] text-center text-slate-700 font-extrabold" rowSpan={2}>الوحدة</th>
-                    <th className="p-1 sm:p-2 border-l border-slate-200 w-[10%] text-center text-slate-700 font-extrabold" rowSpan={2}>العدد</th>
-                    <th colSpan={2} className="p-1 sm:p-2 border-l border-slate-200 w-[18%] text-center text-slate-700 font-extrabold">سعر الوحدة</th>
-                    <th colSpan={2} className="p-1 w-[20%] text-center text-slate-700 font-extrabold">القيمة الاجمالية</th>
-                  </tr>
-                  <tr className="border-b border-slate-200 bg-slate-50 text-[8px] xs:text-[9.5px] sm:text-[10px] text-gray-500">
-                    <th className="p-0.5 sm:p-1 border-l border-slate-200 text-center font-bold">فلس</th>
-                    <th className="p-0.5 sm:p-1 border-l border-slate-200 text-center font-bold">دينار</th>
-                    <th className="p-0.5 sm:p-1 border-l border-slate-200 text-center font-bold">فلس</th>
-                    <th className="p-0.5 text-center font-bold">دينار</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {viewingInvoice.items.map((item, idx) => {
-                    const priceDinar = Math.floor(item.price || 0);
-                    const priceFils = Math.round(((item.price || 0) - priceDinar) * 1000);
-                    
-                    const actualTotal = item.total || ((item.price || 0) * (item.quantity || 1));
-                    const totalDinar = Math.floor(actualTotal);
-                    const totalFils = Math.round((actualTotal - totalDinar) * 1000);
-
-                    return (
-                      <tr key={idx} className="border-b border-slate-200 h-9 text-gray-800">
-                        <td className="p-0.5 sm:p-1 text-center font-mono text-gray-400 border-l border-slate-200">{idx + 1}</td>
-                        <td 
-                          className="p-0.5 sm:p-1 border-l border-slate-200 text-right pr-1 sm:pr-3 font-extrabold text-[#111827] break-words"
-                          style={{
-                            wordBreak: 'break-all',
-                            wordWrap: 'break-word',
-                            whiteSpace: 'normal'
-                          }}
-                        >
-                          {item.name}
-                        </td>
-                        <td className="p-0.5 sm:p-1 border-l border-slate-200 text-center text-gray-500">{item.unit || 'متر'}</td>
-                        <td className="p-0.5 sm:p-1 border-l border-slate-200 text-center font-bold">{item.quantity}</td>
-                        <td className="p-0.5 sm:p-1 border-l border-slate-200 text-center font-bold">{priceFils.toString().padStart(3, '0')}</td>
-                        <td className="p-0.5 sm:p-1 border-l border-slate-200 text-center font-bold bg-slate-50/10">{(priceDinar).toLocaleString('en-US')}</td>
-                        <td className="p-0.5 sm:p-1 border-l border-slate-200 text-center font-bold">{totalFils.toString().padStart(3, '0')}</td>
-                        <td className="p-0.5 sm:p-1 text-center font-bold">{(totalDinar).toLocaleString('en-US')}</td>
-                      </tr>
-                    );
-                  })}
-                  {/* Filler rows */}
-                  {Array.from({ length: Math.max(0, 8 - viewingInvoice.items.length) }).map((_, i) => (
-                    <tr key={`empty-${i}`} className="border-b border-slate-100 h-9">
-                      <td className="border-l border-slate-100"></td>
-                      <td className="border-l border-slate-100"></td>
-                      <td className="border-l border-slate-100"></td>
-                      <td className="border-l border-slate-100"></td>
-                      <td className="border-l border-slate-100"></td>
-                      <td className="border-l border-slate-100"></td>
-                      <td className="border-l border-slate-100"></td>
-                      <td></td>
-                    </tr>
-                  ))}
-                </tbody>
-                <tfoot>
-                  {(() => {
-                    const grandDinar = Math.floor(viewingInvoice.totalAmount || 0);
-                    const grandFils = Math.round(((viewingInvoice.totalAmount || 0) - grandDinar) * 1000);
-                    return (
-                      <>
-                        <tr className="border-t-[1.5px] border-slate-400 h-9 font-extrabold text-gray-800">
-                          <td colSpan={4} className="border-l border-slate-200 text-left pl-2 sm:pl-4 font-bold text-[8px] xs:text-[10px] sm:text-xs" dir="ltr">Page : 1 / 1</td>
-                          <td colSpan={2} className="border-l border-slate-200 text-center font-bold">المجموع</td>
-                          <td className="p-0.5 sm:p-1 border-l border-slate-200 text-center font-bold">{grandFils.toString().padStart(3, '0')}</td>
-                          <td className="p-0.5 sm:p-1 text-center font-bold">{grandDinar.toLocaleString('en-US')}</td>
-                        </tr>
-                        <tr className="border-t border-slate-200 h-9 font-extrabold text-gray-800">
-                          <td colSpan={4} className="border-l border-slate-200"></td>
-                          <td colSpan={2} className="border-l border-slate-200 text-center font-bold">الاجمالي</td>
-                          <td className="p-0.5 sm:p-1 border-l border-slate-200 text-center font-bold">{grandFils.toString().padStart(3, '0')}</td>
-                          <td className="p-0.5 sm:p-1 text-center font-bold">{grandDinar.toLocaleString('en-US')}</td>
-                        </tr>
-                        <tr className="border-t border-slate-200 h-9 font-extrabold text-gray-800">
-                          <td colSpan={4} className="border-l border-slate-200 text-center text-[9px] xs:text-[10.5px] sm:text-sm font-bold">{tafqeet(viewingInvoice.totalAmount)}</td>
-                          <td colSpan={2} className="border-l border-slate-200 text-center font-bold">الصافي</td>
-                          <td className="p-0.5 sm:p-1 border-l border-slate-200 text-center font-bold">{grandFils.toString().padStart(3, '0')}</td>
-                          <td className="p-0.5 sm:p-1 text-center font-bold">{grandDinar.toLocaleString('en-US')}</td>
-                        </tr>
-                      </>
-                    );
-                  })()}
-                </tfoot>
-              </table>
-
-              {/* Invoice notes info (if any) */}
-              {viewingInvoice.notes && (
-                <div className="mt-4 p-3 border border-slate-200 bg-slate-50 text-xs font-bold text-gray-600">
-                  ملاحظات: <span className="font-normal text-gray-700">{viewingInvoice.notes}</span>
-                </div>
-              )}
-
-
-
-               <div className="mt-10 pt-6 border-t border-slate-200 flex flex-wrap gap-2 justify-center sm:justify-end items-center bg-[#F4F6FA] p-4 sm:p-6 rounded-none print:hidden">
-                 <div className="flex flex-wrap gap-1.5 sm:gap-2 justify-center items-center">
+              <div className="mt-auto border-t border-slate-100 flex flex-wrap gap-2 justify-center sm:justify-end items-center bg-[#F4F6FA] p-4 sm:p-6 rounded-b-3xl print:hidden">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2 justify-center items-center">
                   {(role === "admin" || role === "supervisor" || role === "employee") && !viewingInvoice.deleted && !!customer && (
                     <button
                       onClick={() => {
@@ -2030,8 +1975,7 @@ const Ledger: React.FC<Props> = ({
                 </div>
               </div>
             </div>
-          </div>
-          )}
+
 
           {/* Hidden Print Template matching Excel EXACTLY */}
           <div className="print-wrapper">

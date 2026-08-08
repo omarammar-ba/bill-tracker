@@ -14,6 +14,7 @@ import Reports from './components/Reports';
 import { StaffManager } from './components/StaffManager';
 import { ChequesManager } from './components/ChequesManager';
 import { BackupRestore } from './components/BackupRestore';
+import { Settings } from './components/Settings';
 import { DiagnosticsCenter } from './components/DiagnosticsCenter';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ToastNotifications } from './components/ToastNotifications';
@@ -102,59 +103,12 @@ const AppContent: React.FC = () => {
     }
   }, [user, role]);
 
-  if (loading) {
+  if (loading && !user) {
     return (
-      <div className="min-h-screen bg-[#F4F6FA] flex flex-col md:flex-row font-['Tajawal']" dir="rtl">
-        {/* Mobile Header Skeleton */}
-        <div className="md:hidden relative z-20 mb-6 w-full">
-          <div className="absolute inset-x-0 top-0 h-[80px] bg-[#2A2A40] rounded-b-[32px] overflow-hidden shadow-sm"></div>
-          <div className="relative h-[80px] px-6 flex justify-between items-center">
-            <div className="w-10 h-10 bg-white/10 rounded-xl animate-pulse"></div>
-            <div className="w-24 h-6 bg-white/20 rounded-md animate-pulse"></div>
-          </div>
+      <div className="min-h-screen bg-[#F4F6FA] dark:bg-[#000000] flex items-center justify-center font-['Tajawal']" dir="rtl">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-3 border-[#3B5BDB] border-t-transparent rounded-full animate-spin"></div>
         </div>
-
-        {/* Desktop Sidebar Skeleton */}
-        <div className="hidden md:flex w-72 flex-col bg-[#1C1C2E] border-l border-white/5 relative z-20">
-          <div className="p-8">
-            <div className="w-32 h-8 bg-white/10 rounded-md animate-pulse mb-8"></div>
-            <div className="space-y-4">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="w-full h-12 bg-white/5 rounded-xl animate-pulse"></div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Main Content Skeleton */}
-        <main className="flex-1 overflow-x-hidden overflow-y-auto">
-          <div className="p-4 md:p-8 max-w-[1200px] mx-auto w-full pt-4 md:pt-8 min-h-screen">
-            <div className="flex flex-col gap-6">
-              {/* Dashboard Header Skeleton */}
-              <div>
-                <div className="w-48 h-8 bg-gray-200 rounded-md animate-pulse mb-2"></div>
-                <div className="w-64 h-4 bg-gray-200 rounded-md animate-pulse"></div>
-              </div>
-              
-              {/* Stat Cards Skeleton */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="bg-white rounded-[32px] p-8 shadow-sm border border-gray-100 animate-pulse h-48"></div>
-                <div className="bg-white rounded-[32px] p-8 shadow-sm border border-gray-100 animate-pulse h-48"></div>
-                <div className="bg-white rounded-[32px] p-8 shadow-sm border border-gray-100 animate-pulse h-48"></div>
-              </div>
-
-              {/* List Skeleton */}
-              <div className="bg-white rounded-[32px] p-6 shadow-sm border border-gray-100 mt-2">
-                <div className="w-32 h-6 bg-gray-200 rounded-md animate-pulse mb-6"></div>
-                <div className="space-y-4">
-                  {[...Array(4)].map((_, i) => (
-                    <div key={i} className="h-20 bg-gray-50 rounded-2xl animate-pulse"></div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </main>
       </div>
     );
   }
@@ -202,6 +156,8 @@ const AppContent: React.FC = () => {
         return <BackupRestore />;
       case 'STAFF':
         return <StaffManager />;
+      case 'SETTINGS':
+        return <Settings />;
       default:
         return <Dashboard customers={visibleCustomers} transactions={visibleTransactions} changeView={changeView} />;
     }

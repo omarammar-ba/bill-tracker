@@ -1,10 +1,8 @@
-
-
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" class="bg-[#F4F6FA] dark:bg-[#000000]">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta name="theme-color" content="#1E2235" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -14,8 +12,20 @@
     <link rel="manifest" href="/manifest.json" />
     <link rel="apple-touch-icon" href="/icon-192x192.png" />
     <title>معرض اليرموك للسيراميك</title>
+    <script>
+      (function() {
+        try {
+          var theme = localStorage.getItem('theme') || 'light';
+          if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
-  <body>
+  <body class="bg-[#F4F6FA] dark:bg-[#000000] text-gray-900 dark:text-gray-100">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

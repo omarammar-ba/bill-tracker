@@ -34,6 +34,7 @@
     "noEmit": true
   },
   "include": [
+    "vite-env.d.ts",
     "App.tsx",
     "index.tsx",
     "types.ts",

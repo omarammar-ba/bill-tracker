@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { Customer, Transaction, ViewState } from '../types';
-import { Users, Receipt, Banknote, TrendingUp, ArrowUpRight, ArrowDownRight, Clock, Eye, EyeOff, Trash2, AlertCircle, ChevronLeft, Plus, X, FilePlus } from 'lucide-react';
+import { Users, Receipt, Banknote, Wallet, ArrowUpRight, ArrowDownRight, Clock, Eye, EyeOff, Trash2, AlertCircle, ChevronLeft, Plus, X, FilePlus } from 'lucide-react';
 import { useAuth } from './AuthContext';
 import { getDocs, collection } from 'firebase/firestore';
 import { db } from '../services/firebase';
@@ -91,9 +91,9 @@ const SwipeableTransactionItem: React.FC<{
         animate={{ x: isSwipedLeft ? -96 : (isSwipedRight ? 96 : 0) }}
         transition={{ type: "spring", stiffness: 350, damping: 28 }}
         style={{ touchAction: 'none' }} // Crucial for responsive mobile scrolling while dragging
-        className={`z-10 relative flex flex-col p-3 bg-gray-50/50 hover:bg-white rounded-2xl border border-gray-100 hover:border-[#3B5BDB]/30 transition-shadow duration-150 cursor-pointer ${
-          activeTxId === t.id ? 'bg-white border-[#3B5BDB]/30 shadow-sm ring-1 ring-[#3B5BDB]/10' : ''
-        } ${isDeleted ? 'bg-red-50/30 border-red-100/50 hover:border-red-200' : ''}`}
+        className={`z-10 relative flex flex-col p-3 bg-gray-50/50 dark:bg-[#1A1A1A]/80 hover:bg-white dark:hover:bg-[#222222] rounded-2xl border border-gray-100 dark:border-[#262626] hover:border-[#3B5BDB]/30 transition-shadow duration-150 cursor-pointer ${
+          activeTxId === t.id ? 'bg-white dark:bg-[#222222] border-[#3B5BDB]/30 shadow-sm ring-1 ring-[#3B5BDB]/10' : ''
+        } ${isDeleted ? 'bg-red-50/30 dark:bg-red-950/20 border-red-100/50 dark:border-red-900/30 hover:border-red-200' : ''}`}
         onClick={() => {
           if (isSwipedLeft || isSwipedRight) {
             setIsSwipedLeft(false);
@@ -106,35 +106,35 @@ const SwipeableTransactionItem: React.FC<{
         {/* Top Row: Icon + Type & ID badge (Right) AND Amount (Left) */}
         <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-2 min-w-0 pr-1">
-                <div className={`p-2 rounded-xl shrink-0 transition-transform duration-300 ${t.type === 'invoice' ? 'bg-[#EEF2FF] text-[#3B5BDB]' : 'bg-[#EBFBEE] text-[#2F9E44]'} ${isDeleted ? 'bg-red-100 text-red-500' : ''}`}>
-                    {isDeleted ? <Trash2 size={16} /> : (t.type === 'invoice' ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />)}
+                <div className={`shrink-0 p-1 transition-transform duration-300 ${t.type === 'invoice' ? 'text-[#3B5BDB] dark:text-[#7A98FF]' : 'text-[#2F9E44] dark:text-[#51CF66]'} ${isDeleted ? 'text-red-500 dark:text-red-400' : ''}`}>
+                    {isDeleted ? <Trash2 size={18} /> : (t.type === 'invoice' ? <ArrowUpRight size={18} /> : <ArrowDownRight size={18} />)}
                 </div>
                 <div className="min-w-0 flex flex-col justify-center">
-                     <p className={`font-extrabold text-[13px] md:text-[14px] truncate flex items-center gap-1.5 ${isDeleted ? 'text-red-600 line-through' : 'text-[#1C1C2E]'}`}>
+                     <p className={`font-extrabold text-[13px] md:text-[14px] truncate flex items-center gap-1.5 ${isDeleted ? 'text-red-600 dark:text-red-400 line-through' : 'text-[#1C1C2E] dark:text-white'}`}>
                          {t.type === 'invoice' ? 'فاتورة مبيعات' : 'سند قبض مالي'} 
-                         {isDeleted && <span className="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-black no-underline font-sans">محذوفة</span>}
+                         {isDeleted && <span className="text-[10px] bg-red-100 dark:bg-red-950/80 text-red-600 dark:text-red-400 px-1.5 py-0.5 rounded font-black no-underline font-sans">محذوفة</span>}
                      </p>
-                     <p className="text-[12px] font-bold text-gray-500 truncate mt-0.5">
-                        العميل: <span className={isMissingCustomer ? 'text-red-400 border-b border-red-200 border-dashed' : 'text-[#3B5BDB]'}>{displayCustomerName}</span>
+                     <p className="text-[12px] font-bold text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                        العميل: <span className={isMissingCustomer ? 'text-red-400 border-b border-red-200 border-dashed' : 'text-[#3B5BDB] dark:text-[#7A98FF]'}>{displayCustomerName}</span>
                      </p>
                 </div>
             </div>
 
             <div className="shrink-0 pl-1">
-                <p className={`text-[13px] md:text-[14px] font-black ${isDeleted ? 'text-red-400 line-through' : (t.type === 'invoice' ? 'text-[#1C1C2E]' : 'text-[#2F9E44]')}`}>
+                <p className={`text-[13px] md:text-[14px] font-black ${isDeleted ? 'text-red-400 line-through' : (t.type === 'invoice' ? 'text-[#1C1C2E] dark:text-white' : 'text-[#2F9E44] dark:text-[#51CF66]')}`}>
                     {((t as any).amount || (t as any).totalAmount || 0).toLocaleString()} <span className="text-[10px] opacity-70">د.أ</span>
                 </p>
             </div>
         </div>
 
         {/* Divider & Bottom Row: Info on Right, Actions on Left */}
-        <div className="flex items-center justify-between border-t border-gray-100/50 pt-2 mt-2 w-full">
+        <div className="flex items-center justify-between border-t border-gray-100/50 dark:border-[#262626] pt-2 mt-2 w-full">
             {/* Date & Actor Info */}
             <div className="flex flex-col gap-0.5 min-w-0">
-                <div className="flex items-center gap-1.5 flex-wrap text-[10px] md:text-[11px] font-bold text-gray-400" dir="rtl">
+                <div className="flex items-center gap-1.5 flex-wrap text-[10px] md:text-[11px] font-bold text-gray-400 dark:text-gray-500" dir="rtl">
                      <span dir="ltr">{dateObj.toLocaleDateString('ar-EG')} {dateObj.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}</span>
-                     <span className="text-gray-300">|</span>
-                     <span>{isDeleted ? 'حذف بواسطة:' : 'بواسطة:'} <strong className={`font-extrabold ${isDeleted ? 'text-red-500' : 'text-gray-600'}`}>{actorName}</strong></span>
+                     <span className="text-gray-300 dark:text-gray-600">|</span>
+                     <span>{isDeleted ? 'حذف بواسطة:' : 'بواسطة:'} <strong className={`font-extrabold ${isDeleted ? 'text-red-500' : 'text-gray-600 dark:text-gray-300'}`}>{actorName}</strong></span>
                 </div>
             </div>
 
@@ -153,7 +153,7 @@ const SwipeableTransactionItem: React.FC<{
                        e.stopPropagation(); 
                        changeView('LEDGER', t.customerId, t.id); 
                     }}
-                   className="p-2 bg-white text-emerald-600 border border-emerald-100 rounded-xl transition-all duration-100 hover:bg-emerald-600 hover:text-white cursor-pointer shadow-sm active:scale-95 touch-manipulation flex items-center justify-center shrink-0"
+                   className="p-2 bg-white dark:bg-[#121212] text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/40 rounded-xl transition-all duration-100 hover:bg-emerald-600 hover:text-white cursor-pointer shadow-sm active:scale-95 touch-manipulation flex items-center justify-center shrink-0"
                    title="معاينة وطباعة"
                 >
                     <Eye size={16} />
@@ -166,7 +166,7 @@ const SwipeableTransactionItem: React.FC<{
                        e.stopPropagation(); 
                        changeView('EDIT_TRANSACTION', t.customerId, t.id); 
                     }}
-                   className="p-2 bg-white text-[#3B5BDB] border border-[#C5D0FA] rounded-xl transition-all duration-100 hover:bg-[#3B5BDB] hover:text-white cursor-pointer shadow-sm active:scale-95 touch-manipulation flex items-center justify-center shrink-0"
+                   className="p-2 bg-white dark:bg-[#121212] text-[#3B5BDB] dark:text-[#7A98FF] border border-[#C5D0FA] dark:border-[#3B5BDB]/40 rounded-xl transition-all duration-100 hover:bg-[#3B5BDB] hover:text-white cursor-pointer shadow-sm active:scale-95 touch-manipulation flex items-center justify-center shrink-0"
                    title="تعديل"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="w-[16px] h-[16px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
@@ -272,21 +272,21 @@ const Dashboard: React.FC<DashboardProps> = ({ customers, transactions, changeVi
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-black text-[#1C1C2E]">لوحة التحكم</h1>
-          <p className="text-gray-400 font-bold text-sm mt-1">نظرة عامة على أداء المعرض والعمليات المالية اليومية</p>
+          <h1 className="text-3xl font-black text-[#1C1C2E] dark:text-white">لوحة التحكم</h1>
+          <p className="text-gray-500 dark:text-gray-400 font-bold text-sm mt-1">نظرة عامة على أداء المعرض والعمليات المالية اليومية</p>
         </div>
 
         <div className="hidden md:flex flex-wrap gap-3 items-center">
           <button 
             onClick={() => changeView('NEW_TRANSACTION')}
-            className="flex-1 md:flex-none px-5 py-3 bg-[#EEF2FF] hover:bg-[#3B5BDB] active:bg-[#3B5BDB] hover:text-white active:text-white text-[#3B5BDB] border border-[#C5D0FA] font-black text-sm rounded-xl transition-all active:scale-95 duration-100 shadow-sm active:shadow-md flex items-center justify-center gap-2 cursor-pointer touch-manipulation"
+            className="flex-1 md:flex-none px-5 py-3 bg-[#EEF2FF] dark:bg-[#1A1A1A] hover:bg-[#3B5BDB] dark:hover:bg-[#3B5BDB] text-[#3B5BDB] dark:text-[#7A98FF] hover:text-white dark:hover:text-white border border-[#C5D0FA] dark:border-[#262626] font-black text-sm rounded-xl transition-all active:scale-95 duration-100 shadow-sm flex items-center justify-center gap-2 cursor-pointer touch-manipulation"
           >
             <Receipt size={18} />
             إضافة فاتورة بيع
           </button>
           <button 
             onClick={() => changeView('PAYMENTS')}
-            className="flex-1 md:flex-none px-5 py-3 bg-[#EBFBEE] hover:bg-[#2F9E44] active:bg-[#2F9E44] hover:text-white active:text-white text-[#2F9E44] border border-[#B2F2BB] font-black text-sm rounded-xl transition-all active:scale-95 duration-100 shadow-sm active:shadow-md flex items-center justify-center gap-2 cursor-pointer touch-manipulation"
+            className="flex-1 md:flex-none px-5 py-3 bg-[#EBFBEE] dark:bg-[#1A1A1A] hover:bg-[#2F9E44] dark:hover:bg-[#2F9E44] text-[#2F9E44] dark:text-[#51CF66] hover:text-white dark:hover:text-white border border-[#B2F2BB] dark:border-[#262626] font-black text-sm rounded-xl transition-all active:scale-95 duration-100 shadow-sm flex items-center justify-center gap-2 cursor-pointer touch-manipulation"
           >
             <Banknote size={18} />
             إضافة سند قبض
@@ -296,18 +296,18 @@ const Dashboard: React.FC<DashboardProps> = ({ customers, transactions, changeVi
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <StatCard 
-          icon={<TrendingUp size={24} />} 
+          icon={<Wallet size={20} />} 
           label="إجمالي الذمم (الديون الدفترية)" 
           numericValue={stats.totalDebts}
           suffix="د.أ"
           value={`${stats.totalDebts.toLocaleString()} د.أ`} 
           sub="مجموع الذمم المطلوبة من الزبائن"
-          color="red"
+          color="pink"
           isHidden={isBalanceHidden}
           onToggleHide={() => setIsBalanceHidden(!isBalanceHidden)}
         />
         <StatCard 
-          icon={<Users size={24} />} 
+          icon={<Users size={20} />} 
           label="عدد الزبائن" 
           numericValue={stats.customerCount}
           value={`${stats.customerCount.toLocaleString()}`} 
@@ -316,9 +316,9 @@ const Dashboard: React.FC<DashboardProps> = ({ customers, transactions, changeVi
         />
       </div>
 
-      <div className="bg-white p-5 md:p-6 rounded-[24px] shadow-lg shadow-blue-900/5 border border-gray-100 flex flex-col w-full">
-        <div className="flex items-center justify-between mb-4 border-b border-gray-50 pb-3">
-            <h3 className="text-base font-black text-[#1C1C2E] flex items-center gap-2">
+      <div className="bg-white dark:bg-[#121212] p-5 md:p-6 rounded-[24px] shadow-lg shadow-blue-900/5 border border-gray-100 dark:border-[#262626] flex flex-col w-full">
+        <div className="flex items-center justify-between mb-4 border-b border-gray-50 dark:border-[#262626] pb-3">
+            <h3 className="text-base font-black text-[#1C1C2E] dark:text-white flex items-center gap-2">
                 <Clock size={18} className="text-[#3B5BDB]" /> آخر الحركات
             </h3>
         </div>
@@ -404,24 +404,25 @@ const Dashboard: React.FC<DashboardProps> = ({ customers, transactions, changeVi
 };
 
 const StatCard = ({ icon, label, value, numericValue, suffix, sub, color, isHidden, onToggleHide }: any) => {
-  const colors: any = {
-    blue: 'text-[#3B5BDB] bg-[#EEF2FF] shadow-[#3B5BDB]/5 border-[#C5D0FA]',
-    green: 'text-[#2F9E44] bg-[#EBFBEE] shadow-[#2F9E44]/5 border-[#B2F2BB]',
-    red: 'text-[#E03131] bg-[#FFF5F5] shadow-[#E03131]/5 border-[#FFC9C9]',
-    orange: 'text-[#E8590C] bg-[#FFF4E6] shadow-[#E8590C]/5 border-[#FFD8A8]',
-    indigo: 'text-indigo-600 bg-indigo-50 shadow-indigo-500/5 border-indigo-100'
+  const iconColors: any = {
+    blue: 'text-[#3B5BDB] dark:text-[#7A98FF]',
+    green: 'text-[#2F9E44] dark:text-[#51CF66]',
+    red: 'text-[#E03131] dark:text-[#FF6B6B]',
+    pink: 'text-[#E03131] dark:text-[#FF6B8B]',
+    orange: 'text-[#E8590C] dark:text-[#FF922B]',
+    indigo: 'text-indigo-600 dark:text-indigo-400'
   };
 
   return (
-    <div className={`p-6 bg-white rounded-[32px] border border-gray-100 shadow-xl shadow-blue-900/5 flex flex-col justify-between h-48 transition-all hover:-translate-y-1 hover:shadow-2xl`}>
+    <div className={`p-6 bg-white dark:bg-[#121212] rounded-[32px] border border-gray-100 dark:border-[#262626] shadow-xl shadow-blue-900/5 flex flex-col justify-between h-48 transition-all hover:-translate-y-1 hover:shadow-2xl`}>
       <div className="flex items-center justify-between">
-        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border-2 ${colors[color]}`}>
+        <div className={`w-12 h-12 rounded-[14px] flex items-center justify-center bg-gray-100/80 dark:bg-[#1C1C1E] border border-gray-200/40 dark:border-white/5 shadow-inner ${iconColors[color] || 'text-[#3B5BDB]'}`}>
           {icon}
         </div>
         {onToggleHide && (
           <button 
             onClick={onToggleHide} 
-            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-xl transition-all"
+            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#1A1A1A] rounded-xl transition-all"
             title={isHidden ? "إظهار الرصيد" : "إخفاء الرصيد"}
           >
             {isHidden ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -429,29 +430,29 @@ const StatCard = ({ icon, label, value, numericValue, suffix, sub, color, isHidd
         )}
       </div>
       <div className="mt-4">
-        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">{label}</p>
-        <div className="text-3xl font-black text-[#1C1C2E] tracking-tight h-[36px] flex items-center">
+        <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-1">{label}</p>
+        <div className="text-3xl font-black text-[#1C1C2E] dark:text-white tracking-tight h-[36px] flex items-center">
           {isHidden ? (
-            <span className="text-[#1C1C2E] font-black">***** د.أ</span>
+            <span className="text-[#1C1C2E] dark:text-white font-black">***** د.أ</span>
           ) : typeof numericValue === 'number' ? (
             <div className="flex items-center gap-1.5 justify-start w-full" dir="rtl">
               <span dir="ltr">
                 <Counter 
                   value={numericValue} 
                   fontSize={28} 
-                  textColor="#1C1C2E" 
+                  textColor="currentColor" 
                   fontWeight="900" 
                   minimumFractionDigits={suffix ? 3 : 0}
                   maximumFractionDigits={suffix ? 3 : 0}
                 />
               </span>
-              {suffix && <span className="text-lg font-black text-[#1C1C2E]">{suffix}</span>}
+              {suffix && <span className="text-lg font-black text-[#1C1C2E] dark:text-white">{suffix}</span>}
             </div>
           ) : (
             value
           )}
         </div>
-        <p className="text-xs font-bold text-gray-400 mt-2">{sub}</p>
+        <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mt-2">{sub}</p>
       </div>
     </div>
   );

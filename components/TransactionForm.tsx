@@ -549,28 +549,28 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
         )}
 
         {/* Type Selector & Customer Info */}
-        <div className="bg-white p-6 rounded-none border-2 border-gray-100 space-y-8 shadow-sm">
+        <div className="bg-white dark:bg-[#121212] p-6 rounded-3xl border border-gray-200 dark:border-[#262626] space-y-6 shadow-sm">
           <div className="flex flex-col md:flex-row justify-between items-start gap-4">
              <div>
-                <h2 className="text-2xl font-black text-[#1C1C2E]">
+                <h2 className="text-2xl font-black text-[#1C1C2E] dark:text-white">
                   {activeTransactionId ? 'تعديل ' : 'إنشاء '} 
                   {transType === 'invoice' ? 'فاتورة بيع' : 'سند قبض مالي'}
                 </h2>
-                <p className="text-gray-400 text-xs font-bold mt-1 uppercase tracking-widest">يرجى تعبئة كافة الحقول المطلوبة بدقة</p>
+                <p className="text-gray-400 dark:text-gray-500 text-xs font-bold mt-1 uppercase tracking-widest">يرجى تعبئة كافة الحقول المطلوبة بدقة</p>
              </div>
 
             {!activeTransactionId && (
-              <div className="flex gap-1 p-1 bg-gray-50 rounded-2xl border border-gray-200">
+              <div className="flex gap-1 p-1 bg-gray-50 dark:bg-[#1A1A1A] rounded-2xl border border-gray-200 dark:border-[#262626]">
                 <button 
                   onClick={() => setTransType('invoice')} 
-                  className={`px-6 py-3 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${transType === 'invoice' ? 'bg-[#3B5BDB] text-white shadow-lg shadow-[#3B5BDB]/20' : 'text-gray-400 hover:text-gray-600'}`}
+                  className={`px-6 py-3 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${transType === 'invoice' ? 'bg-[#3B5BDB] text-white shadow-lg shadow-[#3B5BDB]/20' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'}`}
                 >
                   <Receipt size={16} />
                   فاتورة
                 </button>
                 <button 
                   onClick={() => setTransType('payment')} 
-                  className={`px-6 py-3 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${transType === 'payment' ? 'bg-[#2F9E44] text-white shadow-lg shadow-[#2F9E44]/20' : 'text-gray-400 hover:text-gray-600'}`}
+                  className={`px-6 py-3 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${transType === 'payment' ? 'bg-[#2F9E44] text-white shadow-lg shadow-[#2F9E44]/20' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'}`}
                 >
                   <Banknote size={16} />
                   سند قبض
@@ -590,14 +590,14 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
                     <input 
                       type="text" 
                       placeholder="ابحث عن اسم..."
-                      className="w-full pr-12 pl-4 py-4 rounded-2xl border-2 border-gray-100 focus:border-[#3B5BDB] focus:bg-white bg-gray-50 outline-none font-bold text-base transition-all"
+                      className="w-full pr-12 pl-4 py-4 rounded-2xl border border-gray-200 dark:border-[#262626] focus:border-[#3B5BDB] focus:bg-white dark:focus:bg-[#1A1A1A] bg-gray-50 dark:bg-[#121212] text-gray-900 dark:text-white outline-none font-bold text-base transition-all"
                       onChange={(e) => setCustomerSearch(e.target.value)}
                     />
                   </div>
                   <div className="flex flex-col gap-2">
                     <button 
                       onClick={() => setShowNewCustomerForm(true)}
-                      className="w-full text-center px-4 py-4 bg-[#EBFBEE] text-[#2F9E44] border-2 border-[#B2F2BB] hover:bg-[#D3F9D8] rounded-xl font-bold transition-all active:scale-95 duration-100 text-sm flex items-center justify-center gap-2"
+                      className="w-full text-center px-4 py-4 bg-[#EBFBEE] dark:bg-[#2F9E44]/20 text-[#2F9E44] dark:text-[#51CF66] border border-[#B2F2BB] dark:border-[#2F9E44]/40 hover:bg-[#D3F9D8] dark:hover:bg-[#2F9E44]/30 rounded-2xl font-bold transition-all active:scale-95 duration-100 text-sm flex items-center justify-center gap-2"
                     >
                       <UserPlus size={18} />
                       إضافة زبون أو محل جديد
@@ -607,7 +607,7 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
                         <button 
                           key={c.id} 
                           onClick={() => setSelectedCustomerId(c.id)}
-                          className="text-right px-4 py-4 bg-gray-50 hover:bg-[#EEF2FF] hover:text-[#3B5BDB] border-2 border-transparent hover:border-[#C5D0FA] rounded-xl font-bold transition-all active:scale-95 duration-100 text-sm flex items-center justify-between group"
+                          className="text-right px-4 py-4 bg-gray-50 dark:bg-[#1A1A1A] text-gray-900 dark:text-white hover:bg-[#EEF2FF] dark:hover:bg-[#242A42] hover:text-[#3B5BDB] dark:hover:text-[#7A98FF] border border-transparent hover:border-[#C5D0FA] dark:hover:border-[#3B5BDB]/50 rounded-2xl font-bold transition-all active:scale-95 duration-100 text-sm flex items-center justify-between group"
                         >
                           <span>{c.name}</span>
                         </button>
@@ -616,9 +616,9 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
                   </div>
                 </>
               ) : (
-                <div className="bg-[#EEF2FF] p-6 rounded-2xl border-2 border-[#C5D0FA] space-y-4">
+                <div className="bg-[#EEF2FF] dark:bg-[#1A2238] p-6 rounded-2xl border border-[#C5D0FA] dark:border-[#3B5BDB]/40 space-y-4">
                   <div className="flex justify-between items-center mb-2">
-                    <h3 className="font-black text-[#3B5BDB] flex items-center gap-2">
+                    <h3 className="font-black text-[#3B5BDB] dark:text-[#7A98FF] flex items-center gap-2">
                       <UserPlus size={18} /> إضافة جديد
                     </h3>
                     <button onClick={() => setShowNewCustomerForm(false)} className="text-gray-400 hover:text-red-500">
@@ -629,14 +629,14 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
                   <div className="flex gap-2">
                     <button 
                       onClick={() => setNewCustomer({...newCustomer, type: CustomerType.INDIVIDUAL})}
-                      className={`flex-1 py-3 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${newCustomer.type === CustomerType.INDIVIDUAL ? 'bg-white shadow-md text-[#3B5BDB] ring-1 ring-[#C5D0FA]' : 'bg-transparent text-gray-500 hover:text-gray-700'}`}
+                      className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${newCustomer.type === CustomerType.INDIVIDUAL ? 'bg-white dark:bg-[#121212] shadow-md text-[#3B5BDB] dark:text-[#7A98FF] ring-1 ring-[#C5D0FA]' : 'bg-transparent text-gray-500 dark:text-gray-400'}`}
                     >
                       <User size={16} />
                       زبون فردي
                     </button>
                     <button 
                       onClick={() => setNewCustomer({...newCustomer, type: CustomerType.SHOP})}
-                      className={`flex-1 py-3 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${newCustomer.type === CustomerType.SHOP ? 'bg-white shadow-md text-[#3B5BDB] ring-1 ring-[#C5D0FA]' : 'bg-transparent text-gray-500 hover:text-gray-700'}`}
+                      className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${newCustomer.type === CustomerType.SHOP ? 'bg-white dark:bg-[#121212] shadow-md text-[#3B5BDB] dark:text-[#7A98FF] ring-1 ring-[#C5D0FA]' : 'bg-transparent text-gray-500 dark:text-gray-400'}`}
                     >
                       <Store size={16} />
                       محل تجاري
@@ -650,7 +650,7 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
                       autoFocus
                       value={newCustomer.name}
                       onChange={(e) => setNewCustomer({...newCustomer, name: e.target.value})}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#3B5BDB] focus:bg-white bg-white outline-none font-bold text-sm transition-all"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 focus:border-[#3B5BDB] bg-white dark:bg-[#121212] text-gray-900 dark:text-white outline-none font-bold text-sm transition-all"
                     />
                   </div>
                   
@@ -665,18 +665,18 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
               )}
             </div>
           ) : (
-            <div className="flex items-center justify-between p-4 bg-[#EEF2FF] rounded-2xl border border-[#C5D0FA]">
+            <div className="flex items-center justify-between p-4 bg-[#EEF2FF] dark:bg-[#1A2238] rounded-2xl border border-[#C5D0FA] dark:border-[#2A365C]">
               <div className="flex items-center gap-4">
-                 <div className="w-12 h-12 rounded-xl bg-white border border-[#C5D0FA] flex items-center justify-center shadow-sm text-[#3B5BDB]">
+                 <div className="w-12 h-12 rounded-xl bg-white dark:bg-[#242A42] border border-[#C5D0FA] dark:border-[#3B5BDB]/40 flex items-center justify-center shadow-sm text-[#3B5BDB] dark:text-[#7A98FF]">
                     {selectedCustomer?.type === CustomerType.SHOP ? <Store size={22} /> : <User size={22} />}
                  </div>
                  <div>
-                    <p className="text-[10px] text-[#3B5BDB] font-black uppercase tracking-widest">الزبون المختار</p>
-                    <p className="text-lg font-black text-[#1C1C2E]">{selectedCustomer?.name}</p>
+                    <p className="text-[10px] text-[#3B5BDB] dark:text-[#7A98FF] font-black uppercase tracking-widest">الزبون المختار</p>
+                    <p className="text-lg font-black text-[#1C1C2E] dark:text-white">{selectedCustomer?.name}</p>
                  </div>
               </div>
               {!activeTransactionId && (
-                <button onClick={() => setSelectedCustomerId('')} className="bg-white/50 p-2 rounded-xl hover:bg-white text-red-400 transition-colors">
+                <button onClick={() => setSelectedCustomerId('')} className="bg-white/50 dark:bg-white/10 p-2 rounded-xl hover:bg-white dark:hover:bg-white/20 text-red-400 dark:text-red-300 transition-colors">
                   <X size={20} />
                 </button>
               )}
@@ -687,14 +687,14 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
         {selectedCustomerId && (
           transType === 'invoice' ? (
             <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gray-50/50 p-4 rounded-2xl border border-gray-100">
-                <h3 className="font-black text-[#1C1C2E] text-base">قائمة أصناف الفاتورة:</h3>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gray-50/50 dark:bg-[#121212] p-4 rounded-2xl border border-gray-100 dark:border-[#262626]">
+                <h3 className="font-black text-[#1C1C2E] dark:text-white text-base">قائمة أصناف الفاتورة:</h3>
                 <div className="flex items-center gap-2 self-stretch sm:self-auto justify-end">
                   {!hasApiKey && (
                     <button
                       type="button"
                       onClick={() => setShowApiKeySetting(!showApiKeySetting)}
-                      className="px-4 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 border bg-white border-gray-200 text-[#1C1C2E] hover:bg-gray-50 shadow-sm"
+                      className="px-4 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 border bg-white dark:bg-[#1A1A1A] border-gray-200 dark:border-[#262626] text-[#1C1C2E] dark:text-white hover:bg-gray-50 dark:hover:bg-[#222222] shadow-sm"
                       title="إعدادات مفتاح الذكاء الاصطناعي (Gemini API Key)"
                     >
                       <Key size={14} className="text-amber-500 animate-pulse" />
@@ -704,7 +704,7 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
                   <button
                     type="button"
                     onClick={listening ? () => stopAndProcess() : startVoiceInput}
-                    className={`px-5 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 border ${
+                    className={`px-5 py-2.5 rounded-2xl text-xs font-black transition-all flex items-center justify-center gap-2 border ${
                       listening 
                         ? 'bg-amber-500 text-white border-amber-600 animate-pulse shadow-lg shadow-amber-500/20 hover:bg-amber-600' 
                         : 'bg-[#3B5BDB] border-[#3B5BDB] text-white hover:bg-[#364FC7] shadow-md shadow-[#3B5BDB]/15'
@@ -717,16 +717,16 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
               </div>
 
               {showApiKeySetting && (
-                <div className="bg-amber-50/50 p-4 rounded-2xl border border-amber-100 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 transition-all" dir="rtl">
+                <div className="bg-amber-50/50 dark:bg-[#2A2215] p-4 rounded-2xl border border-amber-100 dark:border-amber-900/50 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 transition-all" dir="rtl">
                   <div className="flex-1 space-y-1">
-                    <label className="block text-xs font-black text-[#1C1C2E]">مفتاح API الخاص بـ Gemini (مخزن محلياً وآمن):</label>
-                    <p className="text-[10px] text-gray-500 font-bold">يتم تخزين المفتاح بأمان وسرية تامة داخل متصفحك الشخصي فقط لتشغيل ميزة الفاتورة الصوتية.</p>
+                    <label className="block text-xs font-black text-[#1C1C2E] dark:text-white">مفتاح API الخاص بـ Gemini (مخزن محلياً وآمن):</label>
+                    <p className="text-[10px] text-gray-500 dark:text-gray-400 font-bold">يتم تخزين المفتاح بأمان وسرية تامة داخل متصفحك الشخصي فقط لتشغيل ميزة الفاتورة الصوتية.</p>
                   </div>
                   <div className="flex items-center gap-2 min-w-[280px] md:min-w-[350px]">
                     <input
                       type="password"
                       placeholder="أدخل مفتاح AIzaSy..."
-                      className="w-full text-right p-2.5 border-2 border-[#1C1C2E] rounded-xl text-xs outline-none bg-white font-mono"
+                      className="w-full text-right p-2.5 border border-gray-300 dark:border-gray-700 rounded-xl text-xs outline-none bg-white dark:bg-[#121212] text-gray-900 dark:text-white font-mono"
                       value={apiKeyInput}
                       onChange={(e) => setApiKeyInput(e.target.value)}
                     />
@@ -745,64 +745,64 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
                   </div>
                 </div>
               )}
-              <div className="bg-white rounded-none border-2 border-[#1C1C2E] shadow-sm overflow-hidden mb-6">
+              <div className="bg-white dark:bg-[#121212] rounded-3xl border border-gray-200 dark:border-[#262626] shadow-sm overflow-hidden mb-6">
                 <table className="w-full text-center border-collapse">
                   <thead>
-                    <tr className="bg-[#EEF2FF] border-b-[3px] border-[#1C1C2E] text-[#1C1C2E]">
-                      <th className="p-2 md:p-3 border-l-[3px] border-[#1C1C2E] text-[10px] md:text-xs font-black w-[35%]">البيان</th>
-                      <th className="p-2 md:p-3 border-l-[3px] border-[#1C1C2E] text-[10px] md:text-xs font-black w-[15%]">الوحدة</th>
-                      <th className="p-2 md:p-3 border-l-[3px] border-[#1C1C2E] text-[10px] md:text-xs font-black w-[10%]">العدد</th>
-                      <th className="p-2 md:p-3 border-l-[3px] border-[#1C1C2E] text-[10px] md:text-xs font-black w-[20%]">الافرادي</th>
+                    <tr className="bg-[#EEF2FF] dark:bg-[#1A2238] border-b border-gray-200 dark:border-[#262626] text-[#1C1C2E] dark:text-white">
+                      <th className="p-2 md:p-3 border-l border-gray-200 dark:border-[#262626] text-[10px] md:text-xs font-black w-[35%]">البيان</th>
+                      <th className="p-2 md:p-3 border-l border-gray-200 dark:border-[#262626] text-[10px] md:text-xs font-black w-[15%]">الوحدة</th>
+                      <th className="p-2 md:p-3 border-l border-gray-200 dark:border-[#262626] text-[10px] md:text-xs font-black w-[10%]">العدد</th>
+                      <th className="p-2 md:p-3 border-l border-gray-200 dark:border-[#262626] text-[10px] md:text-xs font-black w-[20%]">الافرادي</th>
                       <th className="p-2 md:p-3 text-[10px] md:text-xs font-black w-[20%]">الاجمالي</th>
                     </tr>
                   </thead>
                   <tbody>
                     {items.map((item, idx) => (
-                      <tr key={item.id} className="border-b-[1.5px] border-[#1C1C2E]/20 hover:bg-gray-50 transition-colors group">
-                        <td className="p-0 border-l-[3px] border-[#1C1C2E] relative">
-                           <input type="text" className="w-full h-full min-h-[40px] md:min-h-[48px] p-2 md:p-3 text-right pr-2 md:pr-4 outline-none bg-transparent font-black text-xs md:text-sm text-[#1C1C2E]" value={item.name} onChange={(e) => { const newItems = [...items]; newItems[idx].name = e.target.value; setItems(newItems); }} />
-                           <button onClick={(e) => { e.stopPropagation(); e.preventDefault(); setItems(items.filter((_, i) => i !== idx)); }} className="absolute text-red-500 left-1 md:left-3 top-1/2 -translate-y-1/2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity bg-white p-1 rounded-md shadow-sm border border-red-100 z-10"><Trash2 size={14}/></button>
+                      <tr key={item.id} className="border-b border-gray-100 dark:border-[#262626] hover:bg-gray-50 dark:hover:bg-[#1A1A1A] transition-colors group">
+                        <td className="p-0 border-l border-gray-100 dark:border-[#262626] relative">
+                           <input type="text" className="w-full h-full min-h-[40px] md:min-h-[48px] p-2 md:p-3 text-right pr-2 md:pr-4 outline-none bg-transparent font-black text-xs md:text-sm text-[#1C1C2E] dark:text-white" value={item.name} onChange={(e) => { const newItems = [...items]; newItems[idx].name = e.target.value; setItems(newItems); }} />
+                           <button onClick={(e) => { e.stopPropagation(); e.preventDefault(); setItems(items.filter((_, i) => i !== idx)); }} className="absolute text-red-500 left-1 md:left-3 top-1/2 -translate-y-1/2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity bg-white dark:bg-[#262626] p-1 rounded-md shadow-sm border border-red-100 dark:border-red-900 z-10"><Trash2 size={14}/></button>
                         </td>
-                        <td className="p-0 border-l-[3px] border-[#1C1C2E]">
-                           <input type="text" className="w-full h-full min-h-[40px] md:min-h-[48px] p-2 md:p-3 text-center outline-none bg-transparent font-black text-xs md:text-sm text-[#1C1C2E]" value={item.unit || ''} onChange={(e) => { const newItems = [...items]; newItems[idx].unit = e.target.value; setItems(newItems); }} />
+                        <td className="p-0 border-l border-gray-100 dark:border-[#262626]">
+                           <input type="text" className="w-full h-full min-h-[40px] md:min-h-[48px] p-2 md:p-3 text-center outline-none bg-transparent font-black text-xs md:text-sm text-[#1C1C2E] dark:text-white" value={item.unit || ''} onChange={(e) => { const newItems = [...items]; newItems[idx].unit = e.target.value; setItems(newItems); }} />
                         </td>
-                        <td className="p-0 border-l-[3px] border-[#1C1C2E]">
-                           <input type="number" className="w-full h-full min-h-[40px] md:min-h-[48px] p-2 md:p-3 text-center outline-none bg-transparent font-black text-[#1C1C2E] text-xs md:text-sm" value={item.quantity === undefined ? '' : item.quantity} onChange={(e) => { const newItems = [...items]; const val = e.target.value; newItems[idx].quantity = val === '' ? ('' as any) : Number(val); newItems[idx].total = val === '' ? ('' as any) : newItems[idx].price * Number(val); setItems(newItems); }} />
+                        <td className="p-0 border-l border-gray-100 dark:border-[#262626]">
+                           <input type="number" className="w-full h-full min-h-[40px] md:min-h-[48px] p-2 md:p-3 text-center outline-none bg-transparent font-black text-[#1C1C2E] dark:text-white text-xs md:text-sm" value={item.quantity === undefined ? '' : item.quantity} onChange={(e) => { const newItems = [...items]; const val = e.target.value; newItems[idx].quantity = val === '' ? ('' as any) : Number(val); newItems[idx].total = val === '' ? ('' as any) : newItems[idx].price * Number(val); setItems(newItems); }} />
                         </td>
-                        <td className="p-0 border-l-[3px] border-[#1C1C2E]">
-                           <input type="number" step="0.001" className="w-full h-full min-h-[40px] md:min-h-[48px] p-2 md:p-3 text-center outline-none bg-transparent font-black text-[#1C1C2E] text-xs md:text-sm" value={item.price === undefined ? '' : item.price} onChange={(e) => { const newItems = [...items]; const val = e.target.value; newItems[idx].price = val === '' ? ('' as any) : Number(val); newItems[idx].total = val === '' ? ('' as any) : Number(val) * (Number(newItems[idx].quantity) || 1); setItems(newItems); }} />
+                        <td className="p-0 border-l border-gray-100 dark:border-[#262626]">
+                           <input type="number" step="0.001" className="w-full h-full min-h-[40px] md:min-h-[48px] p-2 md:p-3 text-center outline-none bg-transparent font-black text-[#1C1C2E] dark:text-white text-xs md:text-sm" value={item.price === undefined ? '' : item.price} onChange={(e) => { const newItems = [...items]; const val = e.target.value; newItems[idx].price = val === '' ? ('' as any) : Number(val); newItems[idx].total = val === '' ? ('' as any) : Number(val) * (Number(newItems[idx].quantity) || 1); setItems(newItems); }} />
                         </td>
                         <td className="p-0">
-                           <input type="number" step="0.001" className="w-full h-full min-h-[40px] md:min-h-[48px] p-2 md:p-3 text-center outline-none bg-transparent font-black text-[#1C1C2E] text-xs md:text-sm" value={item.total === undefined ? '' : item.total} onChange={(e) => { const newItems = [...items]; const val = e.target.value; newItems[idx].total = val === '' ? ('' as any) : Number(val); setItems(newItems); }} />
+                           <input type="number" step="0.001" className="w-full h-full min-h-[40px] md:min-h-[48px] p-2 md:p-3 text-center outline-none bg-transparent font-black text-[#1C1C2E] dark:text-white text-xs md:text-sm" value={item.total === undefined ? '' : item.total} onChange={(e) => { const newItems = [...items]; const val = e.target.value; newItems[idx].total = val === '' ? ('' as any) : Number(val); setItems(newItems); }} />
                         </td>
                       </tr>
                     ))}
-                    <tr className="bg-gray-50/50">
-                      <td className="p-0 border-l-[3px] border-[#1C1C2E]">
-                         <input list="saved-products-list" type="text" placeholder="البيان..." className="w-full p-2 md:p-3 text-right pr-2 md:pr-3 outline-none bg-transparent font-black text-xs md:text-sm text-[#1C1C2E]" value={currentItem.name || ''} onChange={(e) => setCurrentItem({...currentItem, name: e.target.value})} onKeyDown={(e) => { if(e.key === 'Enter') addItem(); }} />
+                    <tr className="bg-gray-50/50 dark:bg-[#1A1A1A]/50">
+                      <td className="p-0 border-l border-gray-100 dark:border-[#262626]">
+                         <input list="saved-products-list" type="text" placeholder="البيان..." className="w-full p-2 md:p-3 text-right pr-2 md:pr-3 outline-none bg-transparent font-black text-xs md:text-sm text-[#1C1C2E] dark:text-white" value={currentItem.name || ''} onChange={(e) => setCurrentItem({...currentItem, name: e.target.value})} onKeyDown={(e) => { if(e.key === 'Enter') addItem(); }} />
                          <datalist id="saved-products-list">
                             {savedProducts.map((p, i) => <option key={i} value={p} />)}
                          </datalist>
                       </td>
-                      <td className="p-0 border-l-[3px] border-[#1C1C2E]">
-                         <input list="saved-units-list" type="text" placeholder="الوحدة" className="w-full p-2 md:p-3 text-center outline-none bg-transparent font-black text-xs md:text-sm text-[#1C1C2E]" value={currentItem.unit || ''} onChange={(e) => setCurrentItem({...currentItem, unit: e.target.value})} onKeyDown={(e) => { if(e.key === 'Enter') addItem(); }} />
+                      <td className="p-0 border-l border-gray-100 dark:border-[#262626]">
+                         <input list="saved-units-list" type="text" placeholder="الوحدة" className="w-full p-2 md:p-3 text-center outline-none bg-transparent font-black text-xs md:text-sm text-[#1C1C2E] dark:text-white" value={currentItem.unit || ''} onChange={(e) => setCurrentItem({...currentItem, unit: e.target.value})} onKeyDown={(e) => { if(e.key === 'Enter') addItem(); }} />
                          <datalist id="saved-units-list">
                             {savedUnits.map((u, i) => <option key={i} value={u} />)}
                          </datalist>
                       </td>
-                      <td className="p-0 border-l-[3px] border-[#1C1C2E]">
-                        <input type="number" placeholder="العدد" className="w-full p-2 md:p-3 text-center outline-none bg-transparent font-black text-[#1C1C2E] text-xs md:text-sm" value={currentItem.quantity === undefined ? '' : currentItem.quantity} min={1} onChange={(e) => { const val = e.target.value; const qty = val === '' ? ('' as any) : Number(val); setCurrentItem({...currentItem, quantity: qty, total: val === '' ? ('' as any) : (currentItem.price || 0) * qty}); }} onKeyDown={(e) => { if(e.key === 'Enter') addItem(); }} />
+                      <td className="p-0 border-l border-gray-100 dark:border-[#262626]">
+                        <input type="number" placeholder="العدد" className="w-full p-2 md:p-3 text-center outline-none bg-transparent font-black text-[#1C1C2E] dark:text-white text-xs md:text-sm" value={currentItem.quantity === undefined ? '' : currentItem.quantity} min={1} onChange={(e) => { const val = e.target.value; const qty = val === '' ? ('' as any) : Number(val); setCurrentItem({...currentItem, quantity: qty, total: val === '' ? ('' as any) : (currentItem.price || 0) * qty}); }} onKeyDown={(e) => { if(e.key === 'Enter') addItem(); }} />
                       </td>
-                      <td className="p-0 border-l-[3px] border-[#1C1C2E]">
-                        <input type="number" step="0.001" placeholder="الافرادي" className="w-full p-2 md:p-3 text-center outline-none bg-transparent font-black text-[#3B5BDB] placeholder:text-[#3B5BDB]/40 text-xs md:text-sm" value={currentItem.price === undefined ? '' : currentItem.price} onChange={(e) => { const val = e.target.value; const price = val === '' ? ('' as any) : Number(val); setCurrentItem({...currentItem, price, total: val === '' ? ('' as any) : price * (Number(currentItem.quantity) || 1)}); }} onKeyDown={(e) => { if(e.key === 'Enter') addItem(); }} />
+                      <td className="p-0 border-l border-gray-100 dark:border-[#262626]">
+                        <input type="number" step="0.001" placeholder="الافرادي" className="w-full p-2 md:p-3 text-center outline-none bg-transparent font-black text-[#3B5BDB] dark:text-[#7A98FF] placeholder:text-[#3B5BDB]/40 text-xs md:text-sm" value={currentItem.price === undefined ? '' : currentItem.price} onChange={(e) => { const val = e.target.value; const price = val === '' ? ('' as any) : Number(val); setCurrentItem({...currentItem, price, total: val === '' ? ('' as any) : price * (Number(currentItem.quantity) || 1)}); }} onKeyDown={(e) => { if(e.key === 'Enter') addItem(); }} />
                       </td>
                       <td className="p-0">
-                         <input type="number" step="0.001" placeholder="الاجمالي" className="w-full p-2 md:p-3 text-center outline-none bg-transparent font-black text-[#1C1C2E] text-xs md:text-sm" value={currentItem.total === undefined ? '' : currentItem.total} onChange={(e) => { const val = e.target.value; setCurrentItem({...currentItem, total: val === '' ? ('' as any) : Number(val)}); }} onKeyDown={(e) => { if(e.key === 'Enter') addItem(); }} />
+                         <input type="number" step="0.001" placeholder="الاجمالي" className="w-full p-2 md:p-3 text-center outline-none bg-transparent font-black text-[#1C1C2E] dark:text-white text-xs md:text-sm" value={currentItem.total === undefined ? '' : currentItem.total} onChange={(e) => { const val = e.target.value; setCurrentItem({...currentItem, total: val === '' ? ('' as any) : Number(val)}); }} onKeyDown={(e) => { if(e.key === 'Enter') addItem(); }} />
                       </td>
                     </tr>
                     <tr>
-                      <td colSpan={5} className="p-0 border-t-[3px] border-[#1C1C2E]">
-                        <button onClick={(e) => { e.preventDefault(); addItem(); }} className="w-full py-3 bg-[#EEF2FF] hover:bg-[#3B5BDB] text-[#3B5BDB] hover:text-white transition-all active:scale-95 duration-100 flex items-center justify-center gap-2 font-black text-sm">
+                      <td colSpan={5} className="p-0 border-t border-gray-200 dark:border-[#262626]">
+                        <button onClick={(e) => { e.preventDefault(); addItem(); }} className="w-full py-3 bg-[#EEF2FF] dark:bg-[#242A42] hover:bg-[#3B5BDB] text-[#3B5BDB] dark:text-[#7A98FF] hover:text-white transition-all active:scale-95 duration-100 flex items-center justify-center gap-2 font-black text-sm">
                           <Plus size={18} />
                           <span>إضافة الصنف للفاتورة</span>
                         </button>
@@ -810,34 +810,34 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
                     </tr>
                   </tbody>
                   <tfoot>
-                    <tr className="border-t-[3px] border-[#1C1C2E] bg-gray-50">
-                       <td colSpan={3} className="p-3 md:p-4 text-left pl-4 md:pl-6 font-black text-[10px] md:text-xs text-[#1C1C2E] border-l-[3px] border-[#1C1C2E]">المجموع</td>
-                       <td className="p-3 md:p-4 font-black text-[#3B5BDB] text-sm md:text-xl">{totalInvoiceAmount.toLocaleString()}</td>
+                    <tr className="border-t border-gray-200 dark:border-[#262626] bg-gray-50 dark:bg-[#1A1A1A]">
+                       <td colSpan={3} className="p-3 md:p-4 text-left pl-4 md:pl-6 font-black text-[10px] md:text-xs text-[#1C1C2E] dark:text-white border-l border-gray-200 dark:border-[#262626]">المجموع</td>
+                       <td className="p-3 md:p-4 font-black text-[#3B5BDB] dark:text-[#7A98FF] text-sm md:text-xl">{totalInvoiceAmount.toLocaleString()}</td>
                     </tr>
                   </tfoot>
                 </table>
               </div>
 
               {/* Payment Info & Actions */}
-              <div className="bg-white p-6 md:p-8 rounded-[32px] border border-gray-100 flex flex-col md:flex-row items-center gap-6 md:gap-8 shadow-sm">
+              <div className="bg-white dark:bg-[#121212] p-6 md:p-8 rounded-[32px] border border-gray-100 dark:border-[#262626] flex flex-col md:flex-row items-center gap-6 md:gap-8 shadow-sm">
                 <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2">المبلغ المورد (الواصل)</label>
+                    <label className="block text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">المبلغ المورد (الواصل)</label>
                     <div className="relative">
                       <input 
                         type="number" 
                         placeholder="0.00"
-                        className="w-full p-4 text-xl rounded-xl border-2 border-gray-50 bg-gray-50 focus:bg-white focus:border-[#2F9E44] outline-none font-black text-[#2F9E44] transition-all"
+                        className="w-full p-4 text-xl rounded-xl border-2 border-gray-50 dark:border-[#262626] bg-gray-50 dark:bg-[#1A1A1A] focus:bg-white dark:focus:bg-[#121212] focus:border-[#2F9E44] outline-none font-black text-[#2F9E44] dark:text-[#51CF66] transition-all"
                         value={paidAmountOnInvoice || ''}
                         onChange={(e) => setPaidAmountOnInvoice(Number(e.target.value))}
                       />
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2F9E44]/50 font-bold text-sm">د.أ</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2F9E44]/50 dark:text-[#51CF66]/50 font-bold text-sm">د.أ</span>
                     </div>
                   </div>
                   <div>
-                    <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2">ملاحظات إضافية</label>
+                    <label className="block text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">ملاحظات إضافية</label>
                     <input 
-                      className="w-full p-4 rounded-xl border-2 border-gray-50 bg-gray-50 focus:bg-white focus:border-[#3B5BDB] outline-none font-bold text-sm transition-all"
+                      className="w-full p-4 rounded-xl border-2 border-gray-50 dark:border-[#262626] bg-gray-50 dark:bg-[#1A1A1A] text-gray-900 dark:text-white focus:bg-white dark:focus:bg-[#121212] focus:border-[#3B5BDB] outline-none font-bold text-sm transition-all"
                       placeholder="اكتب ملاحظاتك هنا..."
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
@@ -845,12 +845,12 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
                   </div>
                 </div>
                 
-                <div className="w-full md:w-auto shrink-0 space-y-4 md:border-r md:border-gray-100 md:pr-8 md:pl-2">
+                <div className="w-full md:w-auto shrink-0 space-y-4 md:border-r md:border-gray-100 dark:md:border-[#262626] md:pr-8 md:pl-2">
                    <div className="text-center md:text-right">
-                     <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">
+                     <p className="text-[10px] text-gray-400 dark:text-gray-500 font-black uppercase tracking-widest mb-1">
                        {paidAmountOnInvoice > totalInvoiceAmount ? 'رصيد دائن للزبون (دفع زيادة)' : 'المتبقي للحساب'}
                      </p>
-                     <p className={`text-3xl font-black ${paidAmountOnInvoice > totalInvoiceAmount ? 'text-[#2F9E44]' : 'text-[#1C1C2E]'}`}>
+                     <p className={`text-3xl font-black ${paidAmountOnInvoice > totalInvoiceAmount ? 'text-[#2F9E44] dark:text-[#51CF66]' : 'text-[#1C1C2E] dark:text-white'}`}>
                        {Math.abs(totalInvoiceAmount - paidAmountOnInvoice).toLocaleString()} <span className="text-sm">د.أ</span>
                      </p>
                    </div>
@@ -875,40 +875,40 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
               </div>
             </div>
           ) : (
-            <div className="bg-white p-10 rounded-3xl border-2 border-[#EBFBEE] text-center space-y-8 animate-in zoom-in duration-300">
-              <div className="bg-[#EBFBEE] w-20 h-20 rounded-3xl flex items-center justify-center mx-auto text-[#2F9E44] shadow-sm rotate-3">
+            <div className="bg-white dark:bg-[#121212] p-10 rounded-3xl border-2 border-[#EBFBEE] dark:border-[#262626] text-center space-y-8 animate-in zoom-in duration-300">
+              <div className="bg-[#EBFBEE] dark:bg-[#2F9E44]/20 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto text-[#2F9E44] dark:text-[#51CF66] shadow-sm rotate-3">
                 <Banknote size={40} />
               </div>
               <div className="space-y-2">
-                <h3 className="text-2xl font-black text-[#1C1C2E]">بيانات سند القبض</h3>
-                <p className="text-gray-400 text-sm font-bold uppercase tracking-widest">قم بتسجيل المبلغ المستلم من الزبون</p>
+                <h3 className="text-2xl font-black text-[#1C1C2E] dark:text-white">بيانات سند القبض</h3>
+                <p className="text-gray-400 dark:text-gray-500 text-sm font-bold uppercase tracking-widest">قم بتسجيل المبلغ المستلم من الزبون</p>
               </div>
               <div className="max-w-md mx-auto space-y-6">
                 <div className="relative group">
                   <input 
                     type="number" 
                     placeholder="0.00"
-                    className="w-full py-6 text-center text-4xl font-black text-[#2F9E44] bg-gray-50 rounded-2xl border-2 border-gray-100 focus:border-[#2F9E44] focus:bg-white outline-none shadow-sm transition-all"
+                    className="w-full py-6 text-center text-4xl font-black text-[#2F9E44] dark:text-[#51CF66] bg-gray-50 dark:bg-[#1A1A1A] rounded-2xl border-2 border-gray-100 dark:border-[#262626] focus:border-[#2F9E44] focus:bg-white dark:focus:bg-[#121212] outline-none shadow-sm transition-all"
                     value={paymentAmount || ''}
                     onChange={(e) => setPaymentAmount(Number(e.target.value))}
                     autoFocus
                   />
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2F9E44] font-black text-lg">د.أ</div>
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2F9E44] dark:text-[#51CF66] font-black text-lg">د.أ</div>
                 </div>
                 <input 
                   type="text" 
                   placeholder="بيان السند (مثلاً: دفعة من الحساب)"
-                  className="w-full p-4 rounded-xl border-2 border-gray-50 bg-gray-50 focus:bg-white outline-none font-bold text-center text-sm transition-all"
+                  className="w-full p-4 rounded-xl border-2 border-gray-50 dark:border-[#262626] bg-gray-50 dark:bg-[#1A1A1A] text-gray-900 dark:text-white focus:bg-white dark:focus:bg-[#121212] outline-none font-bold text-center text-sm transition-all"
                   value={paymentNotes}
                   onChange={(e) => setPaymentNotes(e.target.value)}
                 />
 
                 {/* طريقة الدفع */}
-                <div className="flex gap-2 p-1 bg-gray-50 rounded-2xl border border-gray-200">
+                <div className="flex gap-2 p-1 bg-gray-50 dark:bg-[#1A1A1A] rounded-2xl border border-gray-200 dark:border-[#262626]">
                   <button
                     type="button"
                     onClick={() => setPaymentMethod('cash')}
-                    className={`flex-1 py-3.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${paymentMethod === 'cash' ? 'bg-[#2F9E44] text-white shadow-md' : 'text-gray-400 hover:text-gray-600 bg-white'}`}
+                    className={`flex-1 py-3.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${paymentMethod === 'cash' ? 'bg-[#2F9E44] text-white shadow-md' : 'text-gray-400 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 bg-white dark:bg-[#262626]'}`}
                   >
                     <Banknote size={18} />
                     <span>قبض نقدي</span>
@@ -916,7 +916,7 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
                   <button
                     type="button"
                     onClick={() => setPaymentMethod('cheque')}
-                    className={`flex-1 py-3.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${paymentMethod === 'cheque' ? 'bg-[#3B5BDB] text-white shadow-md' : 'text-gray-400 hover:text-gray-600 bg-white'}`}
+                    className={`flex-1 py-3.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${paymentMethod === 'cheque' ? 'bg-[#3B5BDB] text-white shadow-md' : 'text-gray-400 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 bg-white dark:bg-[#262626]'}`}
                   >
                     <Landmark size={18} />
                     <span>شيك بنكي</span>
@@ -924,25 +924,25 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
                 </div>
 
                 {paymentMethod === 'cheque' && (
-                  <div className="p-5 bg-blue-50/50 border border-blue-100 rounded-2xl text-right space-y-4 animate-in slide-in-from-top-2 duration-300">
-                    <p className="text-xs font-black text-[#3B5BDB] mb-1">تفاصيل الشيك البنكي:</p>
+                  <div className="p-5 bg-blue-50/50 dark:bg-[#1A1A1A] border border-blue-100 dark:border-[#262626] rounded-2xl text-right space-y-4 animate-in slide-in-from-top-2 duration-300">
+                    <p className="text-xs font-black text-[#3B5BDB] dark:text-[#7A98FF] mb-1">تفاصيل الشيك البنكي:</p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-[10px] font-black text-gray-400 mb-1">رقم الشيك</label>
+                        <label className="block text-[10px] font-black text-gray-400 dark:text-gray-500 mb-1">رقم الشيك</label>
                         <input 
                           type="text" 
                           placeholder="أدخل رقم الشيك"
-                          className="w-full p-3 rounded-xl border border-gray-200 focus:border-[#3B5BDB] focus:bg-white bg-white outline-none font-bold text-sm transition-all text-center"
+                          className="w-full p-3 rounded-xl border border-gray-200 dark:border-[#262626] focus:border-[#3B5BDB] focus:bg-white dark:focus:bg-[#121212] bg-white dark:bg-[#121212] text-gray-900 dark:text-white outline-none font-bold text-sm transition-all text-center"
                           value={chequeNumber}
                           onChange={(e) => setChequeNumber(e.target.value)}
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-black text-gray-400 mb-1">البنك المسحوب عليه</label>
+                        <label className="block text-[10px] font-black text-gray-400 dark:text-gray-500 mb-1">البنك المسحوب عليه</label>
                         <input 
                           type="text" 
                           placeholder="اسم البنك"
-                          className="w-full p-3 rounded-xl border border-gray-200 focus:border-[#3B5BDB] focus:bg-white bg-white outline-none font-bold text-sm transition-all text-center"
+                          className="w-full p-3 rounded-xl border border-gray-200 dark:border-[#262626] focus:border-[#3B5BDB] focus:bg-white dark:focus:bg-[#121212] bg-white dark:bg-[#121212] text-gray-900 dark:text-white outline-none font-bold text-sm transition-all text-center"
                           value={bankName}
                           onChange={(e) => setBankName(e.target.value)}
                         />
@@ -950,18 +950,18 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-[10px] font-black text-gray-400 mb-1">تاريخ الاستحقاق</label>
+                        <label className="block text-[10px] font-black text-gray-400 dark:text-gray-500 mb-1">تاريخ الاستحقاق</label>
                         <input 
                           type="date" 
-                          className="w-full p-3 rounded-xl border border-gray-200 focus:border-[#3B5BDB] focus:bg-white bg-white outline-none font-bold text-sm transition-all text-center"
+                          className="w-full p-3 rounded-xl border border-gray-200 dark:border-[#262626] focus:border-[#3B5BDB] focus:bg-white dark:focus:bg-[#121212] bg-white dark:bg-[#121212] text-gray-900 dark:text-white outline-none font-bold text-sm transition-all text-center"
                           value={dueDate}
                           onChange={(e) => setDueDate(e.target.value)}
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-black text-gray-400 mb-1">حالة الشيك</label>
+                        <label className="block text-[10px] font-black text-gray-400 dark:text-gray-500 mb-1">حالة الشيك</label>
                         <select 
-                          className="w-full p-3 rounded-xl border border-gray-200 focus:border-[#3B5BDB] focus:bg-white bg-white outline-none font-bold text-sm transition-all text-center"
+                          className="w-full p-3 rounded-xl border border-gray-200 dark:border-[#262626] focus:border-[#3B5BDB] focus:bg-white dark:focus:bg-[#121212] bg-white dark:bg-[#121212] text-gray-900 dark:text-white outline-none font-bold text-sm transition-all text-center"
                           value={chequeStatus}
                           onChange={(e) => setChequeStatus(e.target.value as any)}
                         >
