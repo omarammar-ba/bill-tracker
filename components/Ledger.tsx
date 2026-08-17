@@ -457,9 +457,14 @@ const Ledger: React.FC<Props> = ({
             <td colspan="2" style="border: 1px solid #111111; font-weight: bold; text-align: left; font-size: 11pt; padding-left: 10px; background-color: #ffffff; height: 35px;">${invoice.totalAmount.toFixed(3)}</td>
           </tr>
           <tr style="height: 35px;">
-            <td colspan="5" style="border-top: none; border-bottom: 1px solid #111111; border-left: none; border-right: 1px solid #111111; text-align: right; font-weight: bold; padding-right: 10px; background-color: #ffffff; padding: 6px; direction: rtl; height: 35px;">${tafqeet(invoice.totalAmount)}</td>
-            <td style="border: 1px solid #111111; font-weight: bold; text-align: center; background-color: #ffffff; padding: 6px; height: 35px;">الصافي</td>
-            <td colspan="2" style="border: 1px solid #111111; font-weight: bold; text-align: left; font-size: 11pt; padding-left: 10px; background-color: #ffffff; height: 35px;">${invoice.totalAmount.toFixed(3)}</td>
+            <td colspan="5" style="border-top: none; border-bottom: 1px solid #111111; border-left: none; border-right: 1px solid #111111; background-color: #ffffff; height: 35px;"></td>
+            <td style="border: 1px solid #111111; font-weight: bold; text-align: center; background-color: #f2f2f2; padding: 6px; height: 35px;">المدفوع</td>
+            <td colspan="2" style="border: 1px solid #111111; font-weight: bold; text-align: left; font-size: 11pt; padding-left: 10px; background-color: #f2f2f2; height: 35px;">${(invoice.paidAmount || 0).toFixed(3)}</td>
+          </tr>
+          <tr style="height: 35px;">
+            <td colspan="5" style="border-top: none; border-bottom: 1px solid #111111; border-left: none; border-right: 1px solid #111111; text-align: right; font-weight: bold; padding-right: 10px; background-color: #ffffff; padding: 6px; direction: rtl; height: 35px; color: #064e3b;">${tafqeet(Math.max(0, invoice.totalAmount - (invoice.paidAmount || 0)))}</td>
+            <td style="border: 1px solid #111111; font-weight: bold; text-align: center; background-color: #e6f4ea; color: #064e3b; padding: 6px; height: 35px;">الحساب الحالي (عليكم)</td>
+            <td colspan="2" style="border: 1px solid #111111; font-weight: bold; text-align: left; font-size: 11pt; padding-left: 10px; background-color: #e6f4ea; color: #064e3b; height: 35px;">${Math.max(0, invoice.totalAmount - (invoice.paidAmount || 0)).toFixed(3)}</td>
           </tr>
           
           <!-- Spacing -->
@@ -525,7 +530,7 @@ const Ledger: React.FC<Props> = ({
             <td colspan="4" class="money" style="text-align: right; border: 1px solid #111111;"><strong>${payment.amount}</strong></td>
           </tr>
           <tr>
-            <th colspan="2" style="background-color: #f2f2f2; font-weight: bold; text-align: right; border: 1px solid #111111;">الصافي كتابة</th>
+            <th colspan="2" style="background-color: #f2f2f2; font-weight: bold; text-align: right; border: 1px solid #111111;">الإجمالي كتابة</th>
             <td colspan="4" style="text-align: right; border: 1px solid #111111;"><strong>${tafqeet(payment.amount)}</strong></td>
           </tr>
           <tr>
@@ -1822,7 +1827,7 @@ const Ledger: React.FC<Props> = ({
               <div id="invoice-print-area" className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 text-gray-900 print:overflow-visible print:h-auto print:block bg-white">
                 
                 {/* Items Table - Highly responsive font and padding to fit all viewport sizes completely */}
-                <div className="overflow-x-auto border border-slate-200 rounded-2xl bg-white">
+                <div className="border border-slate-200 rounded-2xl bg-white mb-2">
                   <table className="w-full text-center border-collapse text-[10px] xs:text-[11px] sm:text-xs font-bold text-gray-800 print-table" dir="rtl">
                     <thead>
                       <tr className="border-b border-slate-200 bg-slate-100/50">
@@ -1889,6 +1894,13 @@ const Ledger: React.FC<Props> = ({
                       {(() => {
                         const grandDinar = Math.floor(viewingInvoice.totalAmount || 0);
                         const grandFils = Math.round(((viewingInvoice.totalAmount || 0) - grandDinar) * 1000);
+                        const paidAmount = viewingInvoice.paidAmount || 0;
+                        const paidDinar = Math.floor(paidAmount);
+                        const paidFils = Math.round((paidAmount - paidDinar) * 1000);
+                        const remainingAmount = Math.max(0, (viewingInvoice.totalAmount || 0) - paidAmount);
+                        const remainingDinar = Math.floor(remainingAmount);
+                        const remainingFils = Math.round((remainingAmount - remainingDinar) * 1000);
+
                         return (
                           <>
                             <tr className="border-t-[1.5px] border-slate-300 h-11 font-extrabold text-gray-800 bg-slate-50/50">
@@ -1903,11 +1915,17 @@ const Ledger: React.FC<Props> = ({
                               <td className="p-1 border-l border-slate-200 text-center font-bold">{grandFils.toString().padStart(3, '0')}</td>
                               <td className="p-1 text-center font-bold">{(grandDinar).toLocaleString('en-US')}</td>
                             </tr>
-                            <tr className="border-t border-slate-200 h-11 font-extrabold text-gray-800 bg-indigo-50/10">
-                              <td colSpan={4} className="border-l border-slate-200 text-center text-[10px] xs:text-[11px] sm:text-xs font-black text-[#3B5BDB] bg-indigo-50/20 px-2">{tafqeet(viewingInvoice.totalAmount)}</td>
-                              <td colSpan={2} className="border-l border-slate-200 text-center font-black text-[#3B5BDB]">الصافي</td>
-                              <td className="p-1 border-l border-slate-200 text-center font-black text-[#3B5BDB]">{grandFils.toString().padStart(3, '0')}</td>
-                              <td className="p-1 text-center font-black text-[#3B5BDB]">{(grandDinar).toLocaleString('en-US')}</td>
+                            <tr className="border-t border-slate-200 h-11 font-extrabold text-gray-800 bg-slate-50">
+                              <td colSpan={4} className="border-l border-slate-200"></td>
+                              <td colSpan={2} className="border-l border-slate-200 text-center font-black">المدفوع</td>
+                              <td className="p-1 border-l border-slate-200 text-center font-bold bg-slate-50">{paidFils.toString().padStart(3, '0')}</td>
+                              <td className="p-1 text-center font-bold bg-slate-50">{(paidDinar).toLocaleString('en-US')}</td>
+                            </tr>
+                            <tr className="border-t border-slate-200 h-11 font-extrabold text-emerald-900 bg-emerald-50">
+                              <td colSpan={4} className="border-l border-slate-200 text-center text-[10px] xs:text-[11px] sm:text-xs font-black px-2">{tafqeet(remainingAmount)}</td>
+                              <td colSpan={2} className="border-l border-slate-200 text-center font-black text-emerald-900">الحساب الحالي (عليكم)</td>
+                              <td className="p-1 border-l border-slate-200 text-center font-black text-emerald-900">{remainingFils.toString().padStart(3, '0')}</td>
+                              <td className="p-1 text-center font-black text-emerald-900">{(remainingDinar).toLocaleString('en-US')}</td>
                             </tr>
                           </>
                         );
@@ -2086,9 +2104,14 @@ const Ledger: React.FC<Props> = ({
                   <td colSpan={2} style={{ border: '1px solid #111', fontWeight: 'bold', textAlign: 'left', fontSize: '11pt', paddingLeft: '10px' }}>{viewingInvoice.totalAmount.toFixed(3)}</td>
                 </tr>
                 <tr style={{ height: '35px' }}>
-                  <td colSpan={5} style={{ borderTop: 'none', borderBottom: '1px solid #111', borderLeft: 'none', borderRight: '1px solid #111', textAlign: 'right', fontWeight: 'bold', paddingRight: '10px', padding: '6px', direction: 'rtl' }}>{tafqeet(viewingInvoice.totalAmount)}</td>
-                  <td style={{ border: '1px solid #111', fontWeight: 'bold', textAlign: 'center', padding: '6px' }}>الصافي</td>
-                  <td colSpan={2} style={{ border: '1px solid #111', fontWeight: 'bold', textAlign: 'left', fontSize: '11pt', paddingLeft: '10px' }}>{viewingInvoice.totalAmount.toFixed(3)}</td>
+                  <td colSpan={5} style={{ borderTop: 'none', borderBottom: '1px solid #111', borderLeft: 'none', borderRight: '1px solid #111' }}></td>
+                  <td style={{ border: '1px solid #111', fontWeight: 'bold', textAlign: 'center', backgroundColor: '#f2f2f2', padding: '6px' }}>المدفوع</td>
+                  <td colSpan={2} style={{ border: '1px solid #111', fontWeight: 'bold', textAlign: 'left', fontSize: '11pt', paddingLeft: '10px', backgroundColor: '#f2f2f2' }}>{(viewingInvoice.paidAmount || 0).toFixed(3)}</td>
+                </tr>
+                <tr style={{ height: '35px' }}>
+                  <td colSpan={5} style={{ borderTop: 'none', borderBottom: '1px solid #111', borderLeft: 'none', borderRight: '1px solid #111', textAlign: 'right', fontWeight: 'bold', paddingRight: '10px', padding: '6px', direction: 'rtl', color: '#064e3b' }}>{tafqeet(Math.max(0, viewingInvoice.totalAmount - (viewingInvoice.paidAmount || 0)))}</td>
+                  <td style={{ border: '1px solid #111', fontWeight: 'bold', textAlign: 'center', backgroundColor: '#e6f4ea', color: '#064e3b', padding: '6px' }}>الحساب الحالي (عليكم)</td>
+                  <td colSpan={2} style={{ border: '1px solid #111', fontWeight: 'bold', textAlign: 'left', fontSize: '11pt', paddingLeft: '10px', backgroundColor: '#e6f4ea', color: '#064e3b' }}>{Math.max(0, viewingInvoice.totalAmount - (viewingInvoice.paidAmount || 0)).toFixed(3)}</td>
                 </tr>
               </tbody>
             </table>
@@ -2279,7 +2302,7 @@ const Ledger: React.FC<Props> = ({
                   <td colSpan={4} style={{ textAlign: 'right', border: '1px solid #111111', padding: '8px', fontWeight: 'bold' }}>{viewingPayment.amount}</td>
                 </tr>
                 <tr>
-                  <th colSpan={2} style={{ backgroundColor: '#f2f2f2', fontWeight: 'bold', textAlign: 'right', border: '1px solid #111111', padding: '8px' }}>الصافي كتابة</th>
+                  <th colSpan={2} style={{ backgroundColor: '#f2f2f2', fontWeight: 'bold', textAlign: 'right', border: '1px solid #111111', padding: '8px' }}>الإجمالي كتابة</th>
                   <td colSpan={4} style={{ textAlign: 'right', border: '1px solid #111111', padding: '8px', fontWeight: 'bold' }}>{tafqeet(viewingPayment.amount)}</td>
                 </tr>
                 <tr>
@@ -2442,36 +2465,49 @@ const Ledger: React.FC<Props> = ({
                 </tr>
               ))}
             </tbody>
-            <tfoot>
-              {(() => {
-                const grandDinar = Math.floor(viewingInvoice.totalAmount || 0);
-                const grandFils = Math.round(((viewingInvoice.totalAmount || 0) - grandDinar) * 1000);
-                return (
-                  <>
-                    <tr className="border-t border-slate-300 h-9 font-bold text-slate-800 bg-slate-50">
-                      <td colSpan={4} className="border-l border-slate-300 text-right pr-4 text-slate-500 font-normal">Page : 1 / 1</td>
-                      <td colSpan={2} className="border-l border-slate-300 text-center font-extrabold bg-slate-100">المجموع</td>
-                      <td className="p-1 border-l border-slate-300 text-center font-bold">{grandFils.toString().padStart(3, '0')}</td>
-                      <td className="p-1 text-center font-bold">{grandDinar}</td>
-                    </tr>
-                    <tr className="border-t border-slate-300 h-9 font-bold text-slate-800 bg-slate-50">
-                      <td colSpan={4} className="border-l border-slate-300"></td>
-                      <td colSpan={2} className="border-l border-slate-300 text-center font-extrabold bg-slate-100">الاجمالي</td>
-                      <td className="p-1 border-l border-slate-300 text-center font-bold">{grandFils.toString().padStart(3, '0')}</td>
-                      <td className="p-1 text-center font-bold">{grandDinar}</td>
-                    </tr>
-                    <tr className="border-t border-slate-300 h-10 font-bold text-slate-800 bg-emerald-50/50">
-                      <td colSpan={4} className="border-l border-slate-300 text-center text-xs font-extrabold text-indigo-900 bg-slate-50" style={{ direction: 'rtl' }}>
-                        {tafqeet(viewingInvoice.totalAmount)}
-                      </td>
-                      <td colSpan={2} className="border-l border-slate-300 text-center font-extrabold bg-emerald-100 text-emerald-900">الصافي المطلوب</td>
-                      <td className="p-1 border-l border-slate-300 text-center font-black text-emerald-950 bg-emerald-50">{grandFils.toString().padStart(3, '0')}</td>
-                      <td className="p-1 text-center font-black text-emerald-950 bg-emerald-50">{grandDinar}</td>
-                    </tr>
-                  </>
-                );
-              })()}
-            </tfoot>
+                    <tfoot>
+                      {(() => {
+                        const grandDinar = Math.floor(viewingInvoice.totalAmount || 0);
+                        const grandFils = Math.round(((viewingInvoice.totalAmount || 0) - grandDinar) * 1000);
+                        const paidAmount = viewingInvoice.paidAmount || 0;
+                        const paidDinar = Math.floor(paidAmount);
+                        const paidFils = Math.round((paidAmount - paidDinar) * 1000);
+                        const remainingAmount = Math.max(0, (viewingInvoice.totalAmount || 0) - paidAmount);
+                        const remainingDinar = Math.floor(remainingAmount);
+                        const remainingFils = Math.round((remainingAmount - remainingDinar) * 1000);
+
+                        return (
+                          <>
+                            <tr className="border-t border-slate-300 h-9 font-bold text-slate-800 bg-slate-50">
+                              <td colSpan={4} className="border-l border-slate-300 text-right pr-4 text-slate-500 font-normal">Page : 1 / 1</td>
+                              <td colSpan={2} className="border-l border-slate-300 text-center font-extrabold bg-slate-100">المجموع</td>
+                              <td className="p-1 border-l border-slate-300 text-center font-bold">{grandFils.toString().padStart(3, '0')}</td>
+                              <td className="p-1 text-center font-bold">{grandDinar}</td>
+                            </tr>
+                            <tr className="border-t border-slate-300 h-9 font-bold text-slate-800 bg-slate-50">
+                              <td colSpan={4} className="border-l border-slate-300"></td>
+                              <td colSpan={2} className="border-l border-slate-300 text-center font-extrabold bg-slate-100">الاجمالي</td>
+                              <td className="p-1 border-l border-slate-300 text-center font-bold">{grandFils.toString().padStart(3, '0')}</td>
+                              <td className="p-1 text-center font-bold">{grandDinar}</td>
+                            </tr>
+                            <tr className="border-t border-slate-300 h-9 font-bold text-slate-800 bg-slate-50">
+                              <td colSpan={4} className="border-l border-slate-300"></td>
+                              <td colSpan={2} className="border-l border-slate-300 text-center font-extrabold bg-slate-100">المدفوع</td>
+                              <td className="p-1 border-l border-slate-300 text-center font-bold bg-slate-50">{paidFils.toString().padStart(3, '0')}</td>
+                              <td className="p-1 text-center font-bold bg-slate-50">{paidDinar}</td>
+                            </tr>
+                            <tr className="border-t border-slate-300 h-10 font-bold text-emerald-900 bg-emerald-50">
+                              <td colSpan={4} className="border-l border-slate-300 text-center text-xs font-extrabold bg-emerald-50" style={{ direction: 'rtl' }}>
+                                {tafqeet(remainingAmount)}
+                              </td>
+                              <td colSpan={2} className="border-l border-slate-300 text-center font-extrabold bg-emerald-100 text-emerald-900">الحساب الحالي (عليكم)</td>
+                              <td className="p-1 border-l border-slate-300 text-center font-black text-emerald-950 bg-emerald-50">{remainingFils.toString().padStart(3, '0')}</td>
+                              <td className="p-1 text-center font-black text-emerald-950 bg-emerald-50">{remainingDinar}</td>
+                            </tr>
+                          </>
+                        );
+                      })()}
+                    </tfoot>
           </table>
 
           {/* Note footer copy */}
@@ -2549,7 +2585,7 @@ const Ledger: React.FC<Props> = ({
                   </td>
                 </tr>
                 <tr className="border-b border-slate-300">
-                  <td className="p-3 bg-slate-50 text-slate-500 border-l border-slate-300">الصافي كتابة:</td>
+                  <td className="p-3 bg-slate-50 text-slate-500 border-l border-slate-300">الإجمالي كتابة:</td>
                   <td className="p-3 text-slate-900 text-sm">{tafqeet(viewingPayment.amount)}</td>
                 </tr>
                 <tr className="border-b border-slate-300">
