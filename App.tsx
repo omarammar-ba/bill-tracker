@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { Customer, ViewState } from './types';
-import { subscribeToCustomers, subscribeToTransactions } from './services/db';
+import { subscribeToCustomers, subscribeToTransactions, fixLegacyPaymentsV2 } from './services/db';
 import { AuthProvider, useAuth } from './components/AuthContext';
 import Layout from './components/Layout';
 import Login from './components/Login';
@@ -53,21 +53,51 @@ const AppContent: React.FC = () => {
 
   const computedCustomers = React.useMemo(() => {
     return customers.map(c => {
-      const custInvoices = transactions.filter(t => t.type === 'invoice' && t.customerId === c.id && !t.deleted);
-      const custPayments = transactions.filter(t => t.type === 'payment' && t.customerId === c.id && !t.deleted);
+      const custInvoices = transactions.filter(t => t.type === 'invoice' && t.customerId === c.id && !t.deleted) as any[];
+      const custPayments = transactions.filter(t => t.type === 'payment' && t.customerId === c.id && !t.deleted && !t.invoiceId && t.createdBy !== 'system' && t.createdBy !== 'system_v2') as any[];
       
       const totalInvoiced = custInvoices.reduce((sum, inv) => sum + (inv.amount || inv.totalAmount || 0), 0);
-      const totalPaid = custPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
       
+      // Total payments = standalone receipt vouchers (سندات القبض) + cash paid directly on invoices (المدفوع مع الفاتورة)
+      const totalStandalonePayments = custPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
+      const totalInvoicePayments = custInvoices.reduce((sum, inv) => {
+        const invPaid = (typeof inv.paidAmount === 'number' && inv.paidAmount >= 0) 
+          ? inv.paidAmount 
+          : (inv.status === 'paid' ? (inv.amount || inv.totalAmount || 0) : 0);
+        return sum + invPaid;
+      }, 0);
+      
+      const totalPaid = totalStandalonePayments + totalInvoicePayments;
+      const netBalance = Number((totalInvoiced - totalPaid).toFixed(3));
+
+      // Calculate latest activity date for this customer (latest invoice, payment, or creation date)
+      let lastActivityAt = c.createdAt || 0;
+      custInvoices.forEach(inv => {
+        let t = inv.date;
+        if (typeof t === 'string') t = new Date(t).getTime();
+        else if (t?.seconds) t = t.seconds * 1000;
+        if (typeof t === 'number' && !isNaN(t) && t > lastActivityAt) lastActivityAt = t;
+      });
+      custPayments.forEach(p => {
+        let t = p.date;
+        if (typeof t === 'string') t = new Date(t).getTime();
+        else if (t?.seconds) t = t.seconds * 1000;
+        if (typeof t === 'number' && !isNaN(t) && t > lastActivityAt) lastActivityAt = t;
+      });
+
       return {
         ...c,
-        balance: totalInvoiced - totalPaid
+        balance: Math.abs(netBalance) < 0.001 ? 0 : netBalance,
+        lastActivityAt
       };
-    });
+    }).sort((a, b) => (b.lastActivityAt || b.createdAt || 0) - (a.lastActivityAt || a.createdAt || 0));
   }, [customers, transactions]);
 
   useEffect(() => {
     if (user) {
+      // Run automatic reconciliation to consolidate split payments and ensure all invoice payments exist
+      fixLegacyPaymentsV2().catch(console.error);
+
       if ((role === 'employee' && (view === 'REPORTS' || view === 'STAFF')) || (role === 'supervisor' && view === 'STAFF')) {
         setView('HOME');
       }

@@ -4,7 +4,7 @@ import { Customer, Invoice, Payment, CustomerType, PaymentStatus } from '../type
 import { isAppOffline, showWarning, showSuccess } from './notifications';
 
 // Detect if we are in temporary guest mode to bypass firebase errors
-const isLocalMode = () => localStorage.getItem('yarmouk_guest_session') === 'true';
+export const isLocalMode = () => localStorage.getItem('yarmouk_guest_session') === 'true';
 
 export interface PendingAction {
   id: string;
@@ -30,7 +30,7 @@ const enqueueOfflineAction = (action: PendingAction['action'], payload: any) => 
     localStorage.setItem('yarmouk_offline_pending_actions', JSON.stringify(queue));
     
     showWarning(
-      'تخزين محلي معلق 📲',
+      'تخزين محلي معلق',
       'انقطع الإنترنت فجأة! تم حفظ العملية على الذاكرة المحلية لجهازك وسنتولى مزامنتها مع خادم السحاب تلقائياً فور عودة التغطية.'
     );
   } catch (err) {
@@ -93,7 +93,7 @@ export const synchronizeOfflineQueue = async (): Promise<void> => {
   
   if (successCount > 0) {
     showSuccess(
-      'مزامنة سحابية مكتملة ☁️✅',
+      'مزامنة سحابية مكتملة',
       `تم استرداد الاتصال بالشبكة بنجاح ورفع عدد ( ${successCount} ) عملية معلقة كانت مخزنة سلفاً بهاتفك وحفظها بسحابة غوغل بنجاح تام!`
     );
   }
@@ -121,7 +121,7 @@ export const generateId = (): string => {
 };
 
 // Local storage storage utilities
-const getLocalData = (key: string, defaultVal: any = []) => {
+export const getLocalData = (key: string, defaultVal: any = []) => {
     try {
         const stored = localStorage.getItem(key);
         if (!stored) {
@@ -134,11 +134,11 @@ const getLocalData = (key: string, defaultVal: any = []) => {
     }
 };
 
-const saveLocalData = (key: string, data: any) => {
+export const saveLocalData = (key: string, data: any) => {
     localStorage.setItem(key, JSON.stringify(data));
 };
 
-const cleanObject = <T extends Record<string, any>>(obj: T): T => {
+export const cleanObject = <T extends Record<string, any>>(obj: T): T => {
     const cleaned = { ...obj } as any;
     Object.keys(cleaned).forEach(key => {
         if (cleaned[key] === undefined || cleaned[key] === null) {
@@ -151,7 +151,7 @@ const cleanObject = <T extends Record<string, any>>(obj: T): T => {
 };
 
 // Initial default customers for testing if empty
-const DEFAULT_CUSTOMERS: Customer[] = [
+export const DEFAULT_CUSTOMERS: Customer[] = [
   { id: 'c1', name: 'أحمد محمود (تجريبي)', phone: '0791234567', type: CustomerType.INDIVIDUAL, balance: 150, createdAt: Date.now() - 86400000 * 3 },
   { id: 'c2', name: 'شركة السلام للمقاولات (تجريبي)', phone: '0789876543', type: CustomerType.SHOP, balance: -350, createdAt: Date.now() - 86400000 * 10 },
   { id: 'c3', name: 'معرض النخبة للسيراميك (تجريبي)', phone: '0775556667', type: CustomerType.SHOP, balance: 0, createdAt: Date.now() - 86400000 * 5 }
@@ -179,7 +179,7 @@ let paymentsUnsubOfFirestore: (() => void) | null = null;
 let currentPaymentsCacheOnly: Payment[] = [];
 let paymentsUnsubTimeout: any = null;
 
-const notifyLocalCustomers = () => {
+export const notifyLocalCustomers = () => {
     const list = getLocalData('yarmouk_local_customers', DEFAULT_CUSTOMERS);
     localCustomerListeners.forEach(cb => cb(list));
 };
@@ -196,7 +196,7 @@ const safeSortTransactions = (arr: any[]) => {
     });
 };
 
-const notifyLocalTransactions = () => {
+export const notifyLocalTransactions = () => {
     const invoices = getLocalData('yarmouk_local_invoices', []);
     const payments = getLocalData('yarmouk_local_payments', []);
     
@@ -209,7 +209,7 @@ const notifyLocalTransactions = () => {
     localTransactionListeners.forEach(cb => cb(combined));
 };
 
-const notifyLocalPayments = () => {
+export const notifyLocalPayments = () => {
     const list = getLocalData('yarmouk_local_payments', []);
     localPaymentsListeners.forEach(cb => cb(list));
 };
@@ -308,10 +308,12 @@ export const subscribeToTransactions = (callback: (data: any[]) => void) => {
     }, (e) => handleFirestoreError(e, OperationType.LIST, 'invoices'));
 
     payUnsub = onSnapshot(payQuery, (snapshot) => {
-      currentPaymentsCache = snapshot.docs.map(d => {
-        const data = d.data();
-        return { ...data, id: d.id, type: 'payment', totalAmount: data.amount, amount: data.amount } as any;
-      });
+      currentPaymentsCache = snapshot.docs
+        .map(d => {
+          const data = d.data();
+          return { ...data, id: d.id, type: 'payment', totalAmount: data.amount, amount: data.amount } as any;
+        })
+        .filter(p => !p.deleted && !p.invoiceId && p.createdBy !== 'system' && p.createdBy !== 'system_v2');
       const combined = safeSortTransactions([...currentInvoicesCache, ...currentPaymentsCache]);
       transactionSubscribers.forEach(cb => cb(combined));
     }, (e) => handleFirestoreError(e, OperationType.LIST, 'payments'));
@@ -339,7 +341,8 @@ export const subscribeToTransactions = (callback: (data: any[]) => void) => {
 export const subscribeToPayments = (callback: (data: Payment[]) => void) => {
   if (isLocalMode()) {
     localPaymentsListeners.push(callback);
-    callback(getLocalData('yarmouk_local_payments', []));
+    const all = getLocalData('yarmouk_local_payments', []);
+    callback(all.filter((p: any) => !p.deleted && !p.invoiceId && p.createdBy !== 'system' && p.createdBy !== 'system_v2'));
     return () => {
       localPaymentsListeners = localPaymentsListeners.filter(cb => cb !== callback);
     };
@@ -361,7 +364,9 @@ export const subscribeToPayments = (callback: (data: Payment[]) => void) => {
   if (!paymentsUnsubOfFirestore) {
     const q = query(collection(db, 'payments'), orderBy('date', 'desc'));
     paymentsUnsubOfFirestore = onSnapshot(q, (snapshot) => {
-      const pays = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Payment));
+      const pays = snapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() } as Payment))
+        .filter(p => !p.deleted && !p.invoiceId && p.createdBy !== 'system' && p.createdBy !== 'system_v2');
       currentPaymentsCacheOnly = pays;
       paymentsSubscribers.forEach(cb => cb(pays));
     }, (error) => handleFirestoreError(error, OperationType.LIST, 'payments'));
@@ -721,7 +726,11 @@ export const getCustomerInvoices = async (customerId: string): Promise<Invoice[]
     try {
         const invQuery = query(collection(db, 'invoices'));
         const snap = await getDocs(invQuery);
-        return safeSortTransactions(snap.docs.map(d => d.data() as Invoice).filter(i => i.customerId === customerId && !i.deleted));
+        return safeSortTransactions(
+            snap.docs
+                .map(d => ({ ...d.data(), id: d.id } as Invoice))
+                .filter(i => i.customerId === customerId && !i.deleted)
+        );
     } catch(e) {
         handleFirestoreError(e, OperationType.LIST, 'invoices');
         return [];
@@ -731,15 +740,86 @@ export const getCustomerInvoices = async (customerId: string): Promise<Invoice[]
 export const getCustomerPayments = async (customerId: string): Promise<Payment[]> => {
     if (isLocalMode()) {
         const list = getLocalData('yarmouk_local_payments', []);
-        return safeSortTransactions(list.filter((p: any) => p.customerId === customerId && !p.deleted));
+        return safeSortTransactions(
+            list.filter((p: any) => 
+                p.customerId === customerId && 
+                !p.deleted && 
+                !p.invoiceId && 
+                p.createdBy !== 'system' && 
+                p.createdBy !== 'system_v2' &&
+                !(p.notes && (p.notes.includes('فاتورة') || p.notes.includes('دفعة نقدية مع الفاتورة') || p.notes.includes('دفعة عند إنشاء الفاتورة')))
+            )
+        );
     }
 
     try {
         const payQuery = query(collection(db, 'payments'));
         const snap = await getDocs(payQuery);
-        return safeSortTransactions(snap.docs.map(d => d.data() as Payment).filter(p => p.customerId === customerId && !p.deleted));
+        return safeSortTransactions(
+            snap.docs
+                .map(d => ({ ...d.data(), id: d.id } as Payment))
+                .filter(p => 
+                    p.customerId === customerId && 
+                    !p.deleted && 
+                    !p.invoiceId && 
+                    p.createdBy !== 'system' && 
+                    p.createdBy !== 'system_v2' &&
+                    !(p.notes && (p.notes.includes('فاتورة') || p.notes.includes('دفعة نقدية مع الفاتورة') || p.notes.includes('دفعة عند إنشاء الفاتورة')))
+                )
+        );
     } catch(e) {
         handleFirestoreError(e, OperationType.LIST, 'payments');
         return [];
     }
 };
+
+export const reconcileAllInvoicesAndPayments = async (): Promise<void> => {
+    // Only cleans up legacy automated system duplicates if any exist, never touches user payments
+    if (isLocalMode()) {
+        try {
+            const invoices: Invoice[] = getLocalData('yarmouk_local_invoices', []);
+            let payments: Payment[] = getLocalData('yarmouk_local_payments', []);
+            let hasChanges = false;
+
+            // Only clean automated system dummy payments
+            const initialPaymentCount = payments.length;
+            payments = payments.filter(p => {
+                const isAutoSystem = p.createdBy === 'system' || p.createdBy === 'system_v2';
+                return !isAutoSystem;
+            });
+
+            if (payments.length !== initialPaymentCount) {
+                hasChanges = true;
+            }
+
+            if (hasChanges) {
+                saveLocalData('yarmouk_local_invoices', invoices);
+                saveLocalData('yarmouk_local_payments', payments);
+                notifyLocalTransactions();
+                notifyLocalPayments();
+            }
+        } catch (e) {
+            console.error("Local reconciliation error", e);
+        }
+        return;
+    }
+
+    // 2. Handle Firestore Mode
+    try {
+        const paySnap = await getDocs(query(collection(db, 'payments')));
+        const payments = paySnap.docs.map(d => ({ ...d.data(), id: d.id } as Payment));
+        
+        // Clean only auto-system dummy payments if any legacy records remain
+        for (const p of payments) {
+            const isAutoSystem = p.createdBy === 'system' || p.createdBy === 'system_v2';
+            if (isAutoSystem) {
+                await deleteDoc(doc(db, 'payments', p.id));
+            }
+        }
+    } catch(e) {
+        console.error("Firestore reconciliation error", e);
+    }
+};
+
+export const fixLegacyPaymentsV2 = reconcileAllInvoicesAndPayments;
+

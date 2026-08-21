@@ -440,18 +440,6 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
       
       await saveInvoice(invoice);
       
-      if (paidAmountOnInvoice > 0 && !activeTransactionId) {
-        const payment: Payment = {
-          id: generateId(),
-          customerId: selectedCustomerId,
-          invoiceId: invoiceId,
-          date: Date.now(),
-          amount: paidAmountOnInvoice,
-          notes: 'دفعة عند إنشاء الفاتورة'
-        };
-        await savePayment(payment);
-      }
-      
       const customerObj = customers.find(c => c.id === selectedCustomerId);
       showSuccess(
         activeTransactionId ? 'تم تعديل الفاتورة' : 'إصدار فاتورة جديدة',

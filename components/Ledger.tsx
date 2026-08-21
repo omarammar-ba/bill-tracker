@@ -3,8 +3,9 @@ import { Customer, Invoice, Payment, ViewProps, PaymentStatus, Transaction } fro
 import {
   getCustomerInvoices,
   getCustomerPayments,
-  deleteInvoice,
-  deletePayment,
+  deleteInvoicePermanently,
+  deletePaymentPermanently,
+  reconcileAllInvoicesAndPayments,
 } from "../services/db";
 import {
   ArrowRight,
@@ -240,22 +241,35 @@ const Ledger: React.FC<Props> = ({
 
   const customer = customers.find((c) => c.id === activeCustomerId);
 
+  const standalonePayments = useMemo(() => {
+    return payments.filter(p => 
+      !p.deleted && 
+      !p.invoiceId && 
+      p.createdBy !== 'system' && 
+      p.createdBy !== 'system_v2' &&
+      !(p.notes && (p.notes.includes('فاتورة') || p.notes.includes('دفعة نقدية مع الفاتورة') || p.notes.includes('دفعة عند إنشاء الفاتورة')))
+    );
+  }, [payments]);
+
   const startBalance = useMemo(() => {
     if (!fromDate) return 0;
     const fromTime = new Date(fromDate + "T00:00:00").getTime();
     const prevInvoiceSum = invoices
       .filter((inv) => inv.date < fromTime && !inv.deleted)
       .reduce((sum, inv) => sum + inv.totalAmount, 0);
-    const prevPaymentSum = payments
+    const prevInvoicePaidSum = invoices
+      .filter((inv) => inv.date < fromTime && !inv.deleted)
+      .reduce((sum, inv) => sum + ((typeof inv.paidAmount === 'number' && inv.paidAmount >= 0) ? inv.paidAmount : (inv.status === 'paid' ? inv.totalAmount : 0)), 0);
+    const prevPaymentSum = standalonePayments
       .filter((pay) => pay.date < fromTime && !pay.deleted)
       .reduce((sum, pay) => sum + pay.amount, 0);
-    return prevInvoiceSum - prevPaymentSum;
-  }, [invoices, payments, fromDate]);
+    return prevInvoiceSum - (prevInvoicePaidSum + prevPaymentSum);
+  }, [invoices, standalonePayments, fromDate]);
 
   const statementRows = useMemo(() => {
     const combined = [
-      ...invoices.map((inv) => ({ ...inv, type: "invoice" as const })),
-      ...payments.map((pay) => ({ ...pay, type: "payment" as const })),
+      ...invoices.filter(i => !i.deleted).map((inv) => ({ ...inv, type: "invoice" as const })),
+      ...standalonePayments.map((pay) => ({ ...pay, type: "payment" as const })),
     ].sort((a, b) => {
       let da: any = a.date;
       let dbDate: any = b.date;
@@ -280,20 +294,26 @@ const Ledger: React.FC<Props> = ({
 
       return dateInRange && matchesStatus;
     });
-  }, [invoices, payments, fromDate, toDate, statusFilter]);
+  }, [invoices, standalonePayments, fromDate, toDate, statusFilter]);
 
   const totals = useMemo(() => {
     const totalInvoices = invoices.reduce(
       (acc, inv) => acc + (inv.deleted ? 0 : inv.totalAmount),
       0,
     );
-    const totalPayments = payments.reduce((acc, pay) => acc + (pay.deleted ? 0 : pay.amount), 0);
+    const totalStandalonePayments = standalonePayments.reduce((acc, pay) => acc + (pay.deleted ? 0 : pay.amount), 0);
+    const totalInvoicePayments = invoices.reduce((acc, inv) => {
+      if (inv.deleted) return acc;
+      return acc + ((typeof inv.paidAmount === 'number' && inv.paidAmount >= 0) ? inv.paidAmount : (inv.status === 'paid' ? inv.totalAmount : 0));
+    }, 0);
+    const totalPayments = totalStandalonePayments + totalInvoicePayments;
+    const balance = totalInvoices - totalPayments;
     return {
       totalInvoices,
       totalPayments,
-      balance: totalInvoices - totalPayments,
+      balance: Math.abs(balance) < 0.001 ? 0 : balance,
     };
-  }, [invoices, payments]);
+  }, [invoices, standalonePayments]);
 
   const handleExportInvoiceExcel = (invoice: Invoice & { type: "invoice" }) => {
     const splitAmount = (val: number) => {
@@ -913,8 +933,9 @@ const Ledger: React.FC<Props> = ({
 
   const handleDeleteTransaction = (row: any) => {
     const isInvoice = row.type === "invoice";
+    const docId = row.id || '';
     const confirmMessage = isInvoice
-      ? `هل أنت متأكد من حذف هذه الفاتورة رقم #${row.id.substring(0, 8)} نهائياً؟ سيتم تلقائياً تحديث رصيد الحساب والمديونية.`
+      ? `هل أنت متأكد من حذف هذه الفاتورة رقم #${docId.substring(0, 8)} نهائياً؟ سيتم تلقائياً تحديث رصيد الحساب والمديونية.`
       : `هل أنت متأكد من حذف سند القبض هذا بمبلغ ${(row.amount || 0).toLocaleString()} د.أ نهائياً؟ سيتم تلقائياً تحديث رصيد الحساب والمديونية.`;
 
     setConfirmState({
@@ -922,14 +943,19 @@ const Ledger: React.FC<Props> = ({
       title: isInvoice ? 'حذف فاتورة مبيعات' : 'حذف سند قبض مالي',
       message: confirmMessage,
       onConfirm: async () => {
-        if (isInvoice) {
-          await deleteInvoice(row.id);
-          setInvoices((prev) => prev.filter((i) => i.id !== row.id));
-        } else {
-          await deletePayment(row.id);
-          setPayments((prev) => prev.filter((p) => p.id !== row.id));
+        try {
+          if (isInvoice) {
+            await deleteInvoicePermanently(docId);
+            setInvoices((prev) => prev.filter((i) => i.id !== docId));
+          } else {
+            await deletePaymentPermanently(docId);
+            setPayments((prev) => prev.filter((p) => p.id !== docId));
+          }
+        } catch (e) {
+          console.error("Delete transaction error", e);
+        } finally {
+          setConfirmState(prev => ({ ...prev, isOpen: false }));
         }
-        setConfirmState(prev => ({ ...prev, isOpen: false }));
       }
     });
   };
@@ -1183,17 +1209,20 @@ const Ledger: React.FC<Props> = ({
               <div className="bg-[#1C1C2E] dark:bg-[#121212] border border-transparent dark:border-[#262626] p-6 rounded-[40px] shadow-2xl shadow-blue-900/10 flex flex-col justify-between h-40 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full -mr-16 -mt-16 transition-all group-hover:scale-110"></div>
                 <div className="flex items-center justify-between relative z-10">
-                  <div className="w-10 h-10 rounded-xl bg-[#3B5BDB] text-white flex items-center justify-center">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${totals.balance > 0 ? 'bg-red-500 text-white' : (totals.balance < 0 ? 'bg-emerald-500 text-white' : 'bg-[#3B5BDB] text-white')}`}>
                     <Wallet size={20} />
                   </div>
-                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
-                    الرصيد النهائي
+                  <span className="text-[10px] font-black text-gray-300 uppercase tracking-[0.15em]">
+                    {totals.balance > 0 ? "الرصيد النهائي (مطلوب منه)" : (totals.balance < 0 ? "الرصيد النهائي (له رصيد دائن)" : "الرصيد النهائي (متطابق)")}
                   </span>
                 </div>
-                <div className="mt-4 relative z-10">
-                  <p className="text-4xl font-black text-white" dir="ltr">
-                    {totals.balance.toLocaleString()}{" "}
-                    <span className="text-base text-blue-400">د.أ</span>
+                <div className="mt-2 relative z-10">
+                  <p className={`text-3xl sm:text-4xl font-black ${totals.balance > 0 ? 'text-red-400' : (totals.balance < 0 ? 'text-emerald-400' : 'text-white')}`} dir="ltr">
+                    {Math.abs(totals.balance).toLocaleString()}{" "}
+                    <span className="text-sm font-bold text-gray-300">د.أ</span>
+                  </p>
+                  <p className="text-[11px] font-bold text-gray-300 mt-1">
+                    {totals.balance > 0 ? "🔴 ذمة مستحقة على الزبون" : (totals.balance < 0 ? "🟢 دفعة زيادة / رصيد لصالح الزبون" : "⚪ الحساب خالص ومتطابق")}
                   </p>
                 </div>
               </div>
@@ -1282,8 +1311,14 @@ const Ledger: React.FC<Props> = ({
                   let runningBalance = startBalance;
                   const sorted = [...statementRows].sort((a,b) => a.date - b.date);
                   return sorted.map((row) => {
+                    const invPaid = row.type === 'invoice' 
+                      ? ((typeof (row as any).paidAmount === 'number' && (row as any).paidAmount >= 0) 
+                          ? (row as any).paidAmount 
+                          : ((row as any).status === 'paid' ? (row as any).totalAmount : 0))
+                      : 0;
+
                     const debit = row.type === 'invoice' ? row.totalAmount : 0;
-                    const credit = row.type === 'payment' ? row.amount : 0;
+                    const credit = row.type === 'payment' ? row.amount : invPaid;
                     const calcDebit = row.deleted ? 0 : debit;
                     const calcCredit = row.deleted ? 0 : credit;
                     runningBalance += (calcDebit - calcCredit);
@@ -1295,17 +1330,22 @@ const Ledger: React.FC<Props> = ({
                       if (row.paymentMethod === 'cheque') {
                         description = `شيك رقم ${row.chequeNumber || ''} / ${row.dueDate ? new Date(row.dueDate).toLocaleDateString('en-GB') : ''}`;
                       } else {
-                        description = "نقدا";
+                        description = row.notes || "سند قبض نقدي";
                       }
                     } else {
-                      description = row.notes || "";
+                      description = row.notes || (invPaid >= row.totalAmount ? "مسددة بالكامل نقداً" : (invPaid > 0 ? `دفعة نقدية مع الفاتورة ${invPaid} د.أ` : "فاتورة مبيعات"));
                     }
 
                     if (row.deleted) {
                       description = `(ملغي) ${description}`;
                     }
 
-                    const docType = row.type === 'invoice' ? 'بالحساب' : 'سند قبض';
+                    let docType = "فاتورة";
+                    if (row.type === 'payment') {
+                      docType = "سند قبض";
+                    } else {
+                      docType = invPaid >= row.totalAmount ? "فاتورة نقدية" : (invPaid > 0 ? "فاتورة جزئية" : "فاتورة ذمة");
+                    }
 
                     return (
                       <tr key={row.id} style={{ height: '30px', backgroundColor: row.deleted ? '#fef2f2' : 'transparent', opacity: row.deleted ? 0.75 : 1 }}>
@@ -1346,17 +1386,26 @@ const Ledger: React.FC<Props> = ({
                   </td>
                   <td style={{ textAlign: 'center', border: '1px solid #111', fontSize: '9.5pt', fontWeight: 'bold' }}>
                     {(() => {
-                      const totalCreditInTable = statementRows.reduce((acc, row) => acc + (row.deleted ? 0 : (row.type === 'payment' ? row.amount : 0)), 0);
+                      const totalCreditInTable = statementRows.reduce((acc, row) => {
+                        if (row.deleted) return acc;
+                        if (row.type === 'payment') return acc + row.amount;
+                        const invPaid = (typeof (row as any).paidAmount === 'number' && (row as any).paidAmount >= 0) 
+                          ? (row as any).paidAmount 
+                          : ((row as any).status === 'paid' ? (row as any).totalAmount : 0);
+                        return acc + invPaid;
+                      }, 0);
                       return <span dir="ltr">{totalCreditInTable.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })}</span>;
                     })()}
                   </td>
                   <td style={{ textAlign: 'center', border: '1px solid #111' }}></td>
                 </tr>
                 <tr style={{ backgroundColor: '#f1f5f9', fontWeight: 'bold', height: '35px' }}>
-                  <td colSpan={4} style={{ textAlign: 'center', border: '1px solid #111', fontWeight: 'bold', fontSize: '10.5pt' }}>الرصيد النهائي المستحق</td>
+                  <td colSpan={4} style={{ textAlign: 'center', border: '1px solid #111', fontWeight: 'bold', fontSize: '10.5pt' }}>
+                    {totals.balance > 0 ? "الرصيد النهائي المستحق (مطلوب منه)" : (totals.balance < 0 ? "الرصيد النهائي (له رصيد دائن / زيادة)" : "الرصيد النهائي (خالص ومتطابق)")}
+                  </td>
                   <td colSpan={2} style={{ border: '1px solid #111' }}></td>
-                  <td style={{ textAlign: 'center', border: '1px solid #111', fontSize: '11.5pt', fontWeight: 'bold', color: '#1e3a8a' }}>
-                    <span dir="ltr">{totals.balance.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })}</span>
+                  <td style={{ textAlign: 'center', border: '1px solid #111', fontSize: '11.5pt', fontWeight: 'bold', color: totals.balance > 0 ? '#b91c1c' : (totals.balance < 0 ? '#15803d' : '#1e3a8a') }}>
+                    <span dir="ltr">{Math.abs(totals.balance).toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })}</span> {totals.balance < 0 ? "(له)" : (totals.balance > 0 ? "(عليه)" : "")}
                   </td>
                 </tr>
               </tfoot>
@@ -1642,15 +1691,25 @@ const Ledger: React.FC<Props> = ({
                             </tbody>
                           </table>
 
-                          <div className="p-4 bg-gray-50 dark:bg-[#1A1A1A] border-t border-gray-200 dark:border-[#262626] flex justify-between items-center">
+                          <div className="p-4 bg-gray-50 dark:bg-[#1A1A1A] border-t border-gray-200 dark:border-[#262626] flex flex-wrap gap-2 justify-between items-center">
                             <p className="text-xs font-black text-gray-500 dark:text-gray-400">
                               ملاحظات: {row.notes || "لا يوجد"}
                             </p>
-                            {row.paidAmount > 0 && (
-                              <p className="text-xs font-black px-3 py-1 bg-[#EBFBEE] dark:bg-emerald-950/40 border border-[#B2F2BB] dark:border-emerald-800/40 rounded-lg text-[#2F9E44] dark:text-[#51CF66]">
-                                المدفوع نقداً/سندات:{" "}
-                                {(row.paidAmount || 0).toLocaleString()} د.أ
-                              </p>
+                            {((row.paidAmount || 0) > 0 || row.status === 'paid') && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-black px-3 py-1 bg-[#EBFBEE] dark:bg-emerald-950/40 border border-[#B2F2BB] dark:border-emerald-800/40 rounded-lg text-[#2F9E44] dark:text-[#51CF66]">
+                                  المدفوع نقداً مع الفاتورة: {(row.paidAmount || (row.status === 'paid' ? row.totalAmount : 0)).toLocaleString()} د.أ
+                                </span>
+                                {(row.totalAmount - (row.paidAmount || (row.status === 'paid' ? row.totalAmount : 0))) > 0.001 ? (
+                                  <span className="text-xs font-black px-3 py-1 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/40 rounded-lg text-amber-700 dark:text-amber-400">
+                                    المتبقي ذمة: {(row.totalAmount - (row.paidAmount || 0)).toLocaleString()} د.أ
+                                  </span>
+                                ) : (
+                                  <span className="text-xs font-black px-3 py-1 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/40 rounded-lg text-blue-700 dark:text-blue-400">
+                                    مسددة بالكامل (رصيد الفاتورة 0)
+                                  </span>
+                                )}
+                              </div>
                             )}
                           </div>
                         </div>

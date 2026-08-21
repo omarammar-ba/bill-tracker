@@ -15,6 +15,7 @@ export interface Customer {
   createdAt: number;
   balance?: number;
   locked?: boolean;
+  lastActivityAt?: number;
 }
 
 export interface CartItem {

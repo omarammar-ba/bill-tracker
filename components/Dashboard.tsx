@@ -222,20 +222,33 @@ const Dashboard: React.FC<DashboardProps> = ({ customers, transactions, changeVi
   }, []);
 
   const recentTransactions = useMemo(() => {
-    return [...transactions].sort((a, b) => {
-      let da: any = a.date;
-      let dbDate: any = b.date;
-      if (typeof da === 'string') da = new Date(da).getTime();
-      else if (da?.seconds) da = da.seconds * 1000;
-      if (typeof dbDate === 'string') dbDate = new Date(dbDate).getTime();
-      else if (dbDate?.seconds) dbDate = dbDate.seconds * 1000;
-      return (dbDate || 0) - (da || 0);
-    }).slice(0, visibleCount);
+    return transactions
+      .filter(t => !t.deleted && (t.type !== 'payment' || (!t.invoiceId && t.createdBy !== 'system' && t.createdBy !== 'system_v2')))
+      .sort((a, b) => {
+        let da: any = a.date;
+        let dbDate: any = b.date;
+        if (typeof da === 'string') da = new Date(da).getTime();
+        else if (da?.seconds) da = da.seconds * 1000;
+        if (typeof dbDate === 'string') dbDate = new Date(dbDate).getTime();
+        else if (dbDate?.seconds) dbDate = dbDate.seconds * 1000;
+        return (dbDate || 0) - (da || 0);
+      }).slice(0, visibleCount);
   }, [transactions, visibleCount]);
 
   const stats = useMemo(() => {
     const totalSales = transactions.filter(t => t.type === 'invoice' && !t.deleted).reduce((acc, t) => acc + ((t as any).totalAmount || (t as any).amount || 0), 0);
-    const totalCollected = transactions.filter(t => t.type === 'payment' && !t.deleted).reduce((acc, t) => acc + ((t as any).amount || 0), 0);
+    const totalCollected = transactions.filter(t => !t.deleted).reduce((acc, t) => {
+      if (t.type === 'payment' && !t.invoiceId && t.createdBy !== 'system' && t.createdBy !== 'system_v2') {
+        return acc + ((t as any).amount || 0);
+      } else if (t.type === 'invoice') {
+        const inv = t as any;
+        const invPaid = (typeof inv.paidAmount === 'number' && inv.paidAmount >= 0) 
+          ? inv.paidAmount 
+          : (inv.status === 'paid' ? (inv.amount || inv.totalAmount || 0) : 0);
+        return acc + invPaid;
+      }
+      return acc;
+    }, 0);
     const totalDebts = customers.reduce((acc, c) => acc + (c.balance || 0), 0);
     const customerCount = customers.length;
 

@@ -17,19 +17,26 @@ const firebaseConfig = {
 };
 // ------------------------------------------------
 
-const app = initializeApp(firebaseConfig);
+let app: any;
+let firestoreInstance: any;
+let authInstance: any;
 
-let firestoreInstance;
 try {
-  firestoreInstance = initializeFirestore(app, {
-    localCache: persistentLocalCache({})
-  });
+  app = initializeApp(firebaseConfig);
+  try {
+    firestoreInstance = initializeFirestore(app, {
+      localCache: persistentLocalCache({})
+    });
+  } catch (e) {
+    firestoreInstance = getFirestore(app);
+  }
+  authInstance = getAuth(app);
 } catch (e) {
-  firestoreInstance = getFirestore(app);
+  console.warn('Firebase config incomplete or not provided in .env');
 }
 
 export const db = firestoreInstance;
-export const auth = getAuth(app);
+export const auth = authInstance;
 export const googleProvider = new GoogleAuthProvider();
 
 export const loginWithGoogle = async () => {

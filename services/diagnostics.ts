@@ -129,13 +129,13 @@ export const analyzeErrorWithGemini = async (
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ errorName: sName, errorMessage: sMessage, errorStack: sStack, context: sContext })
-    });
+    }).catch(() => null);
     
-    if (!response.ok) {
-      throw new Error('فشل نظام الدعم الذكي في تحليل الخطأ بشكل مباشر.');
+    if (!response || !response.ok) {
+      return null;
     }
     
-    const data: GeminiErrorAnalysis = await response.json();
+    const data: GeminiErrorAnalysis = await response.json().catch(() => null);
     if (!data || !data.arabicTitle) {
       return null;
     }
@@ -158,7 +158,6 @@ export const analyzeErrorWithGemini = async (
 
     return data;
   } catch (err: any) {
-    console.error('Gemini error analysis proxy error:', err?.message || err);
     return null;
   }
 };
@@ -361,7 +360,7 @@ if (typeof window !== 'undefined') {
   window.addEventListener('error', (event) => {
     const msg = event.message || '';
     const lowerMsg = msg.toLowerCase();
-    // Skip extension/benign UI loop noise, platform HMR, and internal firestore assertion noise
+    // Skip extension/benign UI loop noise, platform HMR, internal firestore assertion noise, invalid api keys, and fetch errors
     if (
       lowerMsg.includes('extension') || 
       lowerMsg.includes('resizeobserver') || 
@@ -371,7 +370,9 @@ if (typeof window !== 'undefined') {
       lowerMsg.includes('vite') ||
       lowerMsg.includes('firestore') ||
       lowerMsg.includes('assertion') ||
-      lowerMsg.includes('eu.get')
+      lowerMsg.includes('eu.get') ||
+      lowerMsg.includes('invalid-api-key') ||
+      lowerMsg.includes('failed to fetch')
     ) return;
     
     // Send to Gemini AI for helpful non-disruptive feedback
@@ -396,7 +397,9 @@ if (typeof window !== 'undefined') {
       lowerMsg.includes('vite') ||
       lowerMsg.includes('firestore') ||
       lowerMsg.includes('assertion') ||
-      lowerMsg.includes('eu.get')
+      lowerMsg.includes('eu.get') ||
+      lowerMsg.includes('invalid-api-key') ||
+      lowerMsg.includes('failed to fetch')
     ) return;
 
     analyzeErrorWithGemini(

@@ -22,7 +22,13 @@ const Reports: React.FC<Props> = ({ customers, transactions }) => {
         if (!isNaN(amt)) {
           totalSales += amt;
         }
-      } else if (t.type === 'payment') {
+        const invPaid = (typeof (t as any).paidAmount === 'number' && (t as any).paidAmount >= 0)
+          ? (t as any).paidAmount
+          : ((t as any).status === 'paid' ? amt : 0);
+        if (!isNaN(invPaid)) {
+          totalCollected += invPaid;
+        }
+      } else if (t.type === 'payment' && !(t as any).invoiceId && (t as any).createdBy !== 'system' && (t as any).createdBy !== 'system_v2') {
         const amt = Number((t as any).amount || (t as any).totalAmount || 0);
         if (!isNaN(amt)) {
           totalCollected += amt;

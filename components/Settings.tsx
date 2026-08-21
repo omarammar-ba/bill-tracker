@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Palette, Store, Phone, DollarSign, FileText, Check, Moon, Sun, Globe, Lock, Wrench, ShieldCheck } from 'lucide-react';
+import { Palette, Store, Phone, DollarSign, FileText, Check, Moon, Sun, Globe, Lock, Wrench } from 'lucide-react';
 import { getStoredTheme, applyTheme, ThemeMode } from '../services/theme';
 import { BusinessInfo } from '../types';
 
