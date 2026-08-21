@@ -16,7 +16,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, changeView }) =>
   const [isSidebarOpen, setSidebarOpen] = React.useState(false);
   const [panicLevel, setPanicLevel] = React.useState(0);
   const [restoreLevel, setRestoreLevel] = React.useState(0);
-  const [businessName, setBusinessName] = React.useState('دفترك');
+  const [businessName, setBusinessName] = React.useState('معرض اليرموك');
   const { logout, role, user } = useAuth();
 
   useEffect(() => {
