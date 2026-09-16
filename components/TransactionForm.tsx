@@ -75,125 +75,290 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
   const [browserSupportsSpeechRecognition] = useState(() => {
     return !!((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
   });
+
   const recognitionRef = useRef<any>(null);
+  const keepListeningRef = useRef(false);
+  const finalTranscriptRef = useRef('');
+  const interimTranscriptRef = useRef('');
+  const restartTimerRef = useRef<number | null>(null);
+  const isUnmountingRef = useRef(false);
 
-  useEffect(() => {
-    setVoiceTranscript(transcript);
-  }, [transcript]);
+  const normalizeSpeechText = (value: string) => value.replace(/\s+/g, ' ').trim();
 
-  const startVoiceInput = () => {
-    if (!browserSupportsSpeechRecognition) {
-      showWarning(
-        'التعرف الصوتي غير مدعوم',
-        'ميزة التسجيل والتعرف الصوتي المباشر غير مدعومة بالكامل على هذا المتصفح أو داخل هذا الإطار. يرجى فتح التطبيق في نافذة مستقلة واستخدام متصفح Google Chrome أو Safari حديث.'
-      );
-      return;
+  // Android/Chrome may replay the end of the previous recognition session when
+  // a new session starts. Merge only the non-overlapping words so the user does
+  // not see repeated phrases while the microphone stays logically "open".
+  const appendUniqueSpeech = (current: string, incoming: string) => {
+    const base = normalizeSpeechText(current);
+    const next = normalizeSpeechText(incoming);
+
+    if (!base) return next;
+    if (!next) return base;
+
+    const baseWords = base.split(' ');
+    const nextWords = next.split(' ');
+    const maxOverlap = Math.min(baseWords.length, nextWords.length, 8);
+
+    // Require at least two overlapping words to avoid removing intentional
+    // one-word repetitions from normal speech.
+    for (let overlap = maxOverlap; overlap >= 2; overlap -= 1) {
+      const baseTail = baseWords.slice(-overlap).join(' ');
+      const nextHead = nextWords.slice(0, overlap).join(' ');
+      if (baseTail === nextHead) {
+        return normalizeSpeechText([...baseWords, ...nextWords.slice(overlap)].join(' '));
+      }
     }
+
+    return normalizeSpeechText(`${base} ${next}`);
+  };
+
+  const clearSpeechRestartTimer = () => {
+    if (restartTimerRef.current !== null) {
+      window.clearTimeout(restartTimerRef.current);
+      restartTimerRef.current = null;
+    }
+  };
+
+  const updateSpeechPreview = (interimText: string) => {
+    interimTranscriptRef.current = normalizeSpeechText(interimText);
+    const combined = normalizeSpeechText(
+      `${finalTranscriptRef.current} ${interimTranscriptRef.current}`
+    );
+    setTranscript(combined);
+    setVoiceTranscript(combined);
+  };
+
+  const startRecognitionSession = () => {
+    if (!keepListeningRef.current || isUnmountingRef.current) return;
 
     const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    
-    setTranscript('');
-    setVoiceTranscript('');
-
-    if (recognitionRef.current) {
-      try {
-        recognitionRef.current.abort();
-      } catch (e) {}
-    }
-
-    addDiagnosticLog('info', 'SPEECH', 'تشغيل الاستماع الصوتي', 'بدأ معالج المتصفح بتهيئة المايكروفون للاستماع للإملاء بالعامية الأردنية أو العربية الفصحى (ar-JO)...');
+    if (!SpeechRecognitionAPI) return;
 
     const rec = new SpeechRecognitionAPI();
     rec.continuous = true;
     rec.interimResults = true;
     rec.lang = 'ar-JO';
+    rec.maxAlternatives = 1;
+    recognitionRef.current = rec;
 
     rec.onstart = () => {
+      if (!keepListeningRef.current) {
+        try { rec.stop(); } catch (e) {}
+        return;
+      }
       setListening(true);
-      addDiagnosticLog('success', 'SPEECH', 'المايك أصبح نشطاً', 'أعطى المتصفح موافقة على تشغيل المايكروفون ودفق موجات لقط الصوت بنجاح.');
     };
 
     rec.onresult = (event: any) => {
-      let fullTranscript = '';
-      for (let i = 0; i < event.results.length; i++) {
-        fullTranscript += event.results[i][0].transcript;
+      let newFinalChunk = '';
+
+      // Only process newly changed results as final text. Re-reading all final
+      // results on every event is what caused duplicated sentences on Android.
+      for (let i = event.resultIndex; i < event.results.length; i += 1) {
+        const result = event.results[i];
+        const spokenText = normalizeSpeechText(result?.[0]?.transcript || '');
+        if (result?.isFinal && spokenText) {
+          newFinalChunk = normalizeSpeechText(`${newFinalChunk} ${spokenText}`);
+        }
       }
-      setTranscript(fullTranscript);
+
+      if (newFinalChunk) {
+        finalTranscriptRef.current = appendUniqueSpeech(
+          finalTranscriptRef.current,
+          newFinalChunk
+        );
+      }
+
+      // Interim text is rebuilt from the current non-final results only. It is
+      // shown to the user, but it is never permanently appended more than once.
+      let currentInterim = '';
+      for (let i = 0; i < event.results.length; i += 1) {
+        const result = event.results[i];
+        if (!result?.isFinal) {
+          const spokenText = normalizeSpeechText(result?.[0]?.transcript || '');
+          if (spokenText) {
+            currentInterim = normalizeSpeechText(`${currentInterim} ${spokenText}`);
+          }
+        }
+      }
+
+      updateSpeechPreview(currentInterim);
     };
 
     rec.onerror = (event: any) => {
-      console.error("Speech recognition error:", event);
+      console.error('Speech recognition error:', event);
+
+      // These two errors are normal during long Android sessions. Chrome may
+      // end a recognition session after silence or while restarting it. Keep the
+      // logical microphone session alive and let onend create a fresh session.
+      if (event.error === 'no-speech' || event.error === 'aborted') {
+        return;
+      }
+
+      // Permission, hardware, network and language errors need user action, so
+      // do not keep restarting forever in the background.
+      keepListeningRef.current = false;
+      clearSpeechRestartTimer();
+      setListening(false);
+
       const isInsideIframe = typeof window !== 'undefined' && window.self !== window.top;
-      
       let errorTitle = 'خطأ في التعرف الصوتي';
       let errorMessage = 'حدث خطأ غير متوقع أثناء تشغيل مدخلات الصوت.';
       let errorDetails = '';
 
       switch (event.error) {
         case 'not-allowed':
+        case 'service-not-allowed':
           errorTitle = 'مرفوض: صلاحية المايكروفون';
-          errorMessage = 'تم رفض الوصول إلى المايكروفون. يرجى تفعيل الصلاحية لتتمكن من استخدام الإدخال الصوتي المتطور.';
-          errorDetails = `${isInsideIframe ? 'أنت تتصفح التطبيق حالياً من داخل إطار المعاينة الداخلي. المتصفحات تحظر استخدام المايكروفون داخل هذه الإطارات المدمجة افتراضياً لدواعي الأمان والخصوصية.\n\nتأكيد: يرجى فتح رابط التطبيق المباشر بشكل كامل ومباشر في علامة تبويب أو متصفح مستقل، ثم امنح الصلاحية مجدداً.\n\n' : ''}خطوات تفعيل المايك لكل الأجهزة:\n\n1. على أجهزة اللابتوب (Chrome / Edge): اضغط على علامة القفل بجانب رابط الموقع في شريط العنوان بالأعلى، ثم غيّر خيار "الميكروفون" (Microphone) إلى "السماح" (Allow)، وقم بتحديث الصفحة.\n\n2. على هاتف الآيفون (Mobile Safari): اذهب إلى تطبيق إعدادات الهاتف > خيار Safari > ميكروفون (Microphone) > ثم اختر "السماح" (Allow) أو "اسأل" (Ask).\n\n3. على هاتف أندرويد (Chrome / Samsung Internet): انقر فوق النقاط الثلاث في أعلى الصفحة > إعدادات الموقع > المايكروفون وتأكد من تفعيله والسماح لهذا الموقع المعتمد.`;
+          errorMessage = 'تم رفض الوصول إلى المايكروفون. يرجى تفعيل الصلاحية ثم المحاولة مجدداً.';
+          errorDetails = `${isInsideIframe ? 'افتح التطبيق مباشرة خارج إطار المعاينة ثم حاول مجدداً.\n\n' : ''}على أندرويد: افتح معلومات التطبيق أو إعدادات الموقع في Chrome وتأكد من السماح باستخدام المايكروفون.`;
           break;
-          
+
         case 'audio-capture':
           errorTitle = 'عطل بالتقاط الصوت';
-          errorMessage = 'فشل في رصد وإمساك الموجات الصوتية أو تعذر إيجاد مايكروفون نشط.';
-          errorDetails = `خطوات تتبع السلامة العتادية:\n- تأكد من أن جهاز المايكروفون الخاص بلابتوبك أو هاتفك موصول ومفعّل بشكل سليم.\n- يُرجى التحقق من ألا يكون المايكروفون محجوزاً ومستخدماً حالياً من قبل تطبيق آخر في الخلفية (مثل Zoom أو Teams أو الكاميرا).\n- تحقق من لوحة تحكم الصوت في جهازك بأن مستوى حساس لقط الصوت غير صامت أو كتم (Mute).`;
+          errorMessage = 'تعذر الوصول إلى مايكروفون نشط على الجهاز.';
+          errorDetails = 'تأكد من صلاحية المايكروفون ومن عدم استخدامه بواسطة تطبيق آخر.';
           break;
 
         case 'network':
           errorTitle = 'مشكلة شبكة واتصال';
-          errorMessage = 'تعذر بلوغ الخدمة السحابية المخصصة لتحليل الكلام الصوتي إلى نصوص.';
-          errorDetails = `تفصيل تقني:\nميزة التعرف الصوتي (Web Speech API) على متصفحات Chrome و Safari ترحل موجات الصوت إلى خادم الذكاء السحابي الموثوق لتحليلها وتدقيق النبرات والمفردات بدقة.\nيُرجى التحقق من كفاءة وموثوقية اتصالك الحالي بالإنترنت (Wi-Fi أو 4G/5G) ثم أعد النقر والحديث بوضوح.`;
-          break;
-
-        case 'no-speech':
-          errorTitle = 'لم يتم تمييز كلام صامت';
-          errorMessage = 'لم نقم بأي تعديلات في الحقول لأننا لم نرصد أو نميز أي نية صوتية صريحة بالملتقط.';
-          errorDetails = `توجيهات لنجاح التسجيل:\n- تحدث فور ظهور الضوء النابض على الزر الملون.\n- اقترب بشكل ملائم من منفع مايكروفون جهازك.\n- ألقِ الكلمات بجمل عربية واضحة بنبرة معتدلة وبمستوى تشويش محيطي منخفض ومريح.`;
-          break;
-
-        case 'aborted':
-          errorTitle = 'تم مقاطعة وإيقاف الاستماع';
-          errorMessage = 'أوقف الاستماع الصوتي بشكل قسري قبل إكمال الإفادة.';
-          errorDetails = `يحدث هذا الإيقاف المفاجئ تلقائياً في حال ورود مكالمة خلوية فجائية أو عند النقر المزدوج المتتالي على زر المايك.`;
+          errorMessage = 'تعذر الوصول إلى خدمة تحويل الكلام إلى نص.';
+          errorDetails = 'تحقق من اتصال الإنترنت ثم أعد تشغيل الإدخال الصوتي.';
           break;
 
         case 'language-not-supported':
           errorTitle = 'لهجة الإدخال غير مدعومة';
-          errorMessage = 'المتصفح النشط حالياً لا يملك التروس الكافية لدعم إملاء العربية باللهجة الأردنية.';
-          errorDetails = `المقترح:\nنوصي بأن تستخدم متصفح Google Chrome (على الأندرويد والكمبيوتر) أو Safari (على أجهزة الآيفون والآيباد)، فكلاهما يوفر محرك لغوي محدّد بدقة ومتكامل لمعالجة العربية الفصحى والمحكية.`;
+          errorMessage = 'المتصفح الحالي لا يدعم إعداد اللغة العربية المستخدم للتعرف الصوتي.';
+          errorDetails = 'استخدم Google Chrome حديثاً على أندرويد ثم حاول مجدداً.';
           break;
 
         default:
           errorTitle = 'تنبيه فني بالتقاط الصوت';
-          errorMessage = `تعذر المتابعة بالتحويل الصوتي نظراً لتنبيه بالمتصفح: ${event.error || 'عطل غير معروف'}`;
-          errorDetails = `رمز المشكلة للتدقيق: ${event.error || 'unknown'}\nيرجى محاولة إنعاش الصفحة بإعاده تحميلها وسيقوم المايك بالاستعداد التام مجدداً.`;
+          errorMessage = `تعذر المتابعة بالتحويل الصوتي: ${event.error || 'عطل غير معروف'}`;
+          errorDetails = `رمز المشكلة: ${event.error || 'unknown'}`;
           break;
       }
 
-      addDiagnosticLog('error', 'SPEECH', errorTitle, errorMessage, `نوع الخطأ المسجل: ${event.error || 'مجهول'}\n\n${errorDetails}`, 'يرجى مراجعة إعدادات الأندرويد أو المتصفح النشط.');
+      addDiagnosticLog(
+        'error',
+        'SPEECH',
+        errorTitle,
+        errorMessage,
+        `نوع الخطأ المسجل: ${event.error || 'مجهول'}\n\n${errorDetails}`,
+        'يرجى مراجعة إعدادات الأندرويد أو المتصفح النشط.'
+      );
       showError(errorTitle, errorMessage, errorDetails);
-      setListening(false);
     };
 
     rec.onend = () => {
+      if (recognitionRef.current === rec) {
+        recognitionRef.current = null;
+      }
+
+      if (keepListeningRef.current && !isUnmountingRef.current) {
+        // Preserve any last partial words before Android closes this internal
+        // recognition session, then continue with a fresh session.
+        if (interimTranscriptRef.current) {
+          finalTranscriptRef.current = appendUniqueSpeech(
+            finalTranscriptRef.current,
+            interimTranscriptRef.current
+          );
+          updateSpeechPreview('');
+        }
+
+        // continuous=true is not enough on Android. Keep the user-facing
+        // session alive by starting a fresh recognition session after Chrome
+        // closes the previous one by itself.
+        setListening(true);
+        clearSpeechRestartTimer();
+        restartTimerRef.current = window.setTimeout(() => {
+          restartTimerRef.current = null;
+          if (keepListeningRef.current && !isUnmountingRef.current) {
+            startRecognitionSession();
+          }
+        }, 350);
+        return;
+      }
+
       setListening(false);
-      addDiagnosticLog('info', 'SPEECH', 'إغلاق المايكروفون', 'تم إطفاء موجة المايكروفون وتحليل الصوت المنطوق بنجاح.');
+      addDiagnosticLog('info', 'SPEECH', 'إغلاق المايكروفون', 'تم إيقاف الاستماع الصوتي بطلب المستخدم أو بسبب تعذر المتابعة.');
     };
 
-    recognitionRef.current = rec;
-    
     try {
       rec.start();
-    } catch (e: any) {
-      console.error("Failed to start speech recognition:", e);
-      showError('خطأ تشغيل المايك', 'لم نتمكن من الوصول للمايك المباشر. يرجى التحقق من الصلاحيات.');
+    } catch (e) {
+      console.error('Failed to start speech recognition:', e);
+
+      if (keepListeningRef.current && !isUnmountingRef.current) {
+        clearSpeechRestartTimer();
+        restartTimerRef.current = window.setTimeout(() => {
+          restartTimerRef.current = null;
+          if (keepListeningRef.current && !isUnmountingRef.current) {
+            startRecognitionSession();
+          }
+        }, 500);
+      }
     }
   };
 
+  const startVoiceInput = () => {
+    if (!browserSupportsSpeechRecognition) {
+      showWarning(
+        'التعرف الصوتي غير مدعوم',
+        'ميزة التسجيل والتعرف الصوتي المباشر غير مدعومة بالكامل على هذا المتصفح. يرجى استخدام Google Chrome حديث على أندرويد.'
+      );
+      return;
+    }
+
+    clearSpeechRestartTimer();
+    keepListeningRef.current = false;
+
+    // Fully detach the previous instance before aborting it. This prevents an
+    // old onend event from creating a second recognition session in parallel.
+    if (recognitionRef.current) {
+      const previousRecognition = recognitionRef.current;
+      previousRecognition.onstart = null;
+      previousRecognition.onresult = null;
+      previousRecognition.onerror = null;
+      previousRecognition.onend = null;
+      try { previousRecognition.abort(); } catch (e) {}
+      recognitionRef.current = null;
+    }
+
+    finalTranscriptRef.current = '';
+    interimTranscriptRef.current = '';
+    setTranscript('');
+    setVoiceTranscript('');
+
+    keepListeningRef.current = true;
+    addDiagnosticLog('info', 'SPEECH', 'تشغيل الاستماع الصوتي', 'بدأ الاستماع للإملاء العربي وسيبقى فعالاً حتى يقوم المستخدم بإنهائه.');
+    startRecognitionSession();
+  };
+
+  useEffect(() => {
+    isUnmountingRef.current = false;
+
+    return () => {
+      isUnmountingRef.current = true;
+      keepListeningRef.current = false;
+      clearSpeechRestartTimer();
+
+      if (recognitionRef.current) {
+        const currentRecognition = recognitionRef.current;
+        currentRecognition.onstart = null;
+        currentRecognition.onresult = null;
+        currentRecognition.onerror = null;
+        currentRecognition.onend = null;
+        try { currentRecognition.abort(); } catch (e) {}
+        recognitionRef.current = null;
+      }
+    };
+  }, []);
+
   const stopAndProcess = async (textToProcess?: string) => {
+    keepListeningRef.current = false;
+    clearSpeechRestartTimer();
+
     if (recognitionRef.current) {
       try {
         recognitionRef.current.stop();
@@ -201,8 +366,17 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
     }
     setListening(false);
 
-    const currentTranscript = textToProcess !== undefined ? textToProcess : transcript;
-    if (!currentTranscript || !currentTranscript.trim()) {
+    // React state may lag behind the last speech event by one render. Read from
+    // refs so the last interim/final words are never lost when the user taps
+    // "finish and analyze" immediately after speaking.
+    const latestCapturedText = normalizeSpeechText(
+      `${finalTranscriptRef.current} ${interimTranscriptRef.current}`
+    );
+    const currentTranscript = normalizeSpeechText(
+      textToProcess !== undefined ? textToProcess : (latestCapturedText || transcript)
+    );
+
+    if (!currentTranscript) {
        showWarning('لم يتم التقاط صوت', 'لم يتم التعرف على أي نص صوتي صالح لتحليله. تحدث بوضوح وحاول مرة أخرى.');
        return;
     }
