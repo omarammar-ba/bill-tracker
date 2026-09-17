@@ -69,48 +69,32 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
   const [hasApiKey, setHasApiKey] = useState(() => !!getGeminiApiKey());
   
   // Native Web Speech API implementation
+  // Android Chrome is more reliable when each recognition instance captures a
+  // single final utterance. We automatically start the next instance so the
+  // user experiences one continuous microphone session until they press stop.
   const [listening, setListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [voiceTranscript, setVoiceTranscript] = useState('');
   const [browserSupportsSpeechRecognition] = useState(() => {
     return !!((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
   });
-
   const recognitionRef = useRef<any>(null);
   const keepListeningRef = useRef(false);
   const finalTranscriptRef = useRef('');
-  const interimTranscriptRef = useRef('');
   const restartTimerRef = useRef<number | null>(null);
   const isUnmountingRef = useRef(false);
+  const lastFinalChunkRef = useRef('');
+  const lastFinalAtRef = useRef(0);
+  const stopWaitResolverRef = useRef<(() => void) | null>(null);
 
   const normalizeSpeechText = (value: string) => value.replace(/\s+/g, ' ').trim();
 
-  // Android/Chrome may replay the end of the previous recognition session when
-  // a new session starts. Merge only the non-overlapping words so the user does
-  // not see repeated phrases while the microphone stays logically "open".
-  const appendUniqueSpeech = (current: string, incoming: string) => {
-    const base = normalizeSpeechText(current);
-    const next = normalizeSpeechText(incoming);
-
-    if (!base) return next;
-    if (!next) return base;
-
-    const baseWords = base.split(' ');
-    const nextWords = next.split(' ');
-    const maxOverlap = Math.min(baseWords.length, nextWords.length, 8);
-
-    // Require at least two overlapping words to avoid removing intentional
-    // one-word repetitions from normal speech.
-    for (let overlap = maxOverlap; overlap >= 2; overlap -= 1) {
-      const baseTail = baseWords.slice(-overlap).join(' ');
-      const nextHead = nextWords.slice(0, overlap).join(' ');
-      if (baseTail === nextHead) {
-        return normalizeSpeechText([...baseWords, ...nextWords.slice(overlap)].join(' '));
-      }
-    }
-
-    return normalizeSpeechText(`${base} ${next}`);
-  };
+  const normalizeSpeechForCompare = (value: string) => normalizeSpeechText(
+    value
+      .replace(/[\u064B-\u065F\u0670]/g, '')
+      .replace(/ـ/g, '')
+      .replace(/[^\u0600-\u06FF0-9A-Za-z\s]/g, ' ')
+  );
 
   const clearSpeechRestartTimer = () => {
     if (restartTimerRef.current !== null) {
@@ -119,84 +103,101 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
     }
   };
 
-  const updateSpeechPreview = (interimText: string) => {
-    interimTranscriptRef.current = normalizeSpeechText(interimText);
-    const combined = normalizeSpeechText(
-      `${finalTranscriptRef.current} ${interimTranscriptRef.current}`
-    );
-    setTranscript(combined);
-    setVoiceTranscript(combined);
+  const appendRecognizedChunk = (current: string, incoming: string) => {
+    const base = normalizeSpeechText(current);
+    const next = normalizeSpeechText(incoming);
+    if (!next) return base;
+    if (!base) return next;
+
+    const now = Date.now();
+    const nextComparable = normalizeSpeechForCompare(next);
+    const previousComparable = normalizeSpeechForCompare(lastFinalChunkRef.current);
+
+    // Chrome on Android can replay the previous final phrase immediately after
+    // a recognition restart. Ignore only that short-lived exact replay.
+    if (
+      previousComparable &&
+      nextComparable === previousComparable &&
+      now - lastFinalAtRef.current < 3000
+    ) {
+      return base;
+    }
+
+    // It can also replay only the tail of the previous phrase. Remove only a
+    // clear 2+ word suffix/prefix overlap, preserving normal one-word repeats.
+    const baseWords = base.split(' ');
+    const nextWords = next.split(' ');
+    const baseComparableWords = normalizeSpeechForCompare(base).split(' ').filter(Boolean);
+    const nextComparableWords = nextComparable.split(' ').filter(Boolean);
+    const maxOverlap = Math.min(baseComparableWords.length, nextComparableWords.length, 12);
+
+    for (let overlap = maxOverlap; overlap >= 2; overlap -= 1) {
+      const baseTail = baseComparableWords.slice(-overlap).join(' ');
+      const nextHead = nextComparableWords.slice(0, overlap).join(' ');
+      if (baseTail === nextHead) {
+        return normalizeSpeechText([...baseWords, ...nextWords.slice(overlap)].join(' '));
+      }
+    }
+
+    return normalizeSpeechText(`${base} ${next}`);
   };
 
   const startRecognitionSession = () => {
-    if (!keepListeningRef.current || isUnmountingRef.current) return;
+    if (!keepListeningRef.current || isUnmountingRef.current || recognitionRef.current) return;
 
     const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognitionAPI) return;
 
     const rec = new SpeechRecognitionAPI();
-    rec.continuous = true;
-    rec.interimResults = true;
+
+    // Single-final-result mode is intentionally used on Android. It avoids the
+    // growing result list/interim-result rewrites that were causing long delays
+    // and repeated text with continuous=true + interimResults=true.
+    rec.continuous = false;
+    rec.interimResults = false;
     rec.lang = 'ar-JO';
     rec.maxAlternatives = 1;
     recognitionRef.current = rec;
 
     rec.onstart = () => {
       if (!keepListeningRef.current) {
-        try { rec.stop(); } catch (e) {}
+        try { rec.abort(); } catch (e) {}
         return;
       }
       setListening(true);
     };
 
     rec.onresult = (event: any) => {
-      let newFinalChunk = '';
+      let finalChunk = '';
 
-      // Only process newly changed results as final text. Re-reading all final
-      // results on every event is what caused duplicated sentences on Android.
       for (let i = event.resultIndex; i < event.results.length; i += 1) {
         const result = event.results[i];
+        if (!result?.isFinal) continue;
         const spokenText = normalizeSpeechText(result?.[0]?.transcript || '');
-        if (result?.isFinal && spokenText) {
-          newFinalChunk = normalizeSpeechText(`${newFinalChunk} ${spokenText}`);
+        if (spokenText) {
+          finalChunk = normalizeSpeechText(`${finalChunk} ${spokenText}`);
         }
       }
 
-      if (newFinalChunk) {
-        finalTranscriptRef.current = appendUniqueSpeech(
-          finalTranscriptRef.current,
-          newFinalChunk
-        );
-      }
+      if (!finalChunk) return;
 
-      // Interim text is rebuilt from the current non-final results only. It is
-      // shown to the user, but it is never permanently appended more than once.
-      let currentInterim = '';
-      for (let i = 0; i < event.results.length; i += 1) {
-        const result = event.results[i];
-        if (!result?.isFinal) {
-          const spokenText = normalizeSpeechText(result?.[0]?.transcript || '');
-          if (spokenText) {
-            currentInterim = normalizeSpeechText(`${currentInterim} ${spokenText}`);
-          }
-        }
-      }
-
-      updateSpeechPreview(currentInterim);
+      const merged = appendRecognizedChunk(finalTranscriptRef.current, finalChunk);
+      finalTranscriptRef.current = merged;
+      lastFinalChunkRef.current = finalChunk;
+      lastFinalAtRef.current = Date.now();
+      setTranscript(merged);
+      setVoiceTranscript(merged);
     };
 
     rec.onerror = (event: any) => {
       console.error('Speech recognition error:', event);
 
-      // These two errors are normal during long Android sessions. Chrome may
-      // end a recognition session after silence or while restarting it. Keep the
-      // logical microphone session alive and let onend create a fresh session.
+      // Silence and an intentional abort are normal boundaries between Android
+      // recognition sessions. onend will reopen the microphone when appropriate.
       if (event.error === 'no-speech' || event.error === 'aborted') {
         return;
       }
 
-      // Permission, hardware, network and language errors need user action, so
-      // do not keep restarting forever in the background.
       keepListeningRef.current = false;
       clearSpeechRestartTimer();
       setListening(false);
@@ -255,48 +256,37 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
         recognitionRef.current = null;
       }
 
-      if (keepListeningRef.current && !isUnmountingRef.current) {
-        // Preserve any last partial words before Android closes this internal
-        // recognition session, then continue with a fresh session.
-        if (interimTranscriptRef.current) {
-          finalTranscriptRef.current = appendUniqueSpeech(
-            finalTranscriptRef.current,
-            interimTranscriptRef.current
-          );
-          updateSpeechPreview('');
-        }
+      if (stopWaitResolverRef.current) {
+        const resolveStop = stopWaitResolverRef.current;
+        stopWaitResolverRef.current = null;
+        resolveStop();
+      }
 
-        // continuous=true is not enough on Android. Keep the user-facing
-        // session alive by starting a fresh recognition session after Chrome
-        // closes the previous one by itself.
+      if (keepListeningRef.current && !isUnmountingRef.current) {
         setListening(true);
         clearSpeechRestartTimer();
         restartTimerRef.current = window.setTimeout(() => {
           restartTimerRef.current = null;
-          if (keepListeningRef.current && !isUnmountingRef.current) {
-            startRecognitionSession();
-          }
-        }, 350);
+          startRecognitionSession();
+        }, 180);
         return;
       }
 
       setListening(false);
-      addDiagnosticLog('info', 'SPEECH', 'إغلاق المايكروفون', 'تم إيقاف الاستماع الصوتي بطلب المستخدم أو بسبب تعذر المتابعة.');
     };
 
     try {
       rec.start();
     } catch (e) {
       console.error('Failed to start speech recognition:', e);
+      recognitionRef.current = null;
 
       if (keepListeningRef.current && !isUnmountingRef.current) {
         clearSpeechRestartTimer();
         restartTimerRef.current = window.setTimeout(() => {
           restartTimerRef.current = null;
-          if (keepListeningRef.current && !isUnmountingRef.current) {
-            startRecognitionSession();
-          }
-        }, 500);
+          startRecognitionSession();
+        }, 350);
       }
     }
   };
@@ -313,8 +303,6 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
     clearSpeechRestartTimer();
     keepListeningRef.current = false;
 
-    // Fully detach the previous instance before aborting it. This prevents an
-    // old onend event from creating a second recognition session in parallel.
     if (recognitionRef.current) {
       const previousRecognition = recognitionRef.current;
       previousRecognition.onstart = null;
@@ -326,12 +314,13 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
     }
 
     finalTranscriptRef.current = '';
-    interimTranscriptRef.current = '';
+    lastFinalChunkRef.current = '';
+    lastFinalAtRef.current = 0;
     setTranscript('');
     setVoiceTranscript('');
 
     keepListeningRef.current = true;
-    addDiagnosticLog('info', 'SPEECH', 'تشغيل الاستماع الصوتي', 'بدأ الاستماع للإملاء العربي وسيبقى فعالاً حتى يقوم المستخدم بإنهائه.');
+    addDiagnosticLog('info', 'SPEECH', 'تشغيل الاستماع الصوتي', 'بدأ الاستماع الصوتي المستمر حتى يقوم المستخدم بإنهائه.');
     startRecognitionSession();
   };
 
@@ -342,6 +331,12 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
       isUnmountingRef.current = true;
       keepListeningRef.current = false;
       clearSpeechRestartTimer();
+
+      if (stopWaitResolverRef.current) {
+        const resolveStop = stopWaitResolverRef.current;
+        stopWaitResolverRef.current = null;
+        resolveStop();
+      }
 
       if (recognitionRef.current) {
         const currentRecognition = recognitionRef.current;
@@ -359,24 +354,39 @@ const TransactionForm: React.FC<Props> = ({ customers, changeView, activeCustome
     keepListeningRef.current = false;
     clearSpeechRestartTimer();
 
-    if (recognitionRef.current) {
-      try {
-        recognitionRef.current.stop();
-      } catch (e) {}
+    const activeRecognition = recognitionRef.current;
+    if (activeRecognition) {
+      await new Promise<void>((resolve) => {
+        let resolved = false;
+        const finish = () => {
+          if (resolved) return;
+          resolved = true;
+          if (stopWaitResolverRef.current === finish) {
+            stopWaitResolverRef.current = null;
+          }
+          resolve();
+        };
+
+        stopWaitResolverRef.current = finish;
+        window.setTimeout(finish, 900);
+
+        try {
+          activeRecognition.stop();
+        } catch (e) {
+          finish();
+        }
+      });
     }
+
     setListening(false);
 
-    // React state may lag behind the last speech event by one render. Read from
-    // refs so the last interim/final words are never lost when the user taps
-    // "finish and analyze" immediately after speaking.
-    const latestCapturedText = normalizeSpeechText(
-      `${finalTranscriptRef.current} ${interimTranscriptRef.current}`
-    );
+    // Read the ref after recognition has ended so the last final Android result
+    // is included even when React state has not rendered it yet.
     const currentTranscript = normalizeSpeechText(
-      textToProcess !== undefined ? textToProcess : (latestCapturedText || transcript)
+      textToProcess !== undefined ? textToProcess : (finalTranscriptRef.current || transcript)
     );
 
-    if (!currentTranscript) {
+    if (!currentTranscript || !currentTranscript.trim()) {
        showWarning('لم يتم التقاط صوت', 'لم يتم التعرف على أي نص صوتي صالح لتحليله. تحدث بوضوح وحاول مرة أخرى.');
        return;
     }
